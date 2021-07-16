@@ -1,6 +1,6 @@
 # risk
 
-亞東技術學院 資管四B 專題-疾病風險評估
+亞東技術學院 資管四B 疾病風險評估APP
 
 ## Getting Started
 
