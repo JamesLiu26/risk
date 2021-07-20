@@ -46,24 +46,12 @@ Container menu(BuildContext context) {
         menuUnderline(context),
         // -------------------------------
 
-        menuPages(
-            Settings(),
-            Icon(Icons.settings,
-                size: MediaQuery.of(context).size.width * 0.13,
-                color: Color.fromARGB(255, 0, 160, 233)),
-            context,
-            "設定"),
+        menuPages(Settings(), Icons.settings, context, "設定"),
 
         menuUnderline(context),
         // -------------------------------
 
-        menuPages(
-            Login(),
-            Icon(Icons.logout,
-                size: MediaQuery.of(context).size.width * 0.13,
-                color: Color.fromARGB(255, 0, 160, 233)),
-            context,
-            "登出"),
+        menuPages(Login(), Icons.logout, context, "登出"),
         menuUnderline(context),
       ],
     ),
@@ -78,7 +66,7 @@ Container menuUnderline(BuildContext context) {
 }
 
 GestureDetector menuPages(
-    Widget route, Icon icon, BuildContext context, String pageText) {
+    Widget route, IconData icon, BuildContext context, String pageText) {
   return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) => route));
@@ -89,7 +77,11 @@ GestureDetector menuPages(
           color: Colors.transparent,
           child: Row(
             children: [
-              Padding(padding: const EdgeInsets.only(right: 20), child: icon),
+              Padding(
+                  padding: const EdgeInsets.only(right: 20),
+                  child: Icon(icon,
+                      size: MediaQuery.of(context).size.width * 0.13,
+                      color: Color.fromARGB(255, 0, 160, 233))),
               Text(
                 pageText,
                 style: TextStyle(

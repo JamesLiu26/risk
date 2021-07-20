@@ -8,7 +8,12 @@ void main() {
   ));
 }
 
-class SignUp extends StatelessWidget {
+class SignUp extends StatefulWidget {
+  @override
+  _SignUpState createState() => _SignUpState();
+}
+
+class _SignUpState extends State<SignUp> {
   final phone = TextEditingController();
   final name = TextEditingController();
   final password = TextEditingController();

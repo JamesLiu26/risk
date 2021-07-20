@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+
 import './change.dart';
 import './appBar.dart';
 
@@ -25,10 +28,47 @@ class PerQuest extends StatefulWidget {
 }
 
 class _PerQuestState extends State<PerQuest> {
+  // 性別核選框
   static List<String> gender = ["男", "女"];
   String selectGender = gender[0];
+  // 血型核選框
   static List<String> bloodType = ["O", "A", "B", "AB"];
   String selectBloodType = bloodType[0];
+  //生日
+  String birthday = "點選此處選擇生日";
+  int age = 0;
+  DateTime currentDate = DateTime.now();
+  //bmi
+  double bmi = 0;
+  final height = TextEditingController();
+  final weight = TextEditingController();
+  String status = "";
+  // 聯絡資訊
+  final contactAddress = TextEditingController();
+  final contactEmail = TextEditingController();
+  // 緊急聯絡人
+  final emerName = TextEditingController();
+  final emerRelationship = TextEditingController();
+  final emerPhone = TextEditingController();
+  // 家族/過往病史
+  Map familyPast = {
+    "心臟病": false,
+    "高血壓": false,
+    "高血脂": false,
+    "糖尿病": false,
+    "失智症": false,
+    "以上皆無": false
+  };
+  List familyPastKey = [];
+  //不良習慣
+  // "以上皆無": false
+  Map badHabit = {
+    "喝酒": false,
+    "抽菸": false,
+    "熬夜": false,
+    "不運動": false,
+  };
+  List badHabitKey = [];
 
   RadioListTile<String> genderRadio(String text, String value) {
     return RadioListTile(
@@ -38,6 +78,7 @@ class _PerQuestState extends State<PerQuest> {
         onChanged: (currentValue) {
           setState(() {
             selectGender = currentValue.toString();
+            print(selectGender);
           });
         });
   }
@@ -50,13 +91,10 @@ class _PerQuestState extends State<PerQuest> {
         onChanged: (currentValue) {
           setState(() {
             selectBloodType = currentValue.toString();
+            print(selectBloodType);
           });
         });
   }
-
-  String birthday = "點選此處選擇出生日期";
-  int age = 0;
-  DateTime currentDate = DateTime.now();
 
   Future<DateTime?> chooseBirthday() {
     return showDatePicker(
@@ -78,23 +116,15 @@ class _PerQuestState extends State<PerQuest> {
               selectDate.month > currentDate.month) {
             age--;
           }
-          print(currentDate);
         }
       });
     });
   }
 
-  double bmi = 0;
-  final height = TextEditingController();
-  final weight = TextEditingController();
-
-  String status = "";
-
   void bmiCalculator() {
     if ((height.text != "" && weight.text != "")) {
-      bmi = double.parse(weight.text) /
-          ((double.parse(height.text) / 100) *
-              (double.parse(height.text) / 100));
+      bmi = double.parse(weight.text) / pow(double.parse(height.text) / 100, 2);
+
       if (bmi < 18.5) {
         status = "過輕";
       } else if (bmi < 24) {
@@ -112,37 +142,57 @@ class _PerQuestState extends State<PerQuest> {
       bmi = 0;
       status = "";
     }
+    // 取到小數第1位
+    bmi = double.parse(bmi.toStringAsFixed(1));
   }
 
-  TextField cmKg(TextEditingController controller, String label) {
-    return TextField(
-      maxLength: 5,
-      keyboardType: TextInputType.number,
-      decoration: InputDecoration(
-          labelText: label,
-          floatingLabelBehavior: FloatingLabelBehavior.never,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
-      onChanged: (String value) {
-        setState(() {
-          controller.text = value;
-          bmiCalculator();
-        });
-      },
-    );
+  Padding inputCmKg(TextEditingController controller, String label) {
+    return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextField(
+          maxLength: 5,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+              counterText: "",
+              labelText: label,
+              floatingLabelBehavior: FloatingLabelBehavior.never,
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+          onChanged: (String value) {
+            setState(() {
+              controller.text = value;
+              bmiCalculator();
+            });
+          },
+        ));
   }
 
-  bool? drunk = false;
-  bool? smoking = false;
-  bool? stayUp = false;
+  Padding inputContact(TextEditingController controller, String label,
+      TextInputType keyboardStyle) {
+    return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextField(
+          controller: controller,
+          keyboardType: keyboardStyle,
+          decoration: InputDecoration(
+              labelText: label,
+              floatingLabelBehavior: FloatingLabelBehavior.never,
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+          onChanged: (_) {
+            setState(() {});
+          },
+        ));
+  }
 
 // ----
   Text textStyle(String text, [color = Colors.black]) {
     return Text(text,
         style: TextStyle(
-            color: color, fontSize: MediaQuery.of(context).size.width * 0.045));
+            color: color, fontSize: MediaQuery.of(context).size.width * 0.04));
   }
 
-  Container question(Widget child) {
+  Container questionArea(Widget child) {
     return Container(
         width: MediaQuery.of(context).size.width * 0.9,
         margin: EdgeInsets.only(top: 10, bottom: 10),
@@ -151,7 +201,9 @@ class _PerQuestState extends State<PerQuest> {
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
+                color: Colors.black,
                 blurRadius: 3,
+                offset: Offset(2, 1),
               )
             ]),
         child: child);
@@ -161,27 +213,30 @@ class _PerQuestState extends State<PerQuest> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Color(0xff94baf7),
         appBar: appBar("基本資料填寫", Icon(Icons.quiz, color: Colors.blue[800])),
         body: SingleChildScrollView(
-            child: Column(children: [
-          question(
+            child: Center(
+                child: Column(children: [
+          questionArea(
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            textStyle("  性別："),
+            textStyle("\n  性別"),
             genderRadio("男", gender[0]),
             genderRadio("女", gender[1]),
           ])),
           // ----
-          question(
+          questionArea(
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            textStyle("  血型："),
+            textStyle("\n  血型"),
             bloodRadio("O", bloodType[0]),
             bloodRadio("A", bloodType[1]),
             bloodRadio("B", bloodType[2]),
             bloodRadio("AB", bloodType[3]),
           ])),
-          question(
+          // ----
+          questionArea(
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              textStyle("  年齡：$age歲"),
+              textStyle("\n  年齡：$age歲"),
               Padding(
                 padding: const EdgeInsets.all(10),
                 child: OutlinedButton(
@@ -196,59 +251,112 @@ class _PerQuestState extends State<PerQuest> {
             ]),
           ),
           // ----
-          question(Column(
+          questionArea(Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              textStyle("  身高&體重："),
-              textStyle("  BMI：${bmi.toStringAsFixed(1)}  狀態：$status"),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: cmKg(height, "身高"),
+              textStyle("\n  身高&體重"),
+              textStyle("  BMI=" + bmi.toString() + "  狀態：" + status),
+              inputCmKg(height, "身高"),
+              inputCmKg(weight, "體重"),
+            ],
+          )),
+          // ----
+          questionArea(Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              textStyle("\n  聯絡資訊"),
+              inputContact(contactAddress, "通訊地址", TextInputType.text),
+              inputContact(contactEmail, "電子郵件", TextInputType.emailAddress),
+            ],
+          )),
+          // ----
+          questionArea(
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            textStyle("\n  緊急連絡人"),
+            inputContact(emerName, "姓名", TextInputType.text),
+            inputContact(emerRelationship, "關係", TextInputType.text),
+            inputContact(emerPhone, "聯絡電話", TextInputType.phone),
+          ])),
+          // ----
+          questionArea(Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              textStyle("\n  是否有家族/過往病史(若沒有不必勾選)"),
+              Row(
+                children: [
+                  textStyle("  心臟病"),
+                  Checkbox(
+                      value: familyPast["心臟病"],
+                      onChanged: (bool? value) {
+                        setState(() {
+                          familyPast["心臟病"] = value;
+                        });
+                      }),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: cmKg(weight, "體重"),
+              Row(
+                children: [
+                  textStyle("  高血壓"),
+                  Checkbox(
+                      value: familyPast["高血壓"],
+                      onChanged: (bool? value) {
+                        setState(() {
+                          familyPast["高血壓"] = value;
+                        });
+                      }),
+                ],
+              ),
+              Row(
+                children: [
+                  textStyle("  高血脂"),
+                  Checkbox(
+                      value: familyPast["高血脂"],
+                      onChanged: (bool? value) {
+                        setState(() {
+                          familyPast["高血脂"] = value;
+                        });
+                      }),
+                ],
+              ),
+              Row(
+                children: [
+                  textStyle("  糖尿病"),
+                  Checkbox(
+                      value: familyPast["糖尿病"],
+                      onChanged: (bool? value) {
+                        setState(() {
+                          familyPast["糖尿病"] = value;
+                        });
+                      }),
+                ],
+              ),
+              Row(
+                children: [
+                  textStyle("  失智症"),
+                  Checkbox(
+                      value: familyPast["失智症"],
+                      onChanged: (bool? value) {
+                        setState(() {
+                          familyPast["失智症"] = value;
+                        });
+                      }),
+                ],
               ),
             ],
           )),
-          question(Column(
+          // ----
+          questionArea(Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              textStyle("  聯絡電話："), //textfield
-              textStyle("  通訊地址："), //textfield
-            ],
-          )),
-          // ----
-          question(Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              textStyle("  緊急連絡人："), //textfield
-              textStyle("  緊急連絡人電話："), //textfield
-              textStyle("  電子郵件："), //textfield
-            ],
-          )),
-          // ----
-          question(Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [textStyle("  家族病史")],
-          )),
-          question(Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [textStyle("  過往/現在病史")],
-          )),
-          // ----
-          question(Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              textStyle("  不良習慣："),
+              textStyle("\n  是否有以下不良習慣(若沒有不必勾選)"),
               Row(
                 children: [
                   textStyle("  喝酒"),
                   Checkbox(
-                      value: drunk,
+                      value: badHabit["喝酒"],
                       onChanged: (bool? value) {
                         setState(() {
-                          drunk = value;
+                          badHabit["喝酒"] = value;
                         });
                       }),
                 ],
@@ -257,10 +365,10 @@ class _PerQuestState extends State<PerQuest> {
                 children: [
                   textStyle("  抽菸"),
                   Checkbox(
-                      value: smoking,
+                      value: badHabit["抽菸"],
                       onChanged: (bool? value) {
                         setState(() {
-                          smoking = value;
+                          badHabit["抽菸"] = value;
                         });
                       }),
                 ],
@@ -269,10 +377,22 @@ class _PerQuestState extends State<PerQuest> {
                 children: [
                   textStyle("  熬夜"),
                   Checkbox(
-                      value: stayUp,
+                      value: badHabit["熬夜"],
                       onChanged: (bool? value) {
                         setState(() {
-                          stayUp = value;
+                          badHabit["熬夜"] = value;
+                        });
+                      }),
+                ],
+              ),
+              Row(
+                children: [
+                  textStyle("  不運動"),
+                  Checkbox(
+                      value: badHabit["不運動"],
+                      onChanged: (bool? value) {
+                        setState(() {
+                          badHabit["不運動"] = value;
                         });
                       }),
                 ],
@@ -280,22 +400,32 @@ class _PerQuestState extends State<PerQuest> {
             ],
           )),
           // ----
-          TextButton(
-              onPressed: () {
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => Change()));
-              },
-              child: Center(child: textStyle("儲存", Colors.green))),
+          SizedBox(
+              width: MediaQuery.of(context).size.width * 0.3,
+              child: ElevatedButton(
+                  style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.white)),
+                  onPressed: () {
+                    findKey(familyPast, familyPastKey);
+                    findKey(badHabit, badHabitKey);
+                    bmiCalculator();
+
+                    // Navigator.push(
+                    //     context, MaterialPageRoute(builder: (context) => Change()));
+                  },
+                  child: Center(child: textStyle("儲存", Colors.green)))),
           // ----
-        ])));
+        ]))));
   }
 }
 
-/*
-
-
-            Text("家族病史"),
-            Text("過往病史"),
-            //
-            Text("生活習慣"),
-*/
+void findKey(Map map, List a) {
+  a.clear();
+  map.forEach((key, value) {
+    if (value) {
+      a.add(key);
+    }
+  });
+  print(a);
+}

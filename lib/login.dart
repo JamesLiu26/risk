@@ -10,7 +10,12 @@ void main() {
   ));
 }
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
+  @override
+  _LoginState createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
   final phone = TextEditingController();
   final password = TextEditingController();
 
