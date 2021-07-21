@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import './main.dart';
+import './login.dart';
 import './appBar.dart';
 
 void main() {
@@ -17,6 +19,109 @@ class _SignUpState extends State<SignUp> {
   final phone = TextEditingController();
   final name = TextEditingController();
   final password = TextEditingController();
+  bool isPassword = true;
+  String? errorName;
+  String? errorPhone;
+  String? errorPassword;
+
+  void showErrorName(String nameText) {
+    if (nameText.isEmpty || nameText.trim() == "") {
+      errorName = "不可空白！";
+    } else {
+      errorName = null;
+    }
+  }
+
+  void showErrorPhone(String phoneText) {
+    if (phoneText.isEmpty || phoneText.trim() == "") {
+      errorPhone = "不可空白！";
+    } else if (!phoneText.contains(
+        RegExp("\^09[0-9]{8}\$", multiLine: true), 0)) {
+      errorPhone = "行動電話格式不正確！";
+    } else {
+      errorPhone = null;
+    }
+  }
+
+  // 姓名&行動電話輸入框
+  Padding signUpNameAndPhone(
+      TextEditingController data,
+      String labelText,
+      String? hintText,
+      String? errorText,
+      Function(String) showError,
+      TextInputType keyboardStyle) {
+    return Padding(
+        padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+        child: TextField(
+          controller: data,
+          onSubmitted: (String value) {
+            setState(() {
+              showError(value);
+            });
+          },
+          style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.03),
+          decoration: InputDecoration(
+              hintText: hintText,
+              errorText: errorText,
+              errorStyle: TextStyle(fontSize: 14),
+              labelText: labelText,
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)))),
+          keyboardType: keyboardStyle,
+        ));
+  }
+
+  // 顯示密碼
+  IconButton showPasswordIconButton() {
+    return IconButton(
+        onPressed: () {
+          setState(() {
+            if (isPassword) {
+              // 顯示密碼
+              isPassword = false;
+            } else {
+              isPassword = true;
+            }
+          });
+        },
+        icon: Icon(Icons.visibility));
+  }
+
+  void showErrorPassword(String passwordText) {
+    if (passwordText.isEmpty || passwordText.trim() == "") {
+      errorPassword = "不可空白！";
+    } else if (passwordText.length < 6) {
+      errorPassword = "密碼不可小於6個字！";
+    } else {
+      errorPassword = null;
+    }
+  }
+
+  Padding signUpPassword(TextEditingController data, String labelText,
+      String? errorText, Function(String) showError) {
+    return Padding(
+        padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+        child: TextField(
+          controller: data,
+          onSubmitted: (String value) {
+            setState(() {
+              showError(value);
+            });
+          },
+          style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.03),
+          decoration: InputDecoration(
+              errorText: errorText,
+              errorStyle: TextStyle(fontSize: 14),
+              suffixIcon: showPasswordIconButton(),
+              labelText: labelText,
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)))),
+          obscureText: isPassword,
+          obscuringCharacter: "*",
+        ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +130,8 @@ class _SignUpState extends State<SignUp> {
             IconButton(
               icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => Risk()));
               },
             )),
         body: SingleChildScrollView(
@@ -36,11 +142,14 @@ class _SignUpState extends State<SignUp> {
               Column(
                 children: [
                   SizedBox(height: MediaQuery.of(context).size.height * 0.15),
-                  textInputSignUp(name, "姓名", context),
+                  signUpNameAndPhone(name, "姓名", "例：XXX", errorName,
+                      showErrorName, TextInputType.text),
                   //---------------------------------------------------------
-                  textInputSignUp(phone, "行動電話", context),
+                  signUpNameAndPhone(phone, "行動電話", "例：09XXXXXXXX", errorPhone,
+                      showErrorPhone, TextInputType.number),
                   //---------------------------------------------------------
-                  textInputSignUp(password, "密碼", context, true),
+                  signUpPassword(
+                      password, "密碼", errorPassword, showErrorPassword)
                 ],
               ),
               SizedBox(height: 20),
@@ -48,28 +157,23 @@ class _SignUpState extends State<SignUp> {
                   style: ButtonStyle(
                       backgroundColor:
                           MaterialStateProperty.all<Color>(Colors.green)),
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      showErrorName(name.text);
+                      showErrorPhone(phone.text);
+                      showErrorPassword(password.text);
+                    });
+                    if (errorName == null &&
+                        errorPhone == null &&
+                        errorPassword == null) {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => Login()));
+                    }
+                  },
                   child: Text("註冊",
                       style: TextStyle(
                           fontSize:
                               MediaQuery.of(context).size.height * 0.03))),
             ]))));
   }
-}
-
-Padding textInputSignUp(
-    TextEditingController data, String labelText, BuildContext context,
-    [bool isPassword = false]) {
-  return Padding(
-      padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
-      child: TextField(
-        controller: data,
-        style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.03),
-        decoration: InputDecoration(
-            labelText: labelText,
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)))),
-        obscureText: isPassword,
-        obscuringCharacter: "*",
-      ));
 }
