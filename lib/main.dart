@@ -29,15 +29,13 @@ class Risk extends StatelessWidget {
         Text("疾病風險評估",
             style:
                 TextStyle(fontSize: MediaQuery.of(context).size.height * 0.05)),
-        SizedBox(
-          child: Column(
-            children: [
-              signButton("註冊", SignUp(), context),
-              SizedBox(height: 50),
+        Column(
+          children: [
+            signButton("註冊", SignUp(), context),
+            SizedBox(height: 50),
 //-------------------------
-              signButton("登入", Login(), context)
-            ],
-          ),
+            signButton("登入", Login(), context)
+          ],
         ),
       ],
     ))));

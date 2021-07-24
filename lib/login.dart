@@ -139,8 +139,15 @@ class _LoginState extends State<Login> {
                     backgroundColor:
                         MaterialStateProperty.all<Color>(Colors.green)),
                 onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => PerQuest()));
+                  if (errorPhone == null && errorPassword == null) {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => PerQuest()));
+                  } else {
+                    setState(() {
+                      showErrorPhone(phone.text);
+                      showErrorPassword(password.text);
+                    });
+                  }
                 },
                 child: Text("登入",
                     style: TextStyle(

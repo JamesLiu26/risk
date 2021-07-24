@@ -42,6 +42,7 @@ class _PerQuestState extends State<PerQuest> {
   double bmi = 0;
   final height = TextEditingController();
   final weight = TextEditingController();
+
   String status = "";
   // 聯絡資訊
   final contactAddress = TextEditingController();
@@ -57,11 +58,9 @@ class _PerQuestState extends State<PerQuest> {
     "高血脂": false,
     "糖尿病": false,
     "失智症": false,
-    "以上皆無": false
   };
   List familyPastKey = [];
   //不良習慣
-  // "以上皆無": false
   Map badHabit = {
     "喝酒": false,
     "抽菸": false,
@@ -411,8 +410,8 @@ class _PerQuestState extends State<PerQuest> {
                     findKey(badHabit, badHabitKey);
                     bmiCalculator();
 
-                    // Navigator.push(
-                    //     context, MaterialPageRoute(builder: (context) => Change()));
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => Change()));
                   },
                   child: Center(child: textStyle("儲存", Colors.green)))),
           // ----
