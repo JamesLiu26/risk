@@ -42,7 +42,6 @@ class _PerQuestState extends State<PerQuest> {
   double bmi = 0;
   final height = TextEditingController();
   final weight = TextEditingController();
-
   String status = "";
   // 聯絡資訊
   final contactAddress = TextEditingController();
@@ -271,7 +270,7 @@ class _PerQuestState extends State<PerQuest> {
           // ----
           questionArea(
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            textStyle("\n  緊急連絡人"),
+            textStyle("\n  緊急聯絡人"),
             inputContact(emerName, "姓名", TextInputType.text),
             inputContact(emerRelationship, "關係", TextInputType.text),
             inputContact(emerPhone, "聯絡電話", TextInputType.phone),

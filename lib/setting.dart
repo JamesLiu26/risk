@@ -24,11 +24,11 @@ class Settings extends StatelessWidget {
         children: [
           Spacer(flex: 1),
           settingPages(Text("1"), context, "提醒時間"),
-          underline(context),
+          Divider(color: Colors.grey),
           settingPages(Contact(), context, "醫院聯絡方式"),
-          underline(context),
+          Divider(color: Colors.grey),
           settingPages(Text("1"), context, "意見回饋"),
-          underline(context),
+          Divider(color: Colors.grey),
           Spacer(flex: 8)
         ],
       ),
@@ -50,6 +50,7 @@ GestureDetector settingPages(Widget route, BuildContext context, String text) {
         Navigator.push(context, MaterialPageRoute(builder: (context) => route));
       },
       child: Container(
+          margin: EdgeInsets.all(8),
           width: MediaQuery.of(context).size.width,
           color: Colors.transparent,
           child: Row(

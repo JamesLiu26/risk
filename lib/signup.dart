@@ -158,17 +158,16 @@ class _SignUpState extends State<SignUp> {
                       backgroundColor:
                           MaterialStateProperty.all<Color>(Colors.green)),
                   onPressed: () {
+                    setState(() {
+                      showErrorName(name.text);
+                      showErrorPhone(phone.text);
+                      showErrorPassword(password.text);
+                    });
                     if (errorName == null &&
                         errorPhone == null &&
                         errorPassword == null) {
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) => Login()));
-                    } else {
-                      setState(() {
-                        showErrorName(name.text);
-                        showErrorPhone(phone.text);
-                        showErrorPassword(password.text);
-                      });
                     }
                   },
                   child: Text("註冊",

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import './person_data.dart';
 import './setting.dart';
 import './login.dart';
 
@@ -22,13 +23,17 @@ Container menu(BuildContext context) {
               style: TextStyle(
                   fontSize: MediaQuery.of(context).size.height * 0.03)),
         ),
-        menuUnderline(context),
+        Divider(color: Colors.grey),
         // -------------------------------
 
         GestureDetector(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => PersonData()));
+            },
             child: Container(
                 width: MediaQuery.of(context).size.width * 0.7,
+                color: Colors.transparent,
                 margin: EdgeInsets.only(left: 10, top: 10, bottom: 10),
                 child: Row(children: [
                   Padding(
@@ -43,16 +48,16 @@ Container menu(BuildContext context) {
                         fontSize: MediaQuery.of(context).size.width * 0.05),
                   )
                 ]))),
-        menuUnderline(context),
+        Divider(color: Colors.grey),
         // -------------------------------
 
         menuPages(Settings(), Icons.settings, context, "設定"),
 
-        menuUnderline(context),
+        Divider(color: Colors.grey),
         // -------------------------------
 
         menuPages(Login(), Icons.logout, context, "登出"),
-        menuUnderline(context),
+        Divider(color: Colors.grey),
       ],
     ),
   );
