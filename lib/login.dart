@@ -25,8 +25,7 @@ class _LoginState extends State<Login> {
   void showErrorPhone(String phoneText) {
     if (phoneText.isEmpty || phoneText.trim() == "") {
       errorPhone = "不可空白！";
-    } else if (!phoneText.contains(
-        RegExp("\^09[0-9]{8}\$", multiLine: true), 0)) {
+    } else if (!phoneText.contains(RegExp("\^09[0-9]{8}\$"), 0)) {
       errorPhone = "行動電話格式不正確！";
     } else {
       errorPhone = null;
@@ -34,26 +33,25 @@ class _LoginState extends State<Login> {
   }
 
   // 行動電話輸入框
-  Padding loginPhone(TextEditingController data, String labelText,
-      String? hintText, String? errorText, Function(String) showError) {
+  Padding loginPhone(TextEditingController textController, String label,
+      String? hint, String? error, Function(String text) showError) {
     return Padding(
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
         child: TextField(
-          controller: data,
-          onSubmitted: (String value) {
-            setState(() {
-              showError(value);
-            });
-          },
+          controller: textController,
           style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.03),
           decoration: InputDecoration(
-              hintText: hintText,
-              errorText: errorText,
+              labelText: label,
+              hintText: hint,
+              errorText: error,
               errorStyle: TextStyle(fontSize: 14),
-              labelText: labelText,
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)))),
-          keyboardType: TextInputType.number,
+          onChanged: (String str) {
+            setState(() {
+              showError(str);
+            });
+          },
         ));
   }
 
@@ -83,27 +81,27 @@ class _LoginState extends State<Login> {
     }
   }
 
-  Padding loginPassword(TextEditingController data, String labelText,
-      String? errorText, Function(String) showError) {
+  Padding loginPassword(TextEditingController textController, String label,
+      String? error, Function(String text) showError) {
     return Padding(
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
         child: TextField(
-          controller: data,
-          onSubmitted: (String value) {
-            setState(() {
-              showError(value);
-            });
-          },
+          controller: textController,
           style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.03),
           decoration: InputDecoration(
-              errorText: errorText,
+              labelText: label,
+              errorText: error,
               errorStyle: TextStyle(fontSize: 14),
               suffixIcon: showPasswordIconButton(),
-              labelText: labelText,
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)))),
           obscureText: isPassword,
           obscuringCharacter: "*",
+          onChanged: (String str) {
+            setState(() {
+              showError(str);
+            });
+          },
         ));
   }
 
@@ -130,7 +128,7 @@ class _LoginState extends State<Login> {
                 loginPhone(
                     phone, "行動電話", "例：09XXXXXXXX", errorPhone, showErrorPhone),
                 //---------------------------------------------------------
-                loginPassword(password, "密碼", errorPassword, showErrorPassword)
+                loginPassword(password, "密碼", errorPassword, showErrorPassword),
               ],
             ),
             SizedBox(height: 20),

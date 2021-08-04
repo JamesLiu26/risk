@@ -149,7 +149,6 @@ class _PerQuestState extends State<PerQuest> {
         padding: const EdgeInsets.all(8.0),
         child: TextField(
           maxLength: 5,
-          keyboardType: TextInputType.number,
           decoration: InputDecoration(
               counterText: "",
               labelText: label,
@@ -165,15 +164,15 @@ class _PerQuestState extends State<PerQuest> {
         ));
   }
 
-  Padding inputContact(TextEditingController controller, String label,
-      TextInputType keyboardStyle) {
+  Padding inputContact(
+      TextEditingController controller, String label, String? hint) {
     return Padding(
         padding: const EdgeInsets.all(8.0),
         child: TextField(
           controller: controller,
-          keyboardType: keyboardStyle,
           decoration: InputDecoration(
               labelText: label,
+              hintText: hint,
               floatingLabelBehavior: FloatingLabelBehavior.never,
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
@@ -263,17 +262,17 @@ class _PerQuestState extends State<PerQuest> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               textStyle("\n  聯絡資訊"),
-              inputContact(contactAddress, "通訊地址", TextInputType.text),
-              inputContact(contactEmail, "電子郵件", TextInputType.emailAddress),
+              inputContact(contactAddress, "通訊地址", "XX市XX路..."),
+              inputContact(contactEmail, "電子郵件", "Google、Yahoo、OneDrive..."),
             ],
           )),
           // ----
           questionArea(
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             textStyle("\n  緊急聯絡人"),
-            inputContact(emerName, "姓名", TextInputType.text),
-            inputContact(emerRelationship, "關係", TextInputType.text),
-            inputContact(emerPhone, "聯絡電話", TextInputType.phone),
+            inputContact(emerName, "姓名", null),
+            inputContact(emerRelationship, "關係", null),
+            inputContact(emerPhone, "聯絡電話", "例：09XXXXXXXX"),
           ])),
           // ----
           questionArea(Column(
