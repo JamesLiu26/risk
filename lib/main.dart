@@ -22,23 +22,33 @@ class Risk extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Container(
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    colors: [
+                      Color(0xFF00A09A),
+                      Colors.white,
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: [0.3, 1])),
             child: Center(
                 child: Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Text("疾病風險評估",
-            style:
-                TextStyle(fontSize: MediaQuery.of(context).size.height * 0.05)),
-        Column(
-          children: [
-            signButton("註冊", SignUp(), context),
-            SizedBox(height: 50),
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text("疾病風險評估",
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height * 0.05,
+                        color: Colors.white)),
+                Column(
+                  children: [
+                    signButton("註冊", SignUp(), context),
+                    SizedBox(height: 50),
 //-------------------------
-            signButton("登入", Login(), context)
-          ],
-        ),
-      ],
-    ))));
+                    signButton("登入", Login(), context)
+                  ],
+                ),
+              ],
+            ))));
   }
 }
 

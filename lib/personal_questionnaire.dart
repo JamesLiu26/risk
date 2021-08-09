@@ -19,6 +19,7 @@ void main() {
   return runApp(MaterialApp(
     home: PerQuest(),
     debugShowCheckedModeBanner: false,
+    theme: ThemeData(accentColor: Colors.green),
   ));
 }
 
@@ -51,26 +52,32 @@ class _PerQuestState extends State<PerQuest> {
   final emerRelationship = TextEditingController();
   final emerPhone = TextEditingController();
   // 家族/過往病史
-  Map familyPast = {
-    "心臟病": false,
-    "高血壓": false,
-    "高血脂": false,
-    "糖尿病": false,
-    "失智症": false,
-  };
-  List familyPastKey = [];
-  //不良習慣
-  Map badHabit = {
+  static List<String> diabeteHistory = ["有", "無"];
+  String selectHistory = diabeteHistory[1];
+  //不良習慣或情形發生
+  Map<String?, bool?> badHabit = {
     "喝酒": false,
     "抽菸": false,
     "熬夜": false,
-    "不運動": false,
+    "頻尿": false,
+    "視力退化": false
   };
   List badHabitKey = [];
 
-  RadioListTile<String> genderRadio(String text, String value) {
+  // 文字樣式----
+  Text textStyle(String text, [color = Colors.black]) {
+    return Text(text,
+        style: TextStyle(
+          color: color,
+          fontSize: MediaQuery.of(context).size.width * 0.04,
+          letterSpacing: 1,
+        ));
+  }
+
+  // 性別radio buttons
+  RadioListTile<String> genderRadio(String value) {
     return RadioListTile(
-        title: textStyle(text),
+        title: textStyle(value),
         value: value,
         groupValue: selectGender,
         onChanged: (currentValue) {
@@ -81,9 +88,10 @@ class _PerQuestState extends State<PerQuest> {
         });
   }
 
-  RadioListTile<String> bloodRadio(String text, String value) {
+  // 血型radio buttons
+  RadioListTile<String> bloodRadio(String value) {
     return RadioListTile(
-        title: textStyle(text),
+        title: textStyle(value),
         value: value,
         groupValue: selectBloodType,
         onChanged: (currentValue) {
@@ -94,6 +102,7 @@ class _PerQuestState extends State<PerQuest> {
         });
   }
 
+  // 日期選擇(生日)
   Future<DateTime?> chooseBirthday() {
     return showDatePicker(
       initialDatePickerMode: DatePickerMode.year,
@@ -119,6 +128,7 @@ class _PerQuestState extends State<PerQuest> {
     });
   }
 
+  // bmi計算
   void bmiCalculator() {
     if ((height.text != "" && weight.text != "")) {
       bmi = double.parse(weight.text) / pow(double.parse(height.text) / 100, 2);
@@ -144,6 +154,7 @@ class _PerQuestState extends State<PerQuest> {
     bmi = double.parse(bmi.toStringAsFixed(1));
   }
 
+  // 身高體重輸入框
   Padding inputCmKg(TextEditingController controller, String label) {
     return Padding(
         padding: const EdgeInsets.all(8.0),
@@ -164,6 +175,7 @@ class _PerQuestState extends State<PerQuest> {
         ));
   }
 
+  // 聯絡輸入框
   Padding inputContact(
       TextEditingController controller, String label, String? hint) {
     return Padding(
@@ -182,11 +194,17 @@ class _PerQuestState extends State<PerQuest> {
         ));
   }
 
-// ----
-  Text textStyle(String text, [color = Colors.black]) {
-    return Text(text,
-        style: TextStyle(
-            color: color, fontSize: MediaQuery.of(context).size.width * 0.04));
+  RadioListTile historyRadio(String value) {
+    return RadioListTile(
+        title: textStyle(value),
+        value: value,
+        groupValue: selectHistory,
+        onChanged: (currentValue) {
+          setState(() {
+            selectHistory = currentValue;
+            print(selectHistory);
+          });
+        });
   }
 
   Container questionArea(Widget child) {
@@ -199,8 +217,8 @@ class _PerQuestState extends State<PerQuest> {
             boxShadow: [
               BoxShadow(
                 color: Colors.black,
-                blurRadius: 3,
-                offset: Offset(2, 1),
+                blurRadius: 4,
+                offset: Offset(2, 2),
               )
             ]),
         child: child);
@@ -210,7 +228,7 @@ class _PerQuestState extends State<PerQuest> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Color(0xff94baf7),
+        backgroundColor: Color(0xFF00A09A),
         appBar: appBar("基本資料填寫", Icon(Icons.quiz, color: Colors.blue[800])),
         body: SingleChildScrollView(
             child: Center(
@@ -218,36 +236,45 @@ class _PerQuestState extends State<PerQuest> {
           questionArea(
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             textStyle("\n  性別"),
-            genderRadio("男", gender[0]),
-            genderRadio("女", gender[1]),
+            genderRadio(gender[0]),
+            genderRadio(gender[1]),
           ])),
+
           // ----
+          // ----
+          // ----
+
           questionArea(
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             textStyle("\n  血型"),
-            bloodRadio("O", bloodType[0]),
-            bloodRadio("A", bloodType[1]),
-            bloodRadio("B", bloodType[2]),
-            bloodRadio("AB", bloodType[3]),
+            bloodRadio(bloodType[0]),
+            bloodRadio(bloodType[1]),
+            bloodRadio(bloodType[2]),
+            bloodRadio(bloodType[3]),
           ])),
+
           // ----
+          // ----
+          // ----
+
           questionArea(
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               textStyle("\n  年齡：$age歲"),
               Padding(
                 padding: const EdgeInsets.all(10),
-                child: OutlinedButton(
-                    style: ButtonStyle(
-                        side: MaterialStateProperty.all<BorderSide>(
-                            BorderSide(color: Colors.grey))),
+                child: ElevatedButton(
                     onPressed: () async {
                       await chooseBirthday();
                     },
-                    child: textStyle(birthday)),
+                    child: textStyle(birthday, Color(0xffffffff))),
               )
             ]),
           ),
+
           // ----
+          // ----
+          // ----
+
           questionArea(Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -257,16 +284,24 @@ class _PerQuestState extends State<PerQuest> {
               inputCmKg(weight, "體重"),
             ],
           )),
+
           // ----
+          // ----
+          // ----
+
           questionArea(Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               textStyle("\n  聯絡資訊"),
-              inputContact(contactAddress, "通訊地址", "XX市XX路..."),
-              inputContact(contactEmail, "電子郵件", "Google、Yahoo、OneDrive..."),
+              inputContact(contactAddress, "通訊地址", "例：XX市XX路..."),
+              inputContact(contactEmail, "電子郵件", "Google, Yahoo, OneDrive..."),
             ],
           )),
+
           // ----
+          // ----
+          // ----
+
           questionArea(
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             textStyle("\n  緊急聯絡人"),
@@ -274,78 +309,26 @@ class _PerQuestState extends State<PerQuest> {
             inputContact(emerRelationship, "關係", null),
             inputContact(emerPhone, "聯絡電話", "例：09XXXXXXXX"),
           ])),
+
           // ----
+          // ----
+          // ----
+
+          questionArea(
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            textStyle("\n  是否有糖尿病家族/過往病史"),
+            historyRadio(diabeteHistory[0]),
+            historyRadio(diabeteHistory[1])
+          ])),
+
+          // ----
+          // ----
+          // ----
+
           questionArea(Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              textStyle("\n  是否有家族/過往病史(若沒有不必勾選)"),
-              Row(
-                children: [
-                  textStyle("  心臟病"),
-                  Checkbox(
-                      value: familyPast["心臟病"],
-                      onChanged: (bool? value) {
-                        setState(() {
-                          familyPast["心臟病"] = value;
-                        });
-                      }),
-                ],
-              ),
-              Row(
-                children: [
-                  textStyle("  高血壓"),
-                  Checkbox(
-                      value: familyPast["高血壓"],
-                      onChanged: (bool? value) {
-                        setState(() {
-                          familyPast["高血壓"] = value;
-                        });
-                      }),
-                ],
-              ),
-              Row(
-                children: [
-                  textStyle("  高血脂"),
-                  Checkbox(
-                      value: familyPast["高血脂"],
-                      onChanged: (bool? value) {
-                        setState(() {
-                          familyPast["高血脂"] = value;
-                        });
-                      }),
-                ],
-              ),
-              Row(
-                children: [
-                  textStyle("  糖尿病"),
-                  Checkbox(
-                      value: familyPast["糖尿病"],
-                      onChanged: (bool? value) {
-                        setState(() {
-                          familyPast["糖尿病"] = value;
-                        });
-                      }),
-                ],
-              ),
-              Row(
-                children: [
-                  textStyle("  失智症"),
-                  Checkbox(
-                      value: familyPast["失智症"],
-                      onChanged: (bool? value) {
-                        setState(() {
-                          familyPast["失智症"] = value;
-                        });
-                      }),
-                ],
-              ),
-            ],
-          )),
-          // ----
-          questionArea(Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              textStyle("\n  是否有以下不良習慣(若沒有不必勾選)"),
+              textStyle("\n  是否有以下不良習慣或情形發生\n  (若沒有不必勾選)"),
               Row(
                 children: [
                   textStyle("  喝酒"),
@@ -384,19 +367,35 @@ class _PerQuestState extends State<PerQuest> {
               ),
               Row(
                 children: [
-                  textStyle("  不運動"),
+                  textStyle("  頻尿"),
                   Checkbox(
-                      value: badHabit["不運動"],
+                      value: badHabit["頻尿"],
                       onChanged: (bool? value) {
                         setState(() {
-                          badHabit["不運動"] = value;
+                          badHabit["頻尿"] = value;
+                        });
+                      }),
+                ],
+              ),
+              Row(
+                children: [
+                  textStyle("  視力退化"),
+                  Checkbox(
+                      value: badHabit["視力退化"],
+                      onChanged: (bool? value) {
+                        setState(() {
+                          badHabit["視力退化"] = value;
                         });
                       }),
                 ],
               ),
             ],
           )),
+
           // ----
+          // ----
+          // ----
+
           SizedBox(
               width: MediaQuery.of(context).size.width * 0.3,
               child: ElevatedButton(
@@ -404,8 +403,7 @@ class _PerQuestState extends State<PerQuest> {
                       backgroundColor:
                           MaterialStateProperty.all<Color>(Colors.white)),
                   onPressed: () {
-                    findKey(familyPast, familyPastKey);
-                    findKey(badHabit, badHabitKey);
+                    findBadhabit(badHabit, badHabitKey);
                     bmiCalculator();
 
                     Navigator.push(context,
@@ -417,7 +415,7 @@ class _PerQuestState extends State<PerQuest> {
   }
 }
 
-void findKey(Map map, List a) {
+void findBadhabit(Map map, List a) {
   a.clear();
   map.forEach((key, value) {
     if (value) {

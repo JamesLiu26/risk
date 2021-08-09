@@ -105,6 +105,7 @@ class _SignUpState extends State<SignUp> {
               suffixIcon: showPasswordIconButton(),
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)))),
+          // 是否顯示密碼
           obscureText: isPassword,
           obscuringCharacter: "*",
           onChanged: (String str) {
