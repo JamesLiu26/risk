@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import './questionnaire.dart';
 
 import './appBar.dart';
 import './menu.dart';
@@ -38,15 +39,15 @@ class HomeState extends State<Home> {
             // -----------------------
 
             Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-              homeRoute("線上掛號", context, "images/放大.png"),
-              homeRoute("問卷填寫", context, "images/問卷.png"),
+              homeRoute("線上掛號", context, "images/放大.png", Text("")),
+              homeRoute("問卷填寫", context, "images/問卷.png", Question()),
             ]),
             SizedBox(height: 20),
 
             // -----------------------
             Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-              homeRoute("醫師洽談", context, "images/醫師談.png"),
-              homeRoute("飲食紀錄", context, "images/餐具.png"),
+              homeRoute("醫師洽談", context, "images/醫師談.png", Text("")),
+              homeRoute("飲食紀錄", context, "images/餐具.png", Text("")),
             ]),
           ]),
         ));
@@ -54,7 +55,7 @@ class HomeState extends State<Home> {
 }
 
 GestureDetector homeRoute(
-    String text, BuildContext context, String imageAsset) {
+    String text, BuildContext context, String imageAsset, Widget route) {
   return GestureDetector(
     child: Stack(alignment: AlignmentDirectional.center, children: [
       Image.asset(imageAsset,
@@ -72,7 +73,7 @@ GestureDetector homeRoute(
               fontSize: MediaQuery.of(context).size.height * 0.025))
     ]),
     onTap: () {
-      // Navigator.push(context, MaterialPageRoute(builder: (context)=>route));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => route));
     },
   );
 }
