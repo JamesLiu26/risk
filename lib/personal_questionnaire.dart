@@ -19,7 +19,6 @@ void main() {
   return runApp(MaterialApp(
     home: PerQuest(),
     debugShowCheckedModeBanner: false,
-    theme: ThemeData(accentColor: Colors.green),
   ));
 }
 
@@ -39,6 +38,8 @@ class _PerQuestState extends State<PerQuest> {
   String birthday = "點選此處選擇生日";
   int age = 0;
   DateTime currentDate = DateTime.now();
+  MaterialStateProperty<Color> birthButtonColor =
+      MaterialStateProperty.all<Color>(Colors.lightBlue);
   //bmi
   double bmi = 0;
   final height = TextEditingController();
@@ -55,14 +56,12 @@ class _PerQuestState extends State<PerQuest> {
   static List<String> diabeteHistory = ["有", "無"];
   String selectHistory = diabeteHistory[1];
   //不良習慣或情形發生
-  Map<String?, bool?> badHabit = {
-    "喝酒": false,
-    "抽菸": false,
-    "熬夜": false,
-    "頻尿": false,
-    "視力退化": false
-  };
-  List badHabitKey = [];
+
+  // "喝酒"
+  // "抽菸"
+  // "熬夜"
+  // "頻尿"
+  // "視力退化"
 
   // 文字樣式----
   Text textStyle(String text, [color = Colors.black]) {
@@ -123,6 +122,8 @@ class _PerQuestState extends State<PerQuest> {
               selectDate.month > currentDate.month) {
             age--;
           }
+          birthButtonColor =
+              MaterialStateProperty.all<Color>(Color(0xFF1565C0));
         }
       });
     });
@@ -185,6 +186,7 @@ class _PerQuestState extends State<PerQuest> {
           decoration: InputDecoration(
               labelText: label,
               hintText: hint,
+              // float字的動畫取消
               floatingLabelBehavior: FloatingLabelBehavior.never,
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
@@ -216,9 +218,9 @@ class _PerQuestState extends State<PerQuest> {
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
-                color: Colors.black,
+                color: Color(0x5F000000),
                 blurRadius: 4,
-                offset: Offset(2, 2),
+                offset: Offset(3, 10),
               )
             ]),
         child: child);
@@ -228,199 +230,136 @@ class _PerQuestState extends State<PerQuest> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Color(0xFF00A09A),
+        backgroundColor: Color(0xFFF5DEB3),
         appBar: appBar("基本資料填寫", Icon(Icons.quiz, color: Colors.blue[800])),
         body: SingleChildScrollView(
             child: Center(
-                child: Column(children: [
-          questionArea(
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            textStyle("\n  性別"),
-            genderRadio(gender[0]),
-            genderRadio(gender[1]),
-          ])),
+                child: Theme(
+                    // 更改radio顏色
+                    data: ThemeData(
+                        accentColor: Color(0xFF1565C0),
+                        unselectedWidgetColor: Colors.lightBlue),
+                    child: Column(children: [
+                      questionArea(Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            textStyle("\n  性別"),
+                            genderRadio(gender[0]),
+                            genderRadio(gender[1]),
+                          ])),
 
-          // ----
-          // ----
-          // ----
+                      // ----
+                      // ----
+                      // ----
 
-          questionArea(
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            textStyle("\n  血型"),
-            bloodRadio(bloodType[0]),
-            bloodRadio(bloodType[1]),
-            bloodRadio(bloodType[2]),
-            bloodRadio(bloodType[3]),
-          ])),
+                      questionArea(Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            textStyle("\n  血型"),
+                            bloodRadio(bloodType[0]),
+                            bloodRadio(bloodType[1]),
+                            bloodRadio(bloodType[2]),
+                            bloodRadio(bloodType[3]),
+                          ])),
 
-          // ----
-          // ----
-          // ----
+                      // ----
+                      // ----
+                      // ----
 
-          questionArea(
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              textStyle("\n  年齡：$age歲"),
-              Padding(
-                padding: const EdgeInsets.all(10),
-                child: ElevatedButton(
-                    onPressed: () async {
-                      await chooseBirthday();
-                    },
-                    child: textStyle(birthday, Color(0xffffffff))),
-              )
-            ]),
-          ),
+                      questionArea(
+                        Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              textStyle("\n  年齡：$age歲"),
+                              Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: ElevatedButton(
+                                    style: ButtonStyle(
+                                        backgroundColor: birthButtonColor),
+                                    onPressed: () async {
+                                      await chooseBirthday();
+                                    },
+                                    child:
+                                        textStyle(birthday, Color(0xffffffff))),
+                              )
+                            ]),
+                      ),
 
-          // ----
-          // ----
-          // ----
+                      // ----
+                      // ----
+                      // ----
 
-          questionArea(Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              textStyle("\n  身高&體重"),
-              textStyle("  BMI=" + bmi.toString() + "  狀態：" + status),
-              inputCmKg(height, "身高"),
-              inputCmKg(weight, "體重"),
-            ],
-          )),
+                      questionArea(Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          textStyle("\n  身高&體重"),
+                          textStyle(
+                              "  BMI=" + bmi.toString() + "  狀態：" + status),
+                          inputCmKg(height, "身高"),
+                          inputCmKg(weight, "體重"),
+                        ],
+                      )),
 
-          // ----
-          // ----
-          // ----
+                      // ----
+                      // ----
+                      // ----
 
-          questionArea(Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              textStyle("\n  聯絡資訊"),
-              inputContact(contactAddress, "通訊地址", "例：XX市XX路..."),
-              inputContact(contactEmail, "電子郵件", "Google, Yahoo, OneDrive..."),
-            ],
-          )),
+                      questionArea(Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          textStyle("\n  聯絡資訊"),
+                          inputContact(contactAddress, "通訊地址", "例：XX市XX路..."),
+                          inputContact(contactEmail, "電子郵件",
+                              "Google, Yahoo, OneDrive..."),
+                        ],
+                      )),
 
-          // ----
-          // ----
-          // ----
+                      // ----
+                      // ----
+                      // ----
 
-          questionArea(
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            textStyle("\n  緊急聯絡人"),
-            inputContact(emerName, "姓名", null),
-            inputContact(emerRelationship, "關係", null),
-            inputContact(emerPhone, "聯絡電話", "例：09XXXXXXXX"),
-          ])),
+                      questionArea(Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            textStyle("\n  緊急聯絡人"),
+                            inputContact(emerName, "姓名", null),
+                            inputContact(emerRelationship, "關係", null),
+                            inputContact(emerPhone, "聯絡電話", "例：09XXXXXXXX"),
+                          ])),
 
-          // ----
-          // ----
-          // ----
+                      // ----
+                      // ----
+                      // ----
 
-          questionArea(
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            textStyle("\n  是否有糖尿病家族/過往病史"),
-            historyRadio(diabeteHistory[0]),
-            historyRadio(diabeteHistory[1])
-          ])),
+                      questionArea(Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            textStyle("\n  是否有糖尿病家族/過往病史"),
+                            historyRadio(diabeteHistory[0]),
+                            historyRadio(diabeteHistory[1])
+                          ])),
 
-          // ----
-          // ----
-          // ----
+                      // ----
+                      // ----
+                      // ----
 
-          questionArea(Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              textStyle("\n  是否有以下不良習慣或情形發生\n  (若沒有不必勾選)"),
-              Row(
-                children: [
-                  textStyle("  喝酒"),
-                  Checkbox(
-                      value: badHabit["喝酒"],
-                      onChanged: (bool? value) {
-                        setState(() {
-                          badHabit["喝酒"] = value;
-                        });
-                      }),
-                ],
-              ),
-              Row(
-                children: [
-                  textStyle("  抽菸"),
-                  Checkbox(
-                      value: badHabit["抽菸"],
-                      onChanged: (bool? value) {
-                        setState(() {
-                          badHabit["抽菸"] = value;
-                        });
-                      }),
-                ],
-              ),
-              Row(
-                children: [
-                  textStyle("  熬夜"),
-                  Checkbox(
-                      value: badHabit["熬夜"],
-                      onChanged: (bool? value) {
-                        setState(() {
-                          badHabit["熬夜"] = value;
-                        });
-                      }),
-                ],
-              ),
-              Row(
-                children: [
-                  textStyle("  頻尿"),
-                  Checkbox(
-                      value: badHabit["頻尿"],
-                      onChanged: (bool? value) {
-                        setState(() {
-                          badHabit["頻尿"] = value;
-                        });
-                      }),
-                ],
-              ),
-              Row(
-                children: [
-                  textStyle("  視力退化"),
-                  Checkbox(
-                      value: badHabit["視力退化"],
-                      onChanged: (bool? value) {
-                        setState(() {
-                          badHabit["視力退化"] = value;
-                        });
-                      }),
-                ],
-              ),
-            ],
-          )),
-
-          // ----
-          // ----
-          // ----
-
-          SizedBox(
-              width: MediaQuery.of(context).size.width * 0.3,
-              child: ElevatedButton(
-                  style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white)),
-                  onPressed: () {
-                    findBadhabit(badHabit, badHabitKey);
-                    bmiCalculator();
-
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => Change()));
-                  },
-                  child: Center(child: textStyle("儲存", Colors.green)))),
-          // ----
-        ]))));
+                      SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.3,
+                          child: ElevatedButton(
+                              style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          Colors.white)),
+                              onPressed: () {
+                                bmiCalculator();
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Change()));
+                              },
+                              child: Center(
+                                  child: textStyle("儲存", Colors.green)))),
+                      // ----
+                    ])))));
   }
-}
-
-void findBadhabit(Map map, List a) {
-  a.clear();
-  map.forEach((key, value) {
-    if (value) {
-      a.add(key);
-    }
-  });
-  print(a);
 }

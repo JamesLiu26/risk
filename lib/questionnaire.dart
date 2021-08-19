@@ -74,14 +74,14 @@ class _FirstPageState extends State<FirstPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar(
-          "問卷填寫",
-          IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
-          )),
-    );
+        appBar: appBar(
+            "問卷填寫",
+            IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
+            )),
+        body: Column());
   }
 }
