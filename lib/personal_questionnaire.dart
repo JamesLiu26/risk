@@ -27,12 +27,13 @@ class PerQuest extends StatefulWidget {
   _PerQuestState createState() => _PerQuestState();
 }
 
+List<String> gender = ["男", "女"];
+List<String> bloodType = ["O", "A", "B", "AB"];
+
 class _PerQuestState extends State<PerQuest> {
   // 性別核選框
-  static List<String> gender = ["男", "女"];
   String selectGender = gender[0];
   // 血型核選框
-  static List<String> bloodType = ["O", "A", "B", "AB"];
   String selectBloodType = bloodType[0];
   //生日
   String birthday = "點選此處選擇生日";

@@ -11,82 +11,71 @@ Builder menuButton() {
 }
 
 Container menu(BuildContext context) {
+  Size size = MediaQuery.of(context).size;
   return Container(
     color: Colors.white,
-    height: MediaQuery.of(context).size.height,
-    width: MediaQuery.of(context).size.width * 0.7,
+    height: size.height,
+    width: size.width * 0.7,
     child: Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 50, bottom: 8),
-          child: Text("XXX先生，您好",
-              style: TextStyle(
-                  fontSize: MediaQuery.of(context).size.height * 0.03)),
-        ),
-        Divider(color: Colors.grey),
-        // -------------------------------
-
-        GestureDetector(
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => PersonData()));
-            },
-            child: Container(
-                width: MediaQuery.of(context).size.width * 0.7,
-                color: Colors.transparent,
-                margin: EdgeInsets.only(left: 10, top: 10, bottom: 10),
-                child: Row(children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 15),
-                    child: Image.asset("images/個人資料.png",
-                        height: MediaQuery.of(context).size.width * 0.13,
-                        width: MediaQuery.of(context).size.width * 0.14),
-                  ),
-                  Text(
-                    "個人資料",
-                    style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.width * 0.05),
-                  )
-                ]))),
-        Divider(color: Colors.grey),
-        // -------------------------------
-
-        menuPages(Settings(), Icons.settings, context, "設定"),
+        SafeArea(
+            child: Text(
+          "\nXXX5454545\n先生",
+          style: TextStyle(fontSize: size.width * 0.045),
+          textAlign: TextAlign.center,
+        )),
 
         Divider(color: Colors.grey),
         // -------------------------------
 
-        menuPages(Login(), Icons.logout, context, "登出"),
+        menuPages(
+            PersonData(),
+            Image.asset("images/個人資料.png",
+                height: size.width * 0.13, width: size.width * 0.14),
+            context,
+            "個人資料",
+            15),
+        Divider(color: Colors.grey),
+        // -------------------------------
+
+        menuPages(
+            Settings(),
+            Icon(Icons.settings,
+                size: size.width * 0.13,
+                color: Color.fromARGB(255, 0, 160, 233)),
+            context,
+            "設定"),
+
+        Divider(color: Colors.grey),
+        // -------------------------------
+
+        menuPages(
+            Login(),
+            Icon(Icons.run_circle,
+                size: size.width * 0.13,
+                color: Color.fromARGB(255, 0, 160, 233)),
+            context,
+            "登出"),
         Divider(color: Colors.grey),
       ],
     ),
   );
 }
 
-Container menuUnderline(BuildContext context) {
-  return Container(
-      height: 1,
-      width: MediaQuery.of(context).size.width * 0.7,
-      decoration: BoxDecoration(color: Colors.grey[300]));
-}
-
 GestureDetector menuPages(
-    Widget route, IconData icon, BuildContext context, String pageText) {
+    Widget route, Widget image, BuildContext context, String pageText,
+    [double padding = 20]) {
   return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) => route));
       },
       child: Container(
           width: MediaQuery.of(context).size.width * 0.7,
-          margin: EdgeInsets.only(left: 10, top: 10, bottom: 10),
+          margin: EdgeInsets.only(left: 10),
           color: Colors.transparent,
           child: Row(
             children: [
-              Padding(
-                  padding: const EdgeInsets.only(right: 20),
-                  child: Icon(icon,
-                      size: MediaQuery.of(context).size.width * 0.13,
-                      color: Color.fromARGB(255, 0, 160, 233))),
+              Padding(padding: EdgeInsets.only(right: padding), child: image),
               Text(
                 pageText,
                 style: TextStyle(

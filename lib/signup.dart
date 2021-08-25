@@ -49,7 +49,7 @@ class _SignUpState extends State<SignUp> {
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
         child: TextField(
           controller: textController,
-          style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.03),
+          style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.06),
           decoration: InputDecoration(
               labelText: label,
               hintText: hint,
@@ -97,7 +97,7 @@ class _SignUpState extends State<SignUp> {
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
         child: TextField(
           controller: textController,
-          style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.03),
+          style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.06),
           decoration: InputDecoration(
               labelText: label,
               errorText: error,
@@ -166,8 +166,7 @@ class _SignUpState extends State<SignUp> {
                   },
                   child: Text("註冊",
                       style: TextStyle(
-                          fontSize:
-                              MediaQuery.of(context).size.height * 0.03))),
+                          fontSize: MediaQuery.of(context).size.width * 0.06))),
             ]))));
   }
 }

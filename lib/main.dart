@@ -22,22 +22,14 @@ class Risk extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Container(
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    colors: [
-                      Color(0xFF00A09A),
-                      Colors.white,
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: [0.3, 1])),
+            decoration: BoxDecoration(gradient: linearGradient()),
             child: Center(
                 child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text("疾病風險評估",
                     style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.height * 0.05,
+                        fontSize: MediaQuery.of(context).size.width * 0.1,
                         color: Colors.white)),
                 Column(
                   children: [
@@ -61,5 +53,16 @@ ElevatedButton signButton(text, Widget route, BuildContext context) {
       },
       child: Text(text,
           style:
-              TextStyle(fontSize: MediaQuery.of(context).size.height * 0.03)));
+              TextStyle(fontSize: MediaQuery.of(context).size.width * 0.06)));
+}
+
+LinearGradient linearGradient() {
+  return LinearGradient(
+      colors: [
+        Color(0xFF00A09A),
+        Colors.white,
+      ],
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      stops: [0.3, 1]);
 }

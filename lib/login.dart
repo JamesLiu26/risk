@@ -39,7 +39,7 @@ class _LoginState extends State<Login> {
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
         child: TextField(
           controller: textController,
-          style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.03),
+          style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.06),
           decoration: InputDecoration(
               labelText: label,
               hintText: hint,
@@ -87,7 +87,7 @@ class _LoginState extends State<Login> {
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
         child: TextField(
           controller: textController,
-          style: TextStyle(fontSize: MediaQuery.of(context).size.height * 0.03),
+          style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.06),
           decoration: InputDecoration(
               labelText: label,
               errorText: error,
@@ -149,7 +149,7 @@ class _LoginState extends State<Login> {
                 },
                 child: Text("登入",
                     style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.height * 0.03))),
+                        fontSize: MediaQuery.of(context).size.width * 0.06))),
           ]))),
     );
   }
