@@ -11,17 +11,18 @@ Builder menuButton() {
 }
 
 Container menu(BuildContext context) {
-  Size size = MediaQuery.of(context).size;
+  double sizeHeight = MediaQuery.of(context).size.height;
+  double sizeWidth = MediaQuery.of(context).size.width;
   return Container(
     color: Colors.white,
-    height: size.height,
-    width: size.width * 0.7,
+    height: sizeHeight,
+    width: sizeWidth * 0.7,
     child: Column(
       children: [
         SafeArea(
             child: Text(
           "\nXXX5454545\n先生",
-          style: TextStyle(fontSize: size.width * 0.045),
+          style: TextStyle(fontSize: sizeWidth * 0.045),
           textAlign: TextAlign.center,
         )),
 
@@ -31,7 +32,7 @@ Container menu(BuildContext context) {
         menuPages(
             PersonData(),
             Image.asset("images/個人資料.png",
-                height: size.width * 0.13, width: size.width * 0.14),
+                height: sizeWidth * 0.13, width: sizeWidth * 0.14),
             context,
             "個人資料",
             15),
@@ -41,7 +42,7 @@ Container menu(BuildContext context) {
         menuPages(
             Settings(),
             Icon(Icons.settings,
-                size: size.width * 0.13,
+                size: sizeWidth * 0.13,
                 color: Color.fromARGB(255, 0, 160, 233)),
             context,
             "設定"),
@@ -52,7 +53,7 @@ Container menu(BuildContext context) {
         menuPages(
             Login(),
             Icon(Icons.run_circle,
-                size: size.width * 0.13,
+                size: sizeWidth * 0.13,
                 color: Color.fromARGB(255, 0, 160, 233)),
             context,
             "登出"),

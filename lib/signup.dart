@@ -44,7 +44,7 @@ class _SignUpState extends State<SignUp> {
 
   // 姓名&行動電話輸入框
   Padding signUpNameAndPhone(TextEditingController textController, String label,
-      String? hint, String? error, Function(String text) showError) {
+      String? hint, String? error) {
     return Padding(
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
         child: TextField(
@@ -57,11 +57,6 @@ class _SignUpState extends State<SignUp> {
               errorStyle: TextStyle(fontSize: 14),
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)))),
-          onChanged: (String str) {
-            setState(() {
-              showError(str);
-            });
-          },
         ));
   }
 
@@ -91,8 +86,8 @@ class _SignUpState extends State<SignUp> {
     }
   }
 
-  Padding signUpPassword(TextEditingController textController, String label,
-      String? error, Function(String text) showError) {
+  Padding signUpPassword(
+      TextEditingController textController, String label, String? error) {
     return Padding(
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
         child: TextField(
@@ -108,11 +103,6 @@ class _SignUpState extends State<SignUp> {
           // 是否顯示密碼
           obscureText: isPassword,
           obscuringCharacter: "*",
-          onChanged: (String str) {
-            setState(() {
-              showError(str);
-            });
-          },
         ));
   }
 
@@ -136,14 +126,9 @@ class _SignUpState extends State<SignUp> {
               Column(
                 children: [
                   SizedBox(height: MediaQuery.of(context).size.height * 0.15),
-                  signUpNameAndPhone(
-                      name, "姓名", "例：XXX", errorName, showErrorName),
-                  //---------------------------------------------------------
-                  signUpNameAndPhone(phone, "行動電話", "例：09XXXXXXXX", errorPhone,
-                      showErrorPhone),
-                  //---------------------------------------------------------
-                  signUpPassword(
-                      password, "密碼", errorPassword, showErrorPassword)
+                  signUpNameAndPhone(name, "姓名", "例：XXX", errorName),
+                  signUpNameAndPhone(phone, "行動電話", "例：09XXXXXXXX", errorPhone),
+                  signUpPassword(password, "密碼", errorPassword)
                 ],
               ),
               SizedBox(height: 20),

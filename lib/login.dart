@@ -34,7 +34,7 @@ class _LoginState extends State<Login> {
 
   // 行動電話輸入框
   Padding loginPhone(TextEditingController textController, String label,
-      String? hint, String? error, Function(String text) showError) {
+      String? hint, String? error) {
     return Padding(
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
         child: TextField(
@@ -47,11 +47,6 @@ class _LoginState extends State<Login> {
               errorStyle: TextStyle(fontSize: 14),
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)))),
-          onChanged: (String str) {
-            setState(() {
-              showError(str);
-            });
-          },
         ));
   }
 
@@ -81,8 +76,8 @@ class _LoginState extends State<Login> {
     }
   }
 
-  Padding loginPassword(TextEditingController textController, String label,
-      String? error, Function(String text) showError) {
+  Padding loginPassword(
+      TextEditingController textController, String label, String? error) {
     return Padding(
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
         child: TextField(
@@ -98,11 +93,6 @@ class _LoginState extends State<Login> {
           // 是否顯示密碼
           obscureText: isPassword,
           obscuringCharacter: "*",
-          onChanged: (String str) {
-            setState(() {
-              showError(str);
-            });
-          },
         ));
   }
 
@@ -126,10 +116,8 @@ class _LoginState extends State<Login> {
             Column(
               children: [
                 SizedBox(height: MediaQuery.of(context).size.height * 0.25),
-                loginPhone(
-                    phone, "行動電話", "例：09XXXXXXXX", errorPhone, showErrorPhone),
-                //---------------------------------------------------------
-                loginPassword(password, "密碼", errorPassword, showErrorPassword),
+                loginPhone(phone, "行動電話", "例：09XXXXXXXX", errorPhone),
+                loginPassword(password, "密碼", errorPassword),
               ],
             ),
             SizedBox(height: 20),

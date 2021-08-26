@@ -15,16 +15,6 @@ class PersonData extends StatefulWidget {
 }
 
 class _PersonDataState extends State<PersonData> {
-  Container block(Widget child) {
-    return Container(
-        width: MediaQuery.of(context).size.width * 0.8,
-        decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [BoxShadow(color: Colors.black, blurRadius: 1)]),
-        child: child);
-  }
-
   Text textStyle(String text, [double rate = 0.045]) {
     return Text(text,
         style: TextStyle(fontSize: MediaQuery.of(context).size.width * rate));
