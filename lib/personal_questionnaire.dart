@@ -5,16 +5,6 @@ import 'package:flutter/material.dart';
 import './change.dart';
 import './appBar.dart';
 
-/* 
-selectGender+
-selectBloodType+
-birthday+
-age.toString()+
-height.text+
-weight.text+
-status+
-bmi.toStringAsFixed(1)
-*/
 void main() {
   return runApp(MaterialApp(
     home: PerQuest(),
@@ -39,20 +29,24 @@ class _PerQuestState extends State<PerQuest> {
   String birthday = "點選此處選擇生日";
   int age = 0;
   DateTime currentDate = DateTime.now();
-  MaterialStateProperty<Color> birthButtonColor =
-      MaterialStateProperty.all<Color>(Colors.lightBlue);
   //bmi
   double bmi = 0;
   final height = TextEditingController();
   final weight = TextEditingController();
+  String? errorHeight;
+  String? errorWeight;
   String status = "";
   // 聯絡資訊
   final contactAddress = TextEditingController();
   final contactEmail = TextEditingController();
+  String? errorAddress;
   // 緊急聯絡人
   final emerName = TextEditingController();
   final emerRelationship = TextEditingController();
   final emerPhone = TextEditingController();
+  String? errorNa;
+  String? errorRe;
+  String? errorPh;
   // 家族/過往病史
   static List<String> diabeteHistory = ["有", "無"];
   String selectHistory = diabeteHistory[1];
@@ -123,8 +117,6 @@ class _PerQuestState extends State<PerQuest> {
               selectDate.month > currentDate.month) {
             age--;
           }
-          birthButtonColor =
-              MaterialStateProperty.all<Color>(Color(0xFF1565C0));
         }
       });
     });
@@ -132,32 +124,40 @@ class _PerQuestState extends State<PerQuest> {
 
   // bmi計算
   void bmiCalculator() {
-    if ((height.text != "" && weight.text != "")) {
-      bmi = double.parse(weight.text) / pow(double.parse(height.text) / 100, 2);
+    // 判斷是否為數字
+    if (height.text.contains(RegExp("[0-9]\+")) &&
+        weight.text.contains(RegExp("[0-9]\+"))) {
+      double h = double.parse(height.text);
+      double w = double.parse(weight.text);
+      //
+      if ((h > 0 && w > 0)) {
+        bmi = w / pow(h / 100, 2);
 
-      if (bmi < 18.5) {
-        status = "過輕";
-      } else if (bmi < 24) {
-        status = "正常";
-      } else if (bmi < 27) {
-        status = "過重";
-      } else if (bmi < 30) {
-        status = "輕度肥胖";
-      } else if (bmi < 35) {
-        status = "中度肥胖";
-      } else {
-        status = "重度肥胖";
+        if (bmi < 18.5) {
+          status = "過輕";
+        } else if (bmi < 24) {
+          status = "正常";
+        } else if (bmi < 27) {
+          status = "過重";
+        } else if (bmi < 30) {
+          status = "輕度肥胖";
+        } else if (bmi < 35) {
+          status = "中度肥胖";
+        } else {
+          status = "重度肥胖";
+        }
+        bmi = double.parse(bmi.toStringAsFixed(1));
       }
     } else {
       bmi = 0;
       status = "";
     }
     // 取到小數第1位
-    bmi = double.parse(bmi.toStringAsFixed(1));
   }
 
   // 身高體重輸入框
-  Padding inputCmKg(TextEditingController controller, String label) {
+  Padding inputCmKg(
+      TextEditingController controller, String label, String? error) {
     return Padding(
         padding: const EdgeInsets.all(8.0),
         child: TextField(
@@ -165,6 +165,7 @@ class _PerQuestState extends State<PerQuest> {
           decoration: InputDecoration(
               counterText: "",
               labelText: label,
+              errorText: error,
               floatingLabelBehavior: FloatingLabelBehavior.never,
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
@@ -177,9 +178,34 @@ class _PerQuestState extends State<PerQuest> {
         ));
   }
 
-  // 聯絡輸入框
-  Padding inputContact(
-      TextEditingController controller, String label, String? hint) {
+  // 身高體重&聯絡資訊&緊急聯絡人判斷
+  String? errorBmiContact(String text) {
+    String? error;
+    if (text.trim() == "" || text.isEmpty) {
+      error = "不可空白!";
+    } else {
+      error = null;
+    }
+
+    return error;
+  }
+
+  // 緊急連絡電話判斷
+  String? errorEmerPhone(String text) {
+    String? error;
+    if (text.isEmpty || text.trim() == "") {
+      error = "不可空白！";
+    } else if (!text.contains(RegExp("\^09[0-9]{8}\$"), 0)) {
+      error = "行動電話格式不正確！";
+    } else {
+      error = null;
+    }
+    return error;
+  }
+
+  // 聯絡資訊&緊急聯絡人輸入框
+  Padding inputContact(TextEditingController controller, String label,
+      String hint, String? error) {
     return Padding(
         padding: const EdgeInsets.all(8.0),
         child: TextField(
@@ -187,13 +213,11 @@ class _PerQuestState extends State<PerQuest> {
           decoration: InputDecoration(
               labelText: label,
               hintText: hint,
+              errorText: error,
               // float字的動畫取消
               floatingLabelBehavior: FloatingLabelBehavior.never,
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
-          onChanged: (_) {
-            setState(() {});
-          },
         ));
   }
 
@@ -221,7 +245,7 @@ class _PerQuestState extends State<PerQuest> {
               BoxShadow(
                 color: Color(0x5F000000),
                 blurRadius: 4,
-                offset: Offset(3, 10),
+                offset: Offset(3, 5),
               )
             ]),
         child: child);
@@ -276,7 +300,9 @@ class _PerQuestState extends State<PerQuest> {
                                 padding: const EdgeInsets.all(10),
                                 child: ElevatedButton(
                                     style: ButtonStyle(
-                                        backgroundColor: birthButtonColor),
+                                        backgroundColor:
+                                            MaterialStateProperty.all<Color>(
+                                                Color(0xFF1565C0))),
                                     onPressed: () async {
                                       await chooseBirthday();
                                     },
@@ -296,8 +322,8 @@ class _PerQuestState extends State<PerQuest> {
                           textStyle("\n  身高&體重"),
                           textStyle(
                               "  BMI=" + bmi.toString() + "  狀態：" + status),
-                          inputCmKg(height, "身高"),
-                          inputCmKg(weight, "體重"),
+                          inputCmKg(height, "身高", errorHeight),
+                          inputCmKg(weight, "體重", errorWeight),
                         ],
                       )),
 
@@ -309,9 +335,10 @@ class _PerQuestState extends State<PerQuest> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           textStyle("\n  聯絡資訊"),
-                          inputContact(contactAddress, "通訊地址", "例：XX市XX路..."),
-                          inputContact(contactEmail, "電子郵件",
-                              "Google, Yahoo, OneDrive..."),
+                          inputContact(contactAddress, "通訊地址", "例：XX市XX區...",
+                              errorAddress),
+                          inputContact(contactEmail, "電子郵件(非必填)",
+                              "Google, Yahoo, OneDrive...", null),
                         ],
                       )),
 
@@ -323,9 +350,10 @@ class _PerQuestState extends State<PerQuest> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             textStyle("\n  緊急聯絡人"),
-                            inputContact(emerName, "姓名", null),
-                            inputContact(emerRelationship, "關係", null),
-                            inputContact(emerPhone, "聯絡電話", "例：09XXXXXXXX"),
+                            inputContact(emerName, "姓名", "", errorNa),
+                            inputContact(emerRelationship, "關係", "", errorRe),
+                            inputContact(
+                                emerPhone, "聯絡電話", "例：0912345678", errorPh),
                           ])),
 
                       // ----
@@ -352,11 +380,29 @@ class _PerQuestState extends State<PerQuest> {
                                       MaterialStateProperty.all<Color>(
                                           Colors.white)),
                               onPressed: () {
-                                bmiCalculator();
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => Change()));
+                                setState(() {
+                                  // 傳遞錯誤訊息
+                                  errorHeight = errorBmiContact(height.text);
+                                  errorWeight = errorBmiContact(weight.text);
+                                  errorAddress =
+                                      errorBmiContact(contactAddress.text);
+                                  errorNa = errorBmiContact(emerName.text);
+                                  errorRe =
+                                      errorBmiContact(emerRelationship.text);
+                                  errorPh = errorEmerPhone(emerPhone.text);
+                                });
+
+                                if (bmi != 0 &&
+                                    birthday != "點選此處選擇生日" &&
+                                    errorAddress == null &&
+                                    errorNa == null &&
+                                    errorRe == null &&
+                                    errorPh == null) {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => Change()));
+                                }
                               },
                               child: Center(
                                   child: textStyle("儲存", Colors.green)))),

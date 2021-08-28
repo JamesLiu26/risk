@@ -36,14 +36,6 @@ class Settings extends StatelessWidget {
   }
 }
 
-Container underline(BuildContext context) {
-  return Container(
-      margin: EdgeInsets.only(top: 10, bottom: 10),
-      height: 1,
-      width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(color: Colors.grey));
-}
-
 GestureDetector settingPages(Widget route, BuildContext context, String text) {
   return GestureDetector(
       onTap: () {

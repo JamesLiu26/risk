@@ -32,12 +32,6 @@ class Contact extends StatelessWidget {
             contactText("  總機(24hrs)：(02)8966-7000", fontSize),
             contactText(
                 "  顧客服務中心：\n  服務時間：8:30~16:30\n  幫您專線：(02)7738-2525", fontSize),
-            Row(
-              children: [
-                contactText("  E-Mail：", fontSize),
-                toLinkMail("CRC@mail.femh.org.tw", fontSize)
-              ],
-            ),
             contactText("  服務台：(02)8966-7000轉2144", fontSize),
             Row(
               children: [
@@ -55,20 +49,25 @@ Text contactText(String text, double size) {
       style: TextStyle(fontSize: size, letterSpacing: 1, height: 2));
 }
 
-GestureDetector toLinkMail(String mail, double size) {
-  return GestureDetector(
-      child: contactText(mail, size),
-      onTap: () async {
-        if (await canLaunch("mailto:$mail"))
-          launch("mailto:$mail");
-        else
-          throw "Couldn't launch $mail";
-      });
+Text link(
+  String text,
+  double size,
+) {
+  return Text(text,
+      style: TextStyle(
+          fontSize: size,
+          decoration: TextDecoration.underline,
+          color: Colors.blue,
+          letterSpacing: 1,
+          height: 2));
 }
 
 GestureDetector toLinkWeb(String url, double size) {
   return GestureDetector(
-      child: contactText(url, size),
+      child: link(
+        url,
+        size,
+      ),
       onTap: () async {
         if (await canLaunch("https://$url"))
           launch("https://$url");

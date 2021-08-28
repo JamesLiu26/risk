@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import './personal_questionnaire.dart';
 import './appBar.dart';
-import './main.dart';
 
 void main() {
   return runApp(MaterialApp(
@@ -34,7 +33,7 @@ class _LoginState extends State<Login> {
 
   // 行動電話輸入框
   Padding loginPhone(TextEditingController textController, String label,
-      String? hint, String? error, Function(String text) showError) {
+      String hint, String? error) {
     return Padding(
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
         child: TextField(
@@ -47,11 +46,6 @@ class _LoginState extends State<Login> {
               errorStyle: TextStyle(fontSize: 14),
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)))),
-          onChanged: (String str) {
-            setState(() {
-              showError(str);
-            });
-          },
         ));
   }
 
@@ -75,14 +69,14 @@ class _LoginState extends State<Login> {
     if (passwordText.isEmpty || passwordText.trim() == "") {
       errorPassword = "不可空白！";
     } else if (passwordText.length < 6) {
-      errorPassword = "密碼不可小於6個字！";
+      errorPassword = "密碼錯誤！";
     } else {
       errorPassword = null;
     }
   }
 
-  Padding loginPassword(TextEditingController textController, String label,
-      String? error, Function(String text) showError) {
+  Padding loginPassword(
+      TextEditingController textController, String label, String? error) {
     return Padding(
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
         child: TextField(
@@ -98,11 +92,6 @@ class _LoginState extends State<Login> {
           // 是否顯示密碼
           obscureText: isPassword,
           obscuringCharacter: "*",
-          onChanged: (String str) {
-            setState(() {
-              showError(str);
-            });
-          },
         ));
   }
 
@@ -114,42 +103,43 @@ class _LoginState extends State<Login> {
           IconButton(
             icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
             onPressed: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => Risk()));
+              Navigator.pop(context);
             },
           )),
       body: SingleChildScrollView(
           child: Center(
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-            Column(
-              children: [
-                SizedBox(height: MediaQuery.of(context).size.height * 0.25),
-                loginPhone(
-                    phone, "行動電話", "例：09XXXXXXXX", errorPhone, showErrorPhone),
-                loginPassword(password, "密碼", errorPassword, showErrorPassword),
-              ],
+              child: Column(children: [
+        Column(
+          children: [
+            SizedBox(height: MediaQuery.of(context).size.height * 0.25),
+            loginPhone(phone, "行動電話", "例：0912345678", errorPhone),
+            loginPassword(
+              password,
+              "密碼",
+              errorPassword,
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-                style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.green)),
-                onPressed: () {
-                  setState(() {
-                    showErrorPhone(phone.text);
-                    showErrorPassword(password.text);
-                  });
-                  if (errorPhone == null && errorPassword == null) {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => PerQuest()));
-                  }
-                },
-                child: Text("登入",
-                    style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.width * 0.06))),
-          ]))),
+          ],
+        ),
+        SizedBox(height: 20),
+        ElevatedButton(
+            style: ButtonStyle(
+                backgroundColor:
+                    MaterialStateProperty.all<Color>(Colors.green)),
+            onPressed: () {
+              setState(() {
+                // 傳遞錯誤訊息
+                showErrorPhone(phone.text);
+                showErrorPassword(password.text);
+              });
+              if (errorPhone == null && errorPassword == null) {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => PerQuest()));
+              }
+            },
+            child: Text("登入",
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.06))),
+      ]))),
     );
   }
 }
