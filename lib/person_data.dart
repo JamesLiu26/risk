@@ -46,13 +46,7 @@ class _PersonDataState extends State<PersonData> {
           child: Column(children: [
             Padding(
               padding: EdgeInsets.only(top: 10),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    textStyle("  基本資料", 0.05),
-                    TextButton(
-                        onPressed: () {}, child: textStyle("  修改資料", 0.05))
-                  ]),
+              child: textStyle("  基本資料", 0.05),
             ),
             textLayout("姓名", "XXX"),
             textLayout("性別", "男"),

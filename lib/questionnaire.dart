@@ -10,17 +10,18 @@ void main() {
 
 class Question extends StatelessWidget {
   Text textStyle(
-    String text,
-    context, [
-    Color color = Colors.black,
+    text,
+    double size, [
+    color = Colors.black,
   ]) {
     return Text(text,
-        style: TextStyle(
-            fontSize: MediaQuery.of(context).size.width * 0.06, color: color));
+        style: TextStyle(fontSize: size, color: color),
+        textAlign: TextAlign.center);
   }
 
   @override
   Widget build(BuildContext context) {
+    double fontSize = MediaQuery.of(context).size.width * 0.06;
     return Scaffold(
         appBar: appBar(
             "問卷填寫",
@@ -32,18 +33,14 @@ class Question extends StatelessWidget {
             )),
         body: Column(children: [
           Spacer(flex: 3),
-          textStyle("請注意：", context),
-          textStyle("此問卷除了生活習慣等問題外", context),
-          textStyle("也會牽涉到健檢相關數據", context),
-          textStyle("建議您先透過儀器量測", context),
-          textStyle("或是做完健檢再填寫此問卷", context),
+          textStyle("請注意：\n建議您先透過儀器量測\n或是做完健檢再填寫此問卷", fontSize),
           Spacer(flex: 3),
           Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
             ElevatedButton(
               style: ButtonStyle(
                   backgroundColor:
                       MaterialStateProperty.all<Color>(Colors.red)),
-              child: textStyle("返回", context, Colors.white),
+              child: textStyle("返回", fontSize, Colors.white),
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -52,7 +49,7 @@ class Question extends StatelessWidget {
               style: ButtonStyle(
                   backgroundColor:
                       MaterialStateProperty.all<Color>(Colors.green)),
-              child: textStyle("繼續", context, Colors.white),
+              child: textStyle("繼續", fontSize, Colors.white),
               onPressed: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => FirstPage()));

@@ -47,7 +47,7 @@ class HomeState extends State<Home> {
             // -----------------------
             Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
               homeRoute("醫師洽談", "images/醫師談.png", Text("")),
-              homeRoute("飲食紀錄", "images/餐具.png", Text("")),
+              homeRoute("健康飲食", "images/餐具.png", Text("")),
             ]),
           ]),
         ));
