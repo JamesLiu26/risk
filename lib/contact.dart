@@ -64,10 +64,7 @@ Text link(
 
 GestureDetector toLinkWeb(String url, double size) {
   return GestureDetector(
-      child: link(
-        url,
-        size,
-      ),
+      child: link(url, size),
       onTap: () async {
         if (await canLaunch("https://$url"))
           launch("https://$url");

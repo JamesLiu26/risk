@@ -18,42 +18,35 @@ class Trace extends StatefulWidget {
 
 class SeriesDatas {
   final int time;
-  final int data;
+  double data;
   SeriesDatas(this.time, this.data);
 }
 
 class _TraceState extends State<Trace> {
-  var serial = [
-    SeriesDatas(1, 81),
-    SeriesDatas(2, 90),
-    SeriesDatas(3, 120),
-    SeriesDatas(4, 86),
-  ];
-  double avg() {
-    int sum = 0;
-    for (int i = 0; i < serial.length; i++) {
-      sum += serial[i].data;
-    }
-    return sum / serial.length;
-  }
-
-  var serial2 = [
-    SeriesDatas(0, 80),
-    SeriesDatas(1, 80),
-    SeriesDatas(2, 80),
-    SeriesDatas(3, 80),
-    SeriesDatas(4, 80),
-  ];
-  var serial3 = [
-    SeriesDatas(0, 180),
-    SeriesDatas(1, 180),
-    SeriesDatas(2, 180),
-    SeriesDatas(3, 180),
-    SeriesDatas(4, 180),
+  var currentBloodSugar = [
+    SeriesDatas(1, 0),
+    SeriesDatas(2, 0),
+    SeriesDatas(3, 0),
+    SeriesDatas(4, 0),
   ];
 
-  charts.Series<SeriesDatas, int> seriesList(id, color, data) {
-    return charts.Series<SeriesDatas, int>(
+  var lowBloodSugar = [
+    SeriesDatas(0, 70),
+    SeriesDatas(1, 70),
+    SeriesDatas(2, 70),
+    SeriesDatas(3, 70),
+    SeriesDatas(4, 70),
+  ];
+  var highBloodSugar = [
+    SeriesDatas(0, 140),
+    SeriesDatas(1, 140),
+    SeriesDatas(2, 140),
+    SeriesDatas(3, 140),
+    SeriesDatas(4, 140),
+  ];
+
+  charts.Series<SeriesDatas, num> seriesList(id, color, data) {
+    return charts.Series<SeriesDatas, num>(
       id: id,
       colorFn: (_, __) => color,
       //定義線的顏色
@@ -64,10 +57,13 @@ class _TraceState extends State<Trace> {
   }
 
   Widget chart() {
-    List<charts.Series<SeriesDatas, int>> sList = [
-      seriesList('血糖值', charts.MaterialPalette.blue.shadeDefault, serial),
-      seriesList('下限值', charts.MaterialPalette.red.shadeDefault, serial2),
-      seriesList('上限值', charts.MaterialPalette.red.shadeDefault, serial3)
+    Size size = MediaQuery.of(context).size;
+    List<charts.Series<SeriesDatas, num>> sList = [
+      seriesList('量測之血糖值', charts.MaterialPalette.blue.shadeDefault,
+          currentBloodSugar),
+      seriesList(
+          '低血糖', charts.MaterialPalette.cyan.shadeDefault, lowBloodSugar),
+      seriesList('高血糖', charts.MaterialPalette.red.shadeDefault, highBloodSugar)
     ];
     var chart = charts.LineChart(
       sList,
@@ -84,26 +80,74 @@ class _TraceState extends State<Trace> {
     );
     return Padding(
       padding: EdgeInsets.all(16),
-      child: new Container(
-        height: 300,
-        width: 500,
+      child: Container(
+        height: size.height * 0.4,
+        width: size.width,
         child: chart,
       ),
     );
   }
 
+  //計算量測次數
+  int count = 0;
+  double bloodSugarAverage() {
+    double sum = 0;
+    for (int i = 0; i < currentBloodSugar.length; i++) {
+      sum += currentBloodSugar[i].data;
+    }
+    return sum / currentBloodSugar.length;
+  }
+
+  final bloodSugar = TextEditingController();
+  String? error;
+
   @override
   Widget build(BuildContext context) {
+    double fontSize = MediaQuery.of(context).size.width * 0.05;
     return Scaffold(
         drawer: menu(context),
         appBar: appBar("每日追蹤", menuButton()),
-        body: Center(
+        body: SingleChildScrollView(
+            child: Center(
           child: Column(
             children: [
+              SizedBox(height: 20),
+              Text("今日血糖值量測次數：$count次", style: TextStyle(fontSize: fontSize)),
               chart(),
-              Text(avg().toString(), style: TextStyle(fontSize: 16))
+              // count!=4，輸入血糖值，直到次數為4為止
+              count != 4
+                  ? Column(children: [
+                      Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: TextField(
+                          controller: bloodSugar,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                              labelText: "飯後2hr血糖值",
+                              hintText: "單位：mg/dL",
+                              errorText: error,
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10))),
+                          onSubmitted: (_) {
+                            error = null;
+                            setState(() {
+                              if (bloodSugar.text != "0" &&
+                                  bloodSugar.text != "") {
+                                currentBloodSugar[count].data =
+                                    double.parse(bloodSugar.text);
+                                count++;
+                              } else
+                                error = "請輸入正常數值！";
+                            });
+                          },
+                        ),
+                      ),
+                    ])
+                  // 次數=4，輸入框拿掉，並顯示當日平均血糖值
+                  : Text("今日血糖平均值：" + bloodSugarAverage().toStringAsFixed(1),
+                      style: TextStyle(fontSize: fontSize))
             ],
           ),
-        ));
+        )));
   }
 }
