@@ -1,8 +1,15 @@
+// import 'dart:async';
+
 import 'package:flutter/material.dart';
 import './signup.dart';
 import './login.dart';
+// import './trace.dart';
+//
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+// import 'package:timezone/data/latest.dart' as tz;
+// import 'package:timezone/timezone.dart' as tz;
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,7 +24,75 @@ void main() {
   ));
 }
 
-class Risk extends StatelessWidget {
+class Risk extends StatefulWidget {
+  @override
+  _RiskState createState() => _RiskState();
+}
+
+class _RiskState extends State<Risk> {
+  // final _notify = FlutterLocalNotificationsPlugin();
+  // 點選通知terminal端會顯示訊息
+  // Future selectNotify(String? _) async {
+  //   Navigator.push(context, MaterialPageRoute(builder: (context) => Trace()));
+  // }
+
+  // int year = DateTime.now().year;
+  // int month = DateTime.now().month;
+  // int day = DateTime.now().day;
+
+  // @override
+  // // void initState() {
+  // //   super.initState();
+  // //   // 時區初始化
+  // //   tz.initializeTimeZones();
+
+  // //   // android設定初始化
+  // //   // final _androidInit = AndroidInitializationSettings("@mipmap/ic_launcher");
+  // //   // final _initializeSetting = InitializationSettings(android: _androidInit);
+  // //   // _notify.initialize(_initializeSetting, onSelectNotification: selectNotify);
+  // //   // Timer.periodic(Duration(seconds: 1), (_) {
+  // //   //   setState(() {
+  // //   //     // 即時更新時間
+  // //   //     year = DateTime.now().year;
+  // //   //     month = DateTime.now().month;
+  // //   //     day = DateTime.now().day;
+  // //   //   });
+  // //   // });
+  // //   // show();
+  // // }
+
+  // Future show() async {
+  //   final _android = AndroidNotificationDetails(
+  //       "channel Id", "channel Name", "channel Description",
+  //       priority: Priority.max, importance: Importance.max);
+  //   final _platform = NotificationDetails(android: _android);
+
+  //   // 設定提醒時間(有lag)
+  //   var dt = DateTime(year, month, day, 11, 25, 0);
+  //   schedule(dt, _platform);
+  // }
+
+  // Future schedule(DateTime dateTime, NotificationDetails nD) async {
+  //   // 要顯示的訊息
+  //   await _notify.zonedSchedule(
+  //       0, "爛專題", "量血糖囉", tz.TZDateTime.from(dateTime, tz.local), nD,
+  //       uiLocalNotificationDateInterpretation:
+  //           UILocalNotificationDateInterpretation.wallClockTime,
+  //       androidAllowWhileIdle: false);
+  // }
+  ElevatedButton signButton(text, Widget route) {
+    return ElevatedButton(
+        style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.green)),
+        onPressed: () {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => route));
+        },
+        child: Text(text,
+            style:
+                TextStyle(fontSize: MediaQuery.of(context).size.width * 0.06)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,27 +108,15 @@ class Risk extends StatelessWidget {
                         color: Colors.white)),
                 Column(
                   children: [
-                    signButton("註冊", SignUp(), context),
+                    signButton("註冊", SignUp()),
                     SizedBox(height: 50),
 //-------------------------
-                    signButton("登入", Login(), context)
+                    signButton("登入", Login())
                   ],
                 ),
               ],
             ))));
   }
-}
-
-ElevatedButton signButton(text, Widget route, BuildContext context) {
-  return ElevatedButton(
-      style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(Colors.green)),
-      onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => route));
-      },
-      child: Text(text,
-          style:
-              TextStyle(fontSize: MediaQuery.of(context).size.width * 0.06)));
 }
 
 LinearGradient linearGradient() {

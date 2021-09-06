@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import './personal_questionnaire.dart';
 import './appBar.dart';
+import './main.dart';
 
 void main() {
   return runApp(MaterialApp(
@@ -103,7 +104,8 @@ class _LoginState extends State<Login> {
           IconButton(
             icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => Risk()));
             },
           )),
       body: SingleChildScrollView(
