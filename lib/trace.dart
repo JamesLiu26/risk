@@ -37,7 +37,15 @@ class _TraceState extends State<Trace> {
     SeriesDatas(3, 70),
     SeriesDatas(4, 70),
   ];
-  var highBloodSugar = [
+  var eatBefore = [
+    SeriesDatas(0, 100),
+    SeriesDatas(1, 100),
+    SeriesDatas(2, 100),
+    SeriesDatas(3, 100),
+    SeriesDatas(4, 100),
+  ];
+
+  var eat2Hours = [
     SeriesDatas(0, 140),
     SeriesDatas(1, 140),
     SeriesDatas(2, 140),
@@ -59,11 +67,14 @@ class _TraceState extends State<Trace> {
   Widget chart() {
     Size size = MediaQuery.of(context).size;
     List<charts.Series<SeriesDatas, num>> sList = [
-      seriesList('量測之血糖值', charts.MaterialPalette.blue.shadeDefault,
-          currentBloodSugar),
+      seriesList(
+          '飯後2小時血糖危險值', charts.MaterialPalette.red.shadeDefault, eat2Hours),
+      seriesList(
+          '飯前血糖危險值', charts.MaterialPalette.purple.shadeDefault, eatBefore),
       seriesList(
           '低血糖', charts.MaterialPalette.cyan.shadeDefault, lowBloodSugar),
-      seriesList('高血糖', charts.MaterialPalette.red.shadeDefault, highBloodSugar)
+      seriesList(
+          '量測之血糖值', charts.MaterialPalette.blue.shadeDefault, currentBloodSugar)
     ];
     var chart = charts.LineChart(
       sList,
@@ -81,7 +92,7 @@ class _TraceState extends State<Trace> {
     return Padding(
       padding: EdgeInsets.all(16),
       child: Container(
-        height: size.height * 0.4,
+        height: size.height * 0.5,
         width: size.width,
         child: chart,
       ),
@@ -112,7 +123,11 @@ class _TraceState extends State<Trace> {
           child: Column(
             children: [
               SizedBox(height: 20),
-              Text("今日血糖值量測次數：$count次", style: TextStyle(fontSize: fontSize)),
+              Text(
+                "今日血糖值量測次數：$count次\n點擊圖形即可查看數值",
+                style: TextStyle(fontSize: fontSize),
+                textAlign: TextAlign.center,
+              ),
               chart(),
               // count!=4，輸入血糖值，直到次數為4為止
               count != 4
@@ -123,7 +138,7 @@ class _TraceState extends State<Trace> {
                           controller: bloodSugar,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
-                              labelText: "飯後2hr血糖值",
+                              labelText: "血糖值",
                               hintText: "單位：mg/dL",
                               errorText: error,
                               border: OutlineInputBorder(
@@ -144,7 +159,10 @@ class _TraceState extends State<Trace> {
                       ),
                     ])
                   // 次數=4，輸入框拿掉，並顯示當日平均血糖值
-                  : Text("今日血糖平均值：" + bloodSugarAverage().toStringAsFixed(1),
+                  : Text(
+                      "今日血糖平均值：" +
+                          bloodSugarAverage().toStringAsFixed(1) +
+                          "mg/dL",
                       style: TextStyle(fontSize: fontSize))
             ],
           ),
