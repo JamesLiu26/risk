@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import './person_data.dart';
-import './setting.dart';
+import 'Menu/person_data.dart';
+import 'Menu/setting.dart';
 import './login.dart';
 
 Builder menuButton() {

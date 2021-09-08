@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import './appBar.dart';
-import './contact.dart';
+import '/appBar.dart';
+import 'Setting/contact.dart';
 
 void main() => runApp(MaterialApp(
       home: Settings(),

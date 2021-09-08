@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import './appBar.dart';
+import '/appBar.dart';
 
 void main() {
   return runApp(MaterialApp(

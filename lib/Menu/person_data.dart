@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './appBar.dart';
+import '../appBar.dart';
 
 // MediaQuery.of(context).size.width * 0.05
 void main() {

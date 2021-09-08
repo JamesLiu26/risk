@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:risk/appBar.dart';
+import '/appBar.dart';
 
 void main() {
   runApp(MaterialApp(

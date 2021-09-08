@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import './questionnaire.dart';
+import 'Home/questionnaire.dart';
 
-import './appBar.dart';
-import './menu.dart';
+import '../appBar.dart';
+import '../menu.dart';
 // -------------
 
 void main() {

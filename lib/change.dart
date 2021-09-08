@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import './home.dart';
-import './trace.dart';
-import './notification.dart';
+import 'BottomNavigationBar/home.dart';
+import 'BottomNavigationBar/trace.dart';
+import 'BottomNavigationBar/notification.dart';
 
 void main() {
   return runApp(MaterialApp(

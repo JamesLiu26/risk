@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import './menu.dart';
-import './appBar.dart';
+import '../menu.dart';
+import '../appBar.dart';
 
 import 'package:charts_flutter/flutter.dart' as charts;
 
@@ -16,57 +16,57 @@ class Trace extends StatefulWidget {
   _TraceState createState() => _TraceState();
 }
 
-class SeriesDatas {
+class BloodSugar {
   final int time;
   double data;
-  SeriesDatas(this.time, this.data);
+  BloodSugar(this.time, this.data);
 }
 
 class _TraceState extends State<Trace> {
   var currentBloodSugar = [
-    SeriesDatas(1, 0),
-    SeriesDatas(2, 0),
-    SeriesDatas(3, 0),
-    SeriesDatas(4, 0),
+    BloodSugar(1, 0),
+    BloodSugar(2, 0),
+    BloodSugar(3, 0),
+    BloodSugar(4, 0),
   ];
 
   var lowBloodSugar = [
-    SeriesDatas(0, 70),
-    SeriesDatas(1, 70),
-    SeriesDatas(2, 70),
-    SeriesDatas(3, 70),
-    SeriesDatas(4, 70),
+    BloodSugar(0, 70),
+    BloodSugar(1, 70),
+    BloodSugar(2, 70),
+    BloodSugar(3, 70),
+    BloodSugar(4, 70),
   ];
   var eatBefore = [
-    SeriesDatas(0, 100),
-    SeriesDatas(1, 100),
-    SeriesDatas(2, 100),
-    SeriesDatas(3, 100),
-    SeriesDatas(4, 100),
+    BloodSugar(0, 100),
+    BloodSugar(1, 100),
+    BloodSugar(2, 100),
+    BloodSugar(3, 100),
+    BloodSugar(4, 100),
   ];
 
   var eat2Hours = [
-    SeriesDatas(0, 140),
-    SeriesDatas(1, 140),
-    SeriesDatas(2, 140),
-    SeriesDatas(3, 140),
-    SeriesDatas(4, 140),
+    BloodSugar(0, 140),
+    BloodSugar(1, 140),
+    BloodSugar(2, 140),
+    BloodSugar(3, 140),
+    BloodSugar(4, 140),
   ];
 
-  charts.Series<SeriesDatas, num> seriesList(id, color, data) {
-    return charts.Series<SeriesDatas, num>(
+  charts.Series<BloodSugar, num> seriesList(id, color, data) {
+    return charts.Series<BloodSugar, num>(
       id: id,
       colorFn: (_, __) => color,
       //定義線的顏色
-      domainFn: (SeriesDatas sales, _) => sales.time,
-      measureFn: (SeriesDatas sales, _) => sales.data,
+      domainFn: (BloodSugar sales, _) => sales.time,
+      measureFn: (BloodSugar sales, _) => sales.data,
       data: data,
     );
   }
 
   Widget chart() {
     Size size = MediaQuery.of(context).size;
-    List<charts.Series<SeriesDatas, num>> sList = [
+    List<charts.Series<BloodSugar, num>> sList = [
       seriesList(
           '飯後2小時血糖危險值', charts.MaterialPalette.red.shadeDefault, eat2Hours),
       seriesList(

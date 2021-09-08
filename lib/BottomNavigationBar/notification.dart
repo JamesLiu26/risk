@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import './menu.dart';
-import './appBar.dart';
+import '../menu.dart';
+import '../appBar.dart';
 
 void main() {
   return runApp(MaterialApp(
