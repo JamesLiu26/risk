@@ -92,7 +92,7 @@ class _TraceState extends State<Trace> {
     return Padding(
       padding: EdgeInsets.all(16),
       child: Container(
-        height: size.height * 0.5,
+        height: size.height * 0.45,
         width: size.width,
         child: chart,
       ),

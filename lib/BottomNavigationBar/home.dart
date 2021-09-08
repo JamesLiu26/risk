@@ -44,10 +44,19 @@ class HomeState extends State<Home> {
             ]),
             SizedBox(height: 20),
 
-            // -----------------------
+            // // -----------------------
+
             Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
               homeRoute("醫師洽談", "images/醫師談.png", Text("")),
               homeRoute("健康飲食", "images/餐具.png", Text("")),
+            ]),
+
+            // -----------------------
+
+            SizedBox(height: 20),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+              homeRoute("飲食建議", "images/食物.png", Text("")),
+              homeRoute("注意事項", "images/注意.png", Text("")),
             ]),
           ]),
         ));

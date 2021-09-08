@@ -23,12 +23,15 @@ List<String> bloodType = ["O", "A", "B", "AB"];
 class _PerQuestState extends State<PerQuest> {
   // 性別核選框
   String selectGender = gender[0];
+
   // 血型核選框
   String selectBloodType = bloodType[0];
+
   //生日
   String birthday = "點選此處選擇生日";
   int age = 0;
   DateTime currentDate = DateTime.now();
+
   //bmi
   double bmi = 0;
   final height = TextEditingController();
@@ -36,10 +39,16 @@ class _PerQuestState extends State<PerQuest> {
   String? errorHeight;
   String? errorWeight;
   String status = "";
+
+  // 家族/過往病史
+  static List<String> diabeteHistory = ["有", "無"];
+  String selectHistory = diabeteHistory[1];
+
   // 聯絡資訊
   final contactAddress = TextEditingController();
   final contactEmail = TextEditingController();
   String? errorAddress;
+
   // 緊急聯絡人
   final emerName = TextEditingController();
   final emerRelationship = TextEditingController();
@@ -47,16 +56,6 @@ class _PerQuestState extends State<PerQuest> {
   String? errorNa;
   String? errorRe;
   String? errorPh;
-  // 家族/過往病史
-  static List<String> diabeteHistory = ["有", "無"];
-  String selectHistory = diabeteHistory[1];
-  //不良習慣或情形發生
-
-  // "喝酒"
-  // "抽菸"
-  // "熬夜"
-  // "頻尿"
-  // "視力退化"
 
   // 文字樣式----
   Text textStyle(String text, [color = Colors.black]) {
@@ -190,6 +189,20 @@ class _PerQuestState extends State<PerQuest> {
     return error;
   }
 
+  // 病史
+  RadioListTile historyRadio(String value) {
+    return RadioListTile(
+        title: textStyle(value),
+        value: value,
+        groupValue: selectHistory,
+        onChanged: (currentValue) {
+          setState(() {
+            selectHistory = currentValue;
+            print(selectHistory);
+          });
+        });
+  }
+
   // 緊急連絡電話判斷
   String? errorEmerPhone(String text) {
     String? error;
@@ -221,19 +234,7 @@ class _PerQuestState extends State<PerQuest> {
         ));
   }
 
-  RadioListTile historyRadio(String value) {
-    return RadioListTile(
-        title: textStyle(value),
-        value: value,
-        groupValue: selectHistory,
-        onChanged: (currentValue) {
-          setState(() {
-            selectHistory = currentValue;
-            print(selectHistory);
-          });
-        });
-  }
-
+  // 問題區
   Container questionArea(Widget child) {
     return Container(
         width: MediaQuery.of(context).size.width * 0.9,
@@ -274,8 +275,6 @@ class _PerQuestState extends State<PerQuest> {
                           ])),
 
                       // ----
-                      // ----
-                      // ----
 
                       questionArea(Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,8 +287,6 @@ class _PerQuestState extends State<PerQuest> {
                           ])),
 
                       // ----
-                      // ----
-                      // ----
 
                       questionArea(
                         Column(
@@ -297,23 +294,20 @@ class _PerQuestState extends State<PerQuest> {
                             children: [
                               textStyle("\n  年齡：$age歲"),
                               Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: ElevatedButton(
-                                    style: ButtonStyle(
-                                        backgroundColor:
-                                            MaterialStateProperty.all<Color>(
-                                                Color(0xFF1565C0))),
-                                    onPressed: () async {
-                                      await chooseBirthday();
-                                    },
-                                    child:
-                                        textStyle(birthday, Color(0xffffffff))),
-                              )
+                                  padding: const EdgeInsets.all(10),
+                                  child: ElevatedButton(
+                                      style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Color(0xFF1565C0))),
+                                      onPressed: () async {
+                                        await chooseBirthday();
+                                      },
+                                      child: textStyle(
+                                          birthday, Color(0xffffffff))))
                             ]),
                       ),
 
-                      // ----
-                      // ----
                       // ----
 
                       questionArea(Column(
@@ -328,7 +322,15 @@ class _PerQuestState extends State<PerQuest> {
                       )),
 
                       // ----
-                      // ----
+
+                      questionArea(Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            textStyle("\n  是否有糖尿病家族/過往病史"),
+                            historyRadio(diabeteHistory[0]),
+                            historyRadio(diabeteHistory[1])
+                          ])),
+
                       // ----
 
                       questionArea(Column(
@@ -343,8 +345,6 @@ class _PerQuestState extends State<PerQuest> {
                       )),
 
                       // ----
-                      // ----
-                      // ----
 
                       questionArea(Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -357,20 +357,6 @@ class _PerQuestState extends State<PerQuest> {
                           ])),
 
                       // ----
-                      // ----
-                      // ----
-
-                      questionArea(Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            textStyle("\n  是否有糖尿病家族/過往病史"),
-                            historyRadio(diabeteHistory[0]),
-                            historyRadio(diabeteHistory[1])
-                          ])),
-
-                      // ----
-                      // ----
-                      // ----
 
                       SizedBox(
                           width: MediaQuery.of(context).size.width * 0.3,
@@ -380,6 +366,12 @@ class _PerQuestState extends State<PerQuest> {
                                       MaterialStateProperty.all<Color>(
                                           Colors.white)),
                               onPressed: () {
+                                FocusScopeNode focus = FocusScope.of(context);
+                                // 把input focus移掉
+                                if (!focus.hasPrimaryFocus) {
+                                  focus.unfocus();
+                                }
+
                                 setState(() {
                                   // 傳遞錯誤訊息
                                   errorHeight = errorBmiContact(height.text);
@@ -406,7 +398,6 @@ class _PerQuestState extends State<PerQuest> {
                               },
                               child: Center(
                                   child: textStyle("儲存", Colors.green)))),
-                      // ----
                     ])))));
   }
 }

@@ -53,15 +53,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - images/選單.png
-    - images/個人資料.png
-    - images/首頁.png
-    - images/病情追蹤.png
-    - images/通知.png
-    - images/放大.png
-    - images/問卷.png
-    - images/醫師談.png
-    - images/餐具.png
+    - images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
