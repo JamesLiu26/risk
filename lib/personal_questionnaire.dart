@@ -21,15 +21,16 @@ List<String> gender = ["男", "女"];
 List<String> bloodType = ["O", "A", "B", "AB"];
 
 class _PerQuestState extends State<PerQuest> {
-  // 性別核選框
+  // 性別核選框，預設為男
   String selectGender = gender[0];
 
-  // 血型核選框
+  // 血型核選框，預設為O型
   String selectBloodType = bloodType[0];
 
   //生日
   String birthday = "點選此處選擇生日";
   int age = 0;
+  // 當下時間
   DateTime currentDate = DateTime.now();
 
   //bmi
@@ -71,12 +72,12 @@ class _PerQuestState extends State<PerQuest> {
   RadioListTile<String> genderRadio(String value) {
     return RadioListTile(
         title: textStyle(value),
+        // value是取List裡的值
         value: value,
         groupValue: selectGender,
         onChanged: (currentValue) {
           setState(() {
             selectGender = currentValue.toString();
-            print(selectGender);
           });
         });
   }
@@ -90,7 +91,6 @@ class _PerQuestState extends State<PerQuest> {
         onChanged: (currentValue) {
           setState(() {
             selectBloodType = currentValue.toString();
-            print(selectBloodType);
           });
         });
   }
@@ -98,17 +98,23 @@ class _PerQuestState extends State<PerQuest> {
   // 日期選擇(生日)
   Future<DateTime?> chooseBirthday() {
     return showDatePicker(
+      // 一開始先選年
       initialDatePickerMode: DatePickerMode.year,
+      // 只能透過日曆選日期
       initialEntryMode: DatePickerEntryMode.calendarOnly,
       context: context,
+      // 一開始預設的日期為目前日期
       initialDate: currentDate,
       firstDate: DateTime(1921),
+      // 最後一天為目前日期
       lastDate: currentDate,
+      // 右下角的文字
       cancelText: "取消",
       confirmText: "確定",
     ).then((selectDate) {
       setState(() {
         if (selectDate != null) {
+          // 利用split取年
           birthday = selectDate.toString().split(" ")[0];
           age = currentDate.year - selectDate.year;
           if ((selectDate.month == currentDate.month &&
@@ -145,13 +151,13 @@ class _PerQuestState extends State<PerQuest> {
         } else {
           status = "重度肥胖";
         }
+        // 取到小數第1位
         bmi = double.parse(bmi.toStringAsFixed(1));
       }
     } else {
       bmi = 0;
       status = "";
     }
-    // 取到小數第1位
   }
 
   // 身高體重輸入框
@@ -234,7 +240,7 @@ class _PerQuestState extends State<PerQuest> {
         ));
   }
 
-  // 問題區
+  // 資料區塊
   Container questionArea(Widget child) {
     return Container(
         width: MediaQuery.of(context).size.width * 0.9,
@@ -245,7 +251,9 @@ class _PerQuestState extends State<PerQuest> {
             boxShadow: [
               BoxShadow(
                 color: Color(0x5F000000),
+                // 陰影擴散程度
                 blurRadius: 4,
+                // 移動陰影
                 offset: Offset(3, 5),
               )
             ]),
@@ -367,7 +375,7 @@ class _PerQuestState extends State<PerQuest> {
                                           Colors.white)),
                               onPressed: () {
                                 FocusScopeNode focus = FocusScope.of(context);
-                                // 把input focus移掉
+                                // 把TextField的focus移掉
                                 if (!focus.hasPrimaryFocus) {
                                   focus.unfocus();
                                 }

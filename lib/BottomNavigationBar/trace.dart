@@ -145,6 +145,7 @@ class _TraceState extends State<Trace> {
                                   borderRadius: BorderRadius.circular(10))),
                           onSubmitted: (_) {
                             error = null;
+                            // 血糖值不為空，加進class裡
                             setState(() {
                               if (bloodSugar.text != "0" &&
                                   bloodSugar.text != "") {

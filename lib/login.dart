@@ -22,13 +22,24 @@ class _LoginState extends State<Login> {
   String? errorPhone;
   String? errorPassword;
 
-  void showErrorPhone(String phoneText) {
-    if (phoneText.isEmpty || phoneText.trim() == "") {
+  void showErrorPhone() {
+    if (phone.text.isEmpty || phone.text.trim() == "") {
       errorPhone = "不可空白！";
-    } else if (!phoneText.contains(RegExp("\^09[0-9]{8}\$"), 0)) {
+    } else if (!phone.text.contains(RegExp("\^09[0-9]{8}\$"), 0)) {
       errorPhone = "行動電話格式不正確！";
     } else {
       errorPhone = null;
+    }
+  }
+
+  void showErrorPassword() {
+    if (password.text.isEmpty || password.text.trim() == "") {
+      errorPassword = "不可空白！";
+      // 假定
+    } else if (password.text.length < 6) {
+      errorPassword = "密碼錯誤！";
+    } else {
+      errorPassword = null;
     }
   }
 
@@ -50,32 +61,6 @@ class _LoginState extends State<Login> {
         ));
   }
 
-  // 顯示密碼
-  IconButton showPasswordIconButton() {
-    return IconButton(
-        onPressed: () {
-          setState(() {
-            if (isPassword) {
-              // 顯示密碼
-              isPassword = false;
-            } else {
-              isPassword = true;
-            }
-          });
-        },
-        icon: Icon(Icons.visibility));
-  }
-
-  void showErrorPassword(String passwordText) {
-    if (passwordText.isEmpty || passwordText.trim() == "") {
-      errorPassword = "不可空白！";
-    } else if (passwordText.length < 6) {
-      errorPassword = "密碼錯誤！";
-    } else {
-      errorPassword = null;
-    }
-  }
-
   Padding loginPassword(
       TextEditingController textController, String label, String? error) {
     return Padding(
@@ -94,6 +79,22 @@ class _LoginState extends State<Login> {
           obscureText: isPassword,
           obscuringCharacter: "*",
         ));
+  }
+
+  // 顯示密碼
+  IconButton showPasswordIconButton() {
+    return IconButton(
+        onPressed: () {
+          setState(() {
+            if (isPassword) {
+              // 顯示密碼
+              isPassword = false;
+            } else {
+              isPassword = true;
+            }
+          });
+        },
+        icon: Icon(Icons.visibility));
   }
 
   @override
@@ -130,8 +131,8 @@ class _LoginState extends State<Login> {
             onPressed: () {
               setState(() {
                 // 傳遞錯誤訊息
-                showErrorPhone(phone.text);
-                showErrorPassword(password.text);
+                showErrorPhone();
+                showErrorPassword();
               });
               if (errorPhone == null && errorPassword == null) {
                 Navigator.push(context,

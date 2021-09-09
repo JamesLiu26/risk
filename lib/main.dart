@@ -80,6 +80,12 @@ class _RiskState extends State<Risk> {
   //           UILocalNotificationDateInterpretation.wallClockTime,
   //       androidAllowWhileIdle: false);
   // }
+
+  /*
+    註冊登入button
+    text為button的文字
+    route為按下button所要跳轉的page
+  */
   ElevatedButton signButton(text, Widget route) {
     return ElevatedButton(
         style: ButtonStyle(
@@ -119,6 +125,7 @@ class _RiskState extends State<Risk> {
   }
 }
 
+// background 顏色
 LinearGradient linearGradient() {
   return LinearGradient(
       colors: [

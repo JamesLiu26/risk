@@ -3,10 +3,12 @@ import 'Menu/person_data.dart';
 import 'Menu/setting.dart';
 import './login.dart';
 
+// 建立一個選單button
 Builder menuButton() {
   return Builder(
       builder: (context) => IconButton(
           icon: ImageIcon(AssetImage("images/選單.png"), color: Colors.blue[800]),
+          // 點擊打開選單
           onPressed: () => Scaffold.of(context).openDrawer()));
 }
 
@@ -19,6 +21,7 @@ Container menu(BuildContext context) {
     width: sizeWidth * 0.7,
     child: Column(
       children: [
+        // 避免文字跑到最上面去
         SafeArea(
             child: Text(
           "\nXXX5454545\n先生",
@@ -63,6 +66,13 @@ Container menu(BuildContext context) {
   );
 }
 
+/*
+  導向各個頁面
+  route 頁面
+  image 頁面代表圖片
+  pageText 頁面代表文字
+  [padding=20] 間距，預設20
+*/
 GestureDetector menuPages(
     Widget route, Widget image, BuildContext context, String pageText,
     [double padding = 20]) {

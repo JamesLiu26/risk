@@ -15,6 +15,7 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  // TextField的控制項&錯誤訊息
   final phone = TextEditingController();
   final name = TextEditingController();
   final password = TextEditingController();
@@ -23,25 +24,44 @@ class _SignUpState extends State<SignUp> {
   String? errorPhone;
   String? errorPassword;
 
-  void showErrorName(String nameText) {
-    if (nameText.isEmpty || nameText.trim() == "") {
+  /*
+    判斷TextField裡的文字，顯示錯誤訊息
+   */
+  void showErrorName() {
+    if (name.text.isEmpty || name.text.trim() == "") {
       errorName = "不可空白！";
     } else {
       errorName = null;
     }
   }
 
-  void showErrorPhone(String phoneText) {
-    if (phoneText.isEmpty || phoneText.trim() == "") {
+  void showErrorPhone() {
+    if (phone.text.isEmpty || phone.text.trim() == "") {
       errorPhone = "不可空白！";
-    } else if (!phoneText.contains(RegExp("\^09[0-9]{8}\$"), 0)) {
+    } else if (!phone.text.contains(RegExp("\^09[0-9]{8}\$"), 0)) {
       errorPhone = "行動電話格式不正確！";
     } else {
       errorPhone = null;
     }
   }
 
+  void showErrorPassword() {
+    if (password.text.isEmpty || password.text.trim() == "") {
+      errorPassword = "不可空白！";
+    } else if (password.text.length < 6) {
+      errorPassword = "密碼不可小於6個字！";
+    } else {
+      errorPassword = null;
+    }
+  }
+
   // 姓名&行動電話輸入框
+  /*
+    textController TextField控制項
+    label TextField左上文字
+    hint 點擊時顯示的文字
+    error 錯誤訊息
+  */
   Padding signUpNameAndPhone(TextEditingController textController, String label,
       String hint, String? error) {
     return Padding(
@@ -59,32 +79,6 @@ class _SignUpState extends State<SignUp> {
         ));
   }
 
-  // 顯示密碼
-  IconButton showPasswordIconButton() {
-    return IconButton(
-        onPressed: () {
-          setState(() {
-            if (isPassword) {
-              // 顯示密碼
-              isPassword = false;
-            } else {
-              isPassword = true;
-            }
-          });
-        },
-        icon: Icon(Icons.visibility));
-  }
-
-  void showErrorPassword(String passwordText) {
-    if (passwordText.isEmpty || passwordText.trim() == "") {
-      errorPassword = "不可空白！";
-    } else if (passwordText.length < 6) {
-      errorPassword = "密碼不可小於6個字！";
-    } else {
-      errorPassword = null;
-    }
-  }
-
   Padding signUpPassword(TextEditingController textController, String label,
       String hint, String? error) {
     return Padding(
@@ -100,10 +94,29 @@ class _SignUpState extends State<SignUp> {
               suffixIcon: showPasswordIconButton(),
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)))),
-          // 是否顯示密碼
+          /*
+            obscureText:預設false
+            true為顯示obscuringCharacter的符號
+           */
           obscureText: isPassword,
           obscuringCharacter: "*",
         ));
+  }
+
+  IconButton showPasswordIconButton() {
+    return IconButton(
+        onPressed: () {
+          setState(() {
+            if (isPassword) {
+              // 顯示使用者打的密碼
+              isPassword = false;
+            } else {
+              // 顯示 * 字號
+              isPassword = true;
+            }
+          });
+        },
+        icon: Icon(Icons.visibility));
   }
 
   @override
@@ -135,11 +148,12 @@ class _SignUpState extends State<SignUp> {
                       MaterialStateProperty.all<Color>(Colors.green)),
               onPressed: () {
                 setState(() {
-                  // 傳遞錯誤訊息
-                  showErrorName(name.text);
-                  showErrorPhone(phone.text);
-                  showErrorPassword(password.text);
+                  // 執行錯誤訊息function
+                  showErrorName();
+                  showErrorPhone();
+                  showErrorPassword();
                 });
+                // 若無任何錯誤訊息，導向登入page
                 if (errorName == null &&
                     errorPhone == null &&
                     errorPassword == null) {
