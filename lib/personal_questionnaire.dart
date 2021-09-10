@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:tflite_flutter/tflite_flutter.dart';
 
 import './change.dart';
 import './appBar.dart';
@@ -21,6 +22,12 @@ List<String> gender = ["男", "女"];
 List<String> bloodType = ["O", "A", "B", "AB"];
 
 class _PerQuestState extends State<PerQuest> {
+  late Interpreter interpreter;
+  var input = [
+    [0, 140, 70, 0, 0, 35, 0, 50]
+  ];
+  var output = List.filled(1, 0).reshape([1, 1]);
+
   // 性別核選框，預設為男
   String selectGender = gender[0];
 
@@ -57,6 +64,20 @@ class _PerQuestState extends State<PerQuest> {
   String? errorNa;
   String? errorRe;
   String? errorPh;
+
+  loadModel() async {
+    interpreter = await Interpreter.fromAsset("model.tflite");
+    print("Successfully!");
+    interpreter.allocateTensors();
+    print(interpreter.getInputTensors());
+    print(interpreter.getOutputTensors());
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadModel();
+  }
 
   // 文字樣式----
   Text textStyle(String text, [color = Colors.black]) {
@@ -398,11 +419,13 @@ class _PerQuestState extends State<PerQuest> {
                                     errorNa == null &&
                                     errorRe == null &&
                                     errorPh == null) {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => Change()));
+                                  // print(output);
+                                  // Navigator.push(
+                                  //     context,
+                                  //     MaterialPageRoute(
+                                  //         builder: (context) => Change()));
                                 }
+                                interpreter.run(input, output);
                               },
                               child: Center(
                                   child: textStyle("儲存", Colors.green)))),
