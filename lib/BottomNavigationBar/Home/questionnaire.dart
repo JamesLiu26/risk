@@ -36,7 +36,7 @@ class Question extends StatelessWidget {
           textStyle("請注意：\n建議您先透過儀器量測\n或是做完健檢再填寫此問卷", fontSize),
           Spacer(flex: 3),
           Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-            ElevatedButton(
+            OutlinedButton(
               style: ButtonStyle(
                   backgroundColor:
                       MaterialStateProperty.all<Color>(Colors.red)),
@@ -45,7 +45,7 @@ class Question extends StatelessWidget {
                 Navigator.pop(context);
               },
             ),
-            ElevatedButton(
+            OutlinedButton(
               style: ButtonStyle(
                   backgroundColor:
                       MaterialStateProperty.all<Color>(Colors.green)),
@@ -82,3 +82,6 @@ class _FirstPageState extends State<FirstPage> {
         body: Column());
   }
 }
+
+/*
+*/

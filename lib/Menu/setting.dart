@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '/appBar.dart';
 import 'Setting/contact.dart';
+import 'Setting/feedback.dart';
 
 void main() => runApp(MaterialApp(
       home: Settings(),
@@ -27,9 +28,9 @@ class Settings extends StatelessWidget {
           Divider(color: Colors.grey),
           settingPages(Contact(), context, "醫院聯絡方式"),
           Divider(color: Colors.grey),
-          settingPages(Text("1"), context, "意見回饋"),
+          settingPages(FeedBack(), context, "意見回饋"),
           Divider(color: Colors.grey),
-          Spacer(flex: 8)
+          Spacer(flex: 10)
         ],
       ),
     );
@@ -38,21 +39,22 @@ class Settings extends StatelessWidget {
 
 GestureDetector settingPages(Widget route, BuildContext context, String text) {
   return GestureDetector(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => route));
-      },
-      child: Container(
-          margin: EdgeInsets.all(8),
-          width: MediaQuery.of(context).size.width,
-          color: Colors.transparent,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                text,
-                style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.05),
-              ),
-            ],
-          )));
+    onTap: () {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => route));
+    },
+    child: Container(
+        width: MediaQuery.of(context).size.width,
+        color: Colors.transparent,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              text,
+              style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width * 0.05,
+                  height: 2),
+            ),
+          ],
+        )),
+  );
 }

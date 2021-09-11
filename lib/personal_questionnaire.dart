@@ -22,11 +22,14 @@ List<String> gender = ["男", "女"];
 List<String> bloodType = ["O", "A", "B", "AB"];
 
 class _PerQuestState extends State<PerQuest> {
+  // tflite解譯器
   late Interpreter interpreter;
-  var input = [
-    [0, 140, 70, 0, 0, 35, 0, 50]
+  // 丟資料(input)經模型run過會得到output
+  var input;
+  // output預設為0
+  var output = [
+    [0.0]
   ];
-  var output = List.filled(1, 0).reshape([1, 1]);
 
   // 性別核選框，預設為男
   String selectGender = gender[0];
@@ -36,7 +39,7 @@ class _PerQuestState extends State<PerQuest> {
 
   //生日
   String birthday = "點選此處選擇生日";
-  int age = 0;
+  double age = 0;
   // 當下時間
   DateTime currentDate = DateTime.now();
 
@@ -49,8 +52,9 @@ class _PerQuestState extends State<PerQuest> {
   String status = "";
 
   // 家族/過往病史
-  static List<String> diabeteHistory = ["有", "無"];
-  String selectHistory = diabeteHistory[1];
+  static List<String> diabeteHistory = ["無", "有"];
+  String selectHistory = diabeteHistory[0];
+  double dpf = 0;
 
   // 聯絡資訊
   final contactAddress = TextEditingController();
@@ -65,12 +69,25 @@ class _PerQuestState extends State<PerQuest> {
   String? errorRe;
   String? errorPh;
 
+  // 下載模型並取得模型大小
   loadModel() async {
     interpreter = await Interpreter.fromAsset("model.tflite");
     print("Successfully!");
     interpreter.allocateTensors();
     print(interpreter.getInputTensors());
     print(interpreter.getOutputTensors());
+  }
+
+  // 預測結果
+  void predict() {
+    //                        BMI 譜系功能 年齡
+    input = [
+      [0.0, 0.0, 0.0, 0.0, 0.0, bmi, dpf, age]
+    ];
+    print("$bmi  $dpf  $age");
+    // 讓model去跑input
+    interpreter.run(input, output);
+    print(output);
   }
 
   @override
@@ -126,7 +143,8 @@ class _PerQuestState extends State<PerQuest> {
       context: context,
       // 一開始預設的日期為目前日期
       initialDate: currentDate,
-      firstDate: DateTime(1921),
+      // 最早可選到100年前
+      firstDate: DateTime(currentDate.year - 100),
       // 最後一天為目前日期
       lastDate: currentDate,
       // 右下角的文字
@@ -137,7 +155,7 @@ class _PerQuestState extends State<PerQuest> {
         if (selectDate != null) {
           // 利用split取年
           birthday = selectDate.toString().split(" ")[0];
-          age = currentDate.year - selectDate.year;
+          age = (currentDate.year - selectDate.year) * 1.0;
           if ((selectDate.month == currentDate.month &&
                   selectDate.day > currentDate.day) ||
               selectDate.month > currentDate.month) {
@@ -230,6 +248,10 @@ class _PerQuestState extends State<PerQuest> {
         });
   }
 
+  void dpfOrNot() {
+    if (selectHistory == diabeteHistory[1]) dpf = 1.0;
+  }
+
   // 緊急連絡電話判斷
   String? errorEmerPhone(String text) {
     String? error;
@@ -257,7 +279,7 @@ class _PerQuestState extends State<PerQuest> {
               // float字的動畫取消
               floatingLabelBehavior: FloatingLabelBehavior.never,
               border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
         ));
   }
 
@@ -265,19 +287,9 @@ class _PerQuestState extends State<PerQuest> {
   Container questionArea(Widget child) {
     return Container(
         width: MediaQuery.of(context).size.width * 0.9,
-        margin: EdgeInsets.only(top: 10, bottom: 10),
+        margin: EdgeInsets.only(top: 15, bottom: 15),
         decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: Color(0x5F000000),
-                // 陰影擴散程度
-                blurRadius: 4,
-                // 移動陰影
-                offset: Offset(3, 5),
-              )
-            ]),
+            color: Colors.white, borderRadius: BorderRadius.circular(10)),
         child: child);
   }
 
@@ -321,10 +333,10 @@ class _PerQuestState extends State<PerQuest> {
                         Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              textStyle("\n  年齡：$age歲"),
+                              textStyle("\n  年齡：${age.toStringAsFixed(0)}歲"),
                               Padding(
                                   padding: const EdgeInsets.all(10),
-                                  child: ElevatedButton(
+                                  child: OutlinedButton(
                                       style: ButtonStyle(
                                           backgroundColor:
                                               MaterialStateProperty.all<Color>(
@@ -387,46 +399,45 @@ class _PerQuestState extends State<PerQuest> {
 
                       // ----
 
-                      SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.3,
-                          child: ElevatedButton(
-                              style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                          Colors.white)),
-                              onPressed: () {
-                                FocusScopeNode focus = FocusScope.of(context);
-                                // 把TextField的focus移掉
-                                if (!focus.hasPrimaryFocus) {
-                                  focus.unfocus();
-                                }
+                      OutlinedButton(
+                          style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.white)),
+                          onPressed: () {
+                            FocusScopeNode focus = FocusScope.of(context);
+                            // 把TextField的focus移掉
+                            if (!focus.hasPrimaryFocus) {
+                              focus.unfocus();
+                            }
 
-                                setState(() {
-                                  // 傳遞錯誤訊息
-                                  errorHeight = errorBmiContact(height.text);
-                                  errorWeight = errorBmiContact(weight.text);
-                                  errorAddress =
-                                      errorBmiContact(contactAddress.text);
-                                  errorNa = errorBmiContact(emerName.text);
-                                  errorRe =
-                                      errorBmiContact(emerRelationship.text);
-                                  errorPh = errorEmerPhone(emerPhone.text);
-                                });
+                            setState(() {
+                              // 判斷家族有無得過糖尿病
+                              dpfOrNot();
+                              // 傳遞錯誤訊息
+                              errorHeight = errorBmiContact(height.text);
+                              errorWeight = errorBmiContact(weight.text);
+                              errorAddress =
+                                  errorBmiContact(contactAddress.text);
+                              errorNa = errorBmiContact(emerName.text);
+                              errorRe = errorBmiContact(emerRelationship.text);
+                              errorPh = errorEmerPhone(emerPhone.text);
+                            });
 
-                                if (bmi != 0 &&
-                                    birthday != "點選此處選擇生日" &&
-                                    errorAddress == null &&
-                                    errorNa == null &&
-                                    errorRe == null &&
-                                    errorPh == null) {
-                                  // print(output);
-                                  // Navigator.push(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //         builder: (context) => Change()));
-                                }
-                                interpreter.run(input, output);
-                              },
+                            if (bmi != 0 &&
+                                birthday != "點選此處選擇生日" &&
+                                errorAddress == null &&
+                                errorNa == null &&
+                                errorRe == null &&
+                                errorPh == null) {
+                              predict();
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Change()));
+                            }
+                          },
+                          child: SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.2,
                               child: Center(
                                   child: textStyle("儲存", Colors.green)))),
                     ])))));

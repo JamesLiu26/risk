@@ -24,7 +24,7 @@ Container menu(BuildContext context) {
         // 避免文字跑到最上面去
         SafeArea(
             child: Text(
-          "\nXXX5454545\n先生",
+          "\nXXX5454545\n您好",
           style: TextStyle(fontSize: sizeWidth * 0.045),
           textAlign: TextAlign.center,
         )),
@@ -35,7 +35,7 @@ Container menu(BuildContext context) {
         menuPages(
             PersonData(),
             Image.asset("images/個人資料.png",
-                height: sizeWidth * 0.13, width: sizeWidth * 0.14),
+                height: sizeWidth * 0.14, width: sizeWidth * 0.14),
             context,
             "個人資料",
             15),
