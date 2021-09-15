@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './personal_questionnaire.dart';
+import './change.dart';
 import './appBar.dart';
 import './main.dart';
 
@@ -135,8 +135,8 @@ class _LoginState extends State<Login> {
                 showErrorPassword();
               });
               if (errorPhone == null && errorPassword == null) {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => PerQuest()));
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => Change()));
               }
             },
             child: Text("登入",

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './login.dart';
+import './personal_questionnaire.dart';
 import './appBar.dart';
 
 void main() {
@@ -158,7 +158,7 @@ class _SignUpState extends State<SignUp> {
                     errorPhone == null &&
                     errorPassword == null) {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Login()));
+                      MaterialPageRoute(builder: (context) => PerQuest()));
                 }
               },
               child: Text("註冊",

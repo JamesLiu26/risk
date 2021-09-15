@@ -1,9 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:tflite_flutter/tflite_flutter.dart';
 
-import './change.dart';
+import './login.dart';
 import './appBar.dart';
 
 void main() {
@@ -22,15 +21,6 @@ List<String> gender = ["男", "女"];
 List<String> bloodType = ["O", "A", "B", "AB"];
 
 class _PerQuestState extends State<PerQuest> {
-  // tflite解譯器
-  late Interpreter interpreter;
-  // 丟資料(input)經模型run過會得到output
-  var input;
-  // output預設為0
-  var output = [
-    [0.0]
-  ];
-
   // 性別核選框，預設為男
   String selectGender = gender[0];
 
@@ -68,33 +58,6 @@ class _PerQuestState extends State<PerQuest> {
   String? errorNa;
   String? errorRe;
   String? errorPh;
-
-  // 下載模型並取得模型大小
-  loadModel() async {
-    interpreter = await Interpreter.fromAsset("model.tflite");
-    print("Successfully!");
-    interpreter.allocateTensors();
-    print(interpreter.getInputTensors());
-    print(interpreter.getOutputTensors());
-  }
-
-  // 預測結果
-  void predict() {
-    //                        BMI 譜系功能 年齡
-    input = [
-      [0.0, 0.0, 0.0, 0.0, 0.0, bmi, dpf, age]
-    ];
-    print("$bmi  $dpf  $age");
-    // 讓model去跑input
-    interpreter.run(input, output);
-    print(output);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    loadModel();
-  }
 
   // 文字樣式----
   Text textStyle(String text, [color = Colors.black]) {
@@ -429,11 +392,10 @@ class _PerQuestState extends State<PerQuest> {
                                 errorNa == null &&
                                 errorRe == null &&
                                 errorPh == null) {
-                              predict();
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => Change()));
+                                      builder: (context) => Login()));
                             }
                           },
                           child: SizedBox(

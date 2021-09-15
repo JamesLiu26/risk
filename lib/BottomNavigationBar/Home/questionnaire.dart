@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '/appBar.dart';
+import 'package:tflite_flutter/tflite_flutter.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -8,7 +9,40 @@ void main() {
   ));
 }
 
-class Question extends StatelessWidget {
+/*
+// 下載模型並取得模型大小
+  loadModel() async {
+    interpreter = await Interpreter.fromAsset("model.tflite");
+    print("Successfully!");
+    interpreter.allocateTensors();
+    print(interpreter.getInputTensors());
+    print(interpreter.getOutputTensors());
+  }
+
+  // 預測結果
+  void predict() {
+    //                        BMI 譜系功能 年齡
+    input = [
+      [0.0, 0.0, 0.0, 0.0, 0.0, bmi, dpf, age]
+    ];
+    print("$bmi  $dpf  $age");
+    // 讓model去跑input
+    interpreter.run(input, output);
+    print(output);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadModel();
+  }
+ */
+class Question extends StatefulWidget {
+  @override
+  _QuestionState createState() => _QuestionState();
+}
+
+class _QuestionState extends State<Question> {
   Text textStyle(
     text,
     double size, [
