@@ -129,6 +129,11 @@ class _LoginState extends State<Login> {
                 backgroundColor:
                     MaterialStateProperty.all<Color>(Colors.green)),
             onPressed: () {
+              FocusScopeNode focus = FocusScope.of(context);
+              // 把TextField的focus移掉
+              if (!focus.hasPrimaryFocus) {
+                focus.unfocus();
+              }
               setState(() {
                 // 傳遞錯誤訊息
                 showErrorPhone();
