@@ -114,7 +114,7 @@ class _LoginState extends State<Login> {
               child: Column(children: [
         Column(
           children: [
-            SizedBox(height: MediaQuery.of(context).size.height * 0.25),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.2),
             loginPhone(phone, "行動電話", "例：0912345678", errorPhone),
             loginPassword(
               password,
