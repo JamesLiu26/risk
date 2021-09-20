@@ -121,6 +121,7 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
         appBar: appBar(
             "註冊",
@@ -135,18 +136,23 @@ class _SignUpState extends State<SignUp> {
                 child: Column(children: [
           Column(
             children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.15),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.12),
               signUpNameAndPhone(name, "姓名", "請輸入本名", errorName),
               signUpNameAndPhone(phone, "行動電話", "例：0912345678", errorPhone),
               signUpPassword(password, "密碼", "請至少輸入6個字元", errorPassword)
             ],
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 10),
           ElevatedButton(
               style: ButtonStyle(
                   backgroundColor:
                       MaterialStateProperty.all<Color>(Colors.green)),
               onPressed: () {
+                FocusScopeNode focus = FocusScope.of(context);
+                // 把TextField的focus移掉
+                if (!focus.hasPrimaryFocus) {
+                  focus.unfocus();
+                }
                 setState(() {
                   // 執行錯誤訊息function
                   showErrorName();
@@ -161,9 +167,7 @@ class _SignUpState extends State<SignUp> {
                       MaterialPageRoute(builder: (context) => PerQuest()));
                 }
               },
-              child: Text("註冊",
-                  style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.width * 0.06))),
+              child: Text("註冊", style: TextStyle(fontSize: size.width * 0.06))),
         ]))));
   }
 }

@@ -365,7 +365,7 @@ class _PerQuestState extends State<PerQuest> {
                       OutlinedButton(
                           style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.white)),
+                                  Colors.green)),
                           onPressed: () {
                             FocusScopeNode focus = FocusScope.of(context);
                             // 把TextField的focus移掉
@@ -401,7 +401,7 @@ class _PerQuestState extends State<PerQuest> {
                           child: SizedBox(
                               width: MediaQuery.of(context).size.width * 0.2,
                               child: Center(
-                                  child: textStyle("儲存", Colors.green)))),
+                                  child: textStyle("儲存", Colors.white)))),
                     ])))));
   }
 }

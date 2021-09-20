@@ -99,6 +99,7 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: appBar(
           "登入",
@@ -116,14 +117,10 @@ class _LoginState extends State<Login> {
           children: [
             SizedBox(height: MediaQuery.of(context).size.height * 0.2),
             loginPhone(phone, "行動電話", "例：0912345678", errorPhone),
-            loginPassword(
-              password,
-              "密碼",
-              errorPassword,
-            ),
+            loginPassword(password, "密碼", errorPassword),
           ],
         ),
-        SizedBox(height: 20),
+        SizedBox(height: 10),
         ElevatedButton(
             style: ButtonStyle(
                 backgroundColor:
@@ -144,9 +141,7 @@ class _LoginState extends State<Login> {
                     context, MaterialPageRoute(builder: (context) => Change()));
               }
             },
-            child: Text("登入",
-                style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.06))),
+            child: Text("登入", style: TextStyle(fontSize: size.width * 0.06))),
       ]))),
     );
   }

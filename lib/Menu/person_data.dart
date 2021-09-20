@@ -50,8 +50,6 @@ class _PersonDataState extends State<PersonData> {
             ),
             textLayout("姓名", "XXX"),
             textLayout("性別", "男"),
-            textLayout("血型", "X型"),
-            textLayout("生日", "2000-07-28"),
             textLayout("行動電話", "0998765432"),
             Divider(
               color: Colors.grey,
