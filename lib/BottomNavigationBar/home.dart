@@ -28,36 +28,28 @@ class HomeState extends State<Home> {
         appBar: appBar("首頁", menuButton()),
         body: Container(
           color: Color(0XFFFFF0F5),
-          child: Column(children: [
-            SizedBox(height: 20),
-
-            // -----------------------
-
-            SizedBox(height: 20),
-
-            // -----------------------
-
-            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-              homeRoute("預約看診", "images/放大.png", Text("")),
-              homeRoute("問卷填寫", "images/問卷.png", Question())
-            ]),
-            SizedBox(height: 20),
-
-            // // -----------------------
-
-            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-              homeRoute("醫師洽談", "images/醫師談.png", Text("")),
-              homeRoute("健康飲食", "images/餐具.png", Text(""))
-            ]),
-
-            // -----------------------
-
-            SizedBox(height: 20),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-              homeRoute("飲食建議", "images/食物.png", Advice()),
-              homeRoute("注意事項", "images/注意.png", Notice())
-            ]),
-          ]),
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      homeRoute("預約看診", "images/放大.png", Text("")),
+                      homeRoute("問卷填寫", "images/問卷.png", Question())
+                    ]),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      homeRoute("醫師洽談", "images/醫師談.png", Text("")),
+                      homeRoute("健康飲食", "images/餐具.png", Text(""))
+                    ]),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      homeRoute("飲食建議", "images/食物.png", Advice()),
+                      homeRoute("注意事項", "images/注意.png", Notice())
+                    ]),
+              ]),
         ));
   }
 
