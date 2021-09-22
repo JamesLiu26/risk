@@ -33,12 +33,12 @@ class Contact extends StatelessWidget {
             contactText(
                 "  顧客服務中心：\n  服務時間：8:30~16:30\n  幫您專線：(02)7738-2525", fontSize),
             contactText("  服務台：(02)8966-7000轉2144", fontSize),
-            Row(
-              children: [
-                contactText("  亞東醫院網址：", fontSize),
-                toLinkWeb("www.femh.org.tw", fontSize)
-              ],
-            ),
+            // Row(
+            //   children: [
+            //     contactText("  亞東醫院網址：", fontSize),
+            //     toLinkWeb("www.femh.org.tw", fontSize)
+            //   ],
+            // ),
           ],
         ));
   }
@@ -49,26 +49,26 @@ Text contactText(String text, double size) {
       style: TextStyle(fontSize: size, letterSpacing: 1, height: 2));
 }
 
-Text link(
-  String text,
-  double size,
-) {
-  return Text(text,
-      style: TextStyle(
-          fontSize: size,
-          decoration: TextDecoration.underline,
-          color: Colors.blue,
-          letterSpacing: 1,
-          height: 2));
-}
+// Text link(
+//   String text,
+//   double size,
+// ) {
+//   return Text(text,
+//       style: TextStyle(
+//           fontSize: size,
+//           decoration: TextDecoration.underline,
+//           color: Colors.blue,
+//           letterSpacing: 1,
+//           height: 2));
+// }
 
-GestureDetector toLinkWeb(String url, double size) {
-  return GestureDetector(
-      child: link(url, size),
-      onTap: () async {
-        if (await canLaunch("https://$url"))
-          launch("https://$url");
-        else
-          throw "Couldn't launch $url";
-      });
-}
+// GestureDetector toLinkWeb(String url, double size) {
+//   return GestureDetector(
+//       child: link(url, size),
+//       onTap: () async {
+//         if (await canLaunch("https://$url"))
+//           launch("https://$url");
+//         else
+//           throw "Couldn't launch $url";
+//       });
+// }

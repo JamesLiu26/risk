@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'Home/advice.dart';
 import 'Home/questionnaire.dart';
 import 'Home/notice.dart';
+import 'Home/appointment.dart';
 
 import '../appBar.dart';
 import '../menu.dart';
@@ -34,7 +35,7 @@ class HomeState extends State<Home> {
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      homeRoute("預約看診", "images/放大.png", Text("")),
+                      homeRoute("預約看診", "images/放大.png", Appointment()),
                       homeRoute("問卷填寫", "images/問卷.png", Question())
                     ]),
                 Row(
