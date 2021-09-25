@@ -43,13 +43,9 @@ class Question extends StatefulWidget {
 }
 
 class _QuestionState extends State<Question> {
-  Text textStyle(
-    text,
-    double size, [
-    color = Colors.black,
-  ]) {
+  Text textStyle(text, double size) {
     return Text(text,
-        style: TextStyle(fontSize: size, color: color),
+        style: TextStyle(fontSize: size, color: Colors.black, height: 1.5),
         textAlign: TextAlign.center);
   }
 
@@ -65,33 +61,23 @@ class _QuestionState extends State<Question> {
               },
               icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
             )),
-        body: Column(children: [
-          Spacer(flex: 3),
+        body: Center(
+            child: Column(children: [
+          Spacer(flex: 2),
           textStyle("請注意：\n建議您先透過儀器量測\n或是做完健檢再填寫此問卷", fontSize),
-          Spacer(flex: 3),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-            OutlinedButton(
-              style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.red)),
-              child: textStyle("返回", fontSize, Colors.white),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
-            OutlinedButton(
+          Spacer(flex: 1),
+          OutlinedButton(
               style: ButtonStyle(
                   backgroundColor:
                       MaterialStateProperty.all<Color>(Colors.green)),
-              child: textStyle("繼續", fontSize, Colors.white),
+              child: Text("繼續",
+                  style: TextStyle(fontSize: fontSize, color: Colors.white)),
               onPressed: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => FirstPage()));
-              },
-            )
-          ]),
+              }),
           Spacer(flex: 3),
-        ]));
+        ])));
   }
 }
 
@@ -106,7 +92,7 @@ class _FirstPageState extends State<FirstPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: appBar(
-            "問卷填寫",
+            "回上頁",
             IconButton(
               onPressed: () {
                 Navigator.pop(context);
@@ -116,6 +102,3 @@ class _FirstPageState extends State<FirstPage> {
         body: Column());
   }
 }
-
-/*
-*/

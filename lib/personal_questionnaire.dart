@@ -304,8 +304,8 @@ class _PerQuestState extends State<PerQuest> {
                                           backgroundColor:
                                               MaterialStateProperty.all<Color>(
                                                   Color(0xFF1565C0))),
-                                      onPressed: () async {
-                                        await chooseBirthday();
+                                      onPressed: () {
+                                        chooseBirthday();
                                       },
                                       child: textStyle(
                                           birthday, Color(0xffffffff))))

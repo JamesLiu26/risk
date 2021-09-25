@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import './signup.dart';
 import './login.dart';
-// import './trace.dart';
 //
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
