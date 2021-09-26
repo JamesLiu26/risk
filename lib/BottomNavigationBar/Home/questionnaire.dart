@@ -42,13 +42,13 @@ class Question extends StatefulWidget {
   _QuestionState createState() => _QuestionState();
 }
 
-class _QuestionState extends State<Question> {
-  Text textStyle(text, double size) {
-    return Text(text,
-        style: TextStyle(fontSize: size, color: Colors.black, height: 1.5),
-        textAlign: TextAlign.center);
-  }
+Text textStyle(text, double size) {
+  return Text(text,
+      style: TextStyle(fontSize: size, color: Colors.black, height: 1.5),
+      textAlign: TextAlign.center);
+}
 
+class _QuestionState extends State<Question> {
   @override
   Widget build(BuildContext context) {
     double fontSize = MediaQuery.of(context).size.width * 0.06;
@@ -90,6 +90,8 @@ class FirstPage extends StatefulWidget {
 class _FirstPageState extends State<FirstPage> {
   @override
   Widget build(BuildContext context) {
+    double fontSize = MediaQuery.of(context).size.width * 0.06;
+    final glu = TextEditingController();
     return Scaffold(
         appBar: appBar(
             "回上頁",
@@ -99,6 +101,23 @@ class _FirstPageState extends State<FirstPage> {
               },
               icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
             )),
-        body: Column());
+        body: Column(
+          children: [
+            Row(
+              children: [
+                textStyle("1.請輸入您的血糖：", fontSize),
+              ],
+            ),
+            Padding(
+              padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+              child: TextField(
+                controller: glu,
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10))),
+              ),
+            )
+          ],
+        ));
   }
 }
