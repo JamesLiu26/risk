@@ -16,19 +16,19 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  final phone = TextEditingController();
+  final mail = TextEditingController();
   final password = TextEditingController();
   bool isPassword = true;
-  String? errorPhone;
+  String? errorMail;
   String? errorPassword;
 
-  void showErrorPhone() {
-    if (phone.text.isEmpty || phone.text.trim() == "") {
-      errorPhone = "不可空白！";
-    } else if (!phone.text.contains(RegExp("\^09[0-9]{8}\$"), 0)) {
-      errorPhone = "行動電話格式不正確！";
+  void showErrorMail() {
+    if (mail.text.isEmpty || mail.text.trim() == "") {
+      errorMail = "不可空白！";
+      // } else if (!mail.text.contains(RegExp("\^09[0-9]{8}\$"), 0)) {
+      //   errorMail = "行動電話格式不正確！";
     } else {
-      errorPhone = null;
+      errorMail = null;
     }
   }
 
@@ -44,7 +44,7 @@ class _LoginState extends State<Login> {
   }
 
   // 行動電話輸入框
-  Padding loginPhone(TextEditingController textController, String label,
+  Padding loginMail(TextEditingController textController, String label,
       String hint, String? error) {
     return Padding(
         padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
@@ -116,7 +116,7 @@ class _LoginState extends State<Login> {
         Column(
           children: [
             SizedBox(height: MediaQuery.of(context).size.height * 0.2),
-            loginPhone(phone, "行動電話", "例：0912345678", errorPhone),
+            loginMail(mail, "電子信箱", "例：XXX@gmail.com", errorMail),
             loginPassword(password, "密碼", errorPassword),
           ],
         ),
@@ -133,10 +133,10 @@ class _LoginState extends State<Login> {
               }
               setState(() {
                 // 傳遞錯誤訊息
-                showErrorPhone();
+                showErrorMail();
                 showErrorPassword();
               });
-              if (errorPhone == null && errorPassword == null) {
+              if (errorMail == null && errorPassword == null) {
                 Navigator.push(
                     context, MaterialPageRoute(builder: (context) => Change()));
               }

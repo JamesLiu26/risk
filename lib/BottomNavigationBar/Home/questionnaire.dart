@@ -78,7 +78,6 @@ class _SecondPageState extends State<SecondPage> {
 
   // 預測結果
   void predict() {
-    //                        BMI 譜系功能 年齡
     input = [
       [
         double.parse(pregnant.text),
@@ -119,6 +118,7 @@ class _SecondPageState extends State<SecondPage> {
     bool fullData = true;
     for (TextEditingController value in data) {
       if (!value.text.contains(RegExp("^[0-9]+\$"), 0)) {
+        print(value);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             backgroundColor: Colors.red[800],
             content: Text("請確認問卷填寫無誤再按送出！",
@@ -148,9 +148,11 @@ class _SecondPageState extends State<SecondPage> {
             if (index == 0) {
               yesOrNo[0] = true;
               yesOrNo[1] = false;
+              pregnant.text = "0";
             } else {
               yesOrNo[0] = false;
               yesOrNo[1] = true;
+              pregnant.text = "";
             }
           });
         });

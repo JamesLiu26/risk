@@ -48,13 +48,14 @@ class _PerQuestState extends State<PerQuest> {
 
   // 聯絡資訊
   final contactAddress = TextEditingController();
-  final contactEmail = TextEditingController();
+  final contactPhone = TextEditingController();
   String? errorAddress;
-
-  // 緊急聯絡人
+  String? errorPhone;
+  // 緊急連絡人
   final emerName = TextEditingController();
   final emerRelationship = TextEditingController();
   final emerPhone = TextEditingController();
+
   String? errorNa;
   String? errorRe;
   String? errorPh;
@@ -215,8 +216,8 @@ class _PerQuestState extends State<PerQuest> {
     if (selectHistory == diabeteHistory[1]) dpf = 1.0;
   }
 
-  // 緊急連絡電話判斷
-  String? errorEmerPhone(String text) {
+  // 電話判斷
+  String? errorPhones(String text) {
     String? error;
     if (text.isEmpty || text.trim() == "") {
       error = "不可空白！";
@@ -228,7 +229,7 @@ class _PerQuestState extends State<PerQuest> {
     return error;
   }
 
-  // 聯絡資訊&緊急聯絡人輸入框
+  // 聯絡資訊輸入框
   Padding inputContact(TextEditingController controller, String label,
       String hint, String? error) {
     return Padding(
@@ -336,29 +337,26 @@ class _PerQuestState extends State<PerQuest> {
                           ])),
 
                       // ----
+                      questionArea(Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            textStyle("\n  聯絡資訊"),
+                            inputContact(contactPhone, "聯絡電話", "例：0912345678",
+                                errorPhone),
+                            inputContact(contactAddress, "通訊地址", "例：XX市XX區...",
+                                errorAddress),
+                          ])),
 
                       questionArea(Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          textStyle("\n  聯絡資訊"),
-                          inputContact(contactAddress, "通訊地址", "例：XX市XX區...",
-                              errorAddress),
-                          inputContact(contactEmail, "電子郵件(非必填)",
-                              "Google, Yahoo, OneDrive...", null),
+                          textStyle("\n  緊急聯絡人"),
+                          inputContact(emerName, "姓名", "", errorNa),
+                          inputContact(emerRelationship, "關係", "", errorRe),
+                          inputContact(
+                              emerPhone, "聯絡電話", "例：0912345678", errorPh),
                         ],
                       )),
-
-                      // ----
-
-                      questionArea(Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            textStyle("\n  緊急聯絡人"),
-                            inputContact(emerName, "姓名", "", errorNa),
-                            inputContact(emerRelationship, "關係", "", errorRe),
-                            inputContact(
-                                emerPhone, "聯絡電話", "例：0912345678", errorPh),
-                          ])),
 
                       // ----
 
@@ -379,11 +377,12 @@ class _PerQuestState extends State<PerQuest> {
                               // 傳遞錯誤訊息
                               errorHeight = errorBmiContact(height.text);
                               errorWeight = errorBmiContact(weight.text);
+                              errorPhone = errorPhones(contactPhone.text);
                               errorAddress =
                                   errorBmiContact(contactAddress.text);
                               errorNa = errorBmiContact(emerName.text);
                               errorRe = errorBmiContact(emerRelationship.text);
-                              errorPh = errorEmerPhone(emerPhone.text);
+                              errorPh = errorPhones(emerPhone.text);
                             });
 
                             if (bmi != 0 &&
