@@ -88,10 +88,20 @@ class FirstPage extends StatefulWidget {
 }
 
 class _FirstPageState extends State<FirstPage> {
+  final glu = TextEditingController();
+  List<String> yesOrNo = [];
+  TextField question(TextEditingController controller, fontSize) {
+    return TextField(
+        controller: controller,
+        style: TextStyle(fontSize: fontSize),
+        decoration: InputDecoration(
+            border:
+                OutlineInputBorder(borderRadius: BorderRadius.circular(10))));
+  }
+
   @override
   Widget build(BuildContext context) {
-    double fontSize = MediaQuery.of(context).size.width * 0.06;
-    final glu = TextEditingController();
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
         appBar: appBar(
             "回上頁",
@@ -102,21 +112,39 @@ class _FirstPageState extends State<FirstPage> {
               icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
             )),
         body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Row(
               children: [
-                textStyle("1.請輸入您的血糖：", fontSize),
+                textStyle("1.請輸入血糖：", size.width * 0.055),
+                SizedBox(
+                  width: size.width * 0.3,
+                  child: question(glu, size.width * 0.055),
+                ),
+                textStyle(" mg/dL", size.width * 0.055)
               ],
             ),
-            Padding(
-              padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
-              child: TextField(
-                controller: glu,
-                decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10))),
-              ),
-            )
+            Row(
+              children: [
+                textStyle("2.請輸入舒張壓：", size.width * 0.055),
+                SizedBox(
+                  width: size.width * 0.3,
+                  child: question(glu, size.width * 0.055),
+                ),
+                textStyle(" mmHg", size.width * 0.055)
+              ],
+            ),
+            // if (性別=='女')
+            Row(
+              children: [
+                textStyle("3.請問您是否有懷孕過：", size.width * 0.055),
+              ],
+            ),
+
+            SizedBox(
+              width: size.width * 0.3,
+              child: question(glu, size.width * 0.055),
+            ),
           ],
         ));
   }
