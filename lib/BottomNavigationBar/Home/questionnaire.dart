@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '/appBar.dart';
+import '/change.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 
 void main() {
@@ -9,34 +11,6 @@ void main() {
   ));
 }
 
-/*
-// 下載模型並取得模型大小
-  loadModel() async {
-    interpreter = await Interpreter.fromAsset("model.tflite");
-    print("Successfully!");
-    interpreter.allocateTensors();
-    print(interpreter.getInputTensors());
-    print(interpreter.getOutputTensors());
-  }
-
-  // 預測結果
-  void predict() {
-    //                        BMI 譜系功能 年齡
-    input = [
-      [0.0, 0.0, 0.0, 0.0, 0.0, bmi, dpf, age]
-    ];
-    print("$bmi  $dpf  $age");
-    // 讓model去跑input
-    interpreter.run(input, output);
-    print(output);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    loadModel();
-  }
- */
 class Question extends StatefulWidget {
   @override
   _QuestionState createState() => _QuestionState();
@@ -74,29 +48,118 @@ class _QuestionState extends State<Question> {
                   style: TextStyle(fontSize: fontSize, color: Colors.white)),
               onPressed: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => FirstPage()));
+                    MaterialPageRoute(builder: (context) => SecondPage()));
               }),
           Spacer(flex: 3),
         ])));
   }
 }
 
-//first page
-class FirstPage extends StatefulWidget {
+//Second page-------------------
+class SecondPage extends StatefulWidget {
   @override
-  _FirstPageState createState() => _FirstPageState();
+  _SecondPageState createState() => _SecondPageState();
 }
 
-class _FirstPageState extends State<FirstPage> {
+class _SecondPageState extends State<SecondPage> {
+  late Interpreter interpreter;
+  late List<List<double>> input;
+  List<List<double>> output = [
+    [0.0]
+  ];
+  // 下載模型並取得模型大小
+  loadModel() async {
+    interpreter = await Interpreter.fromAsset("model.tflite");
+    print("Successfully!");
+    interpreter.allocateTensors();
+    print(interpreter.getInputTensors());
+    print(interpreter.getOutputTensors());
+  }
+
+  // 預測結果
+  void predict() {
+    //                        BMI 譜系功能 年齡
+    input = [
+      [
+        double.parse(pregnant.text),
+        double.parse(glu.text),
+        double.parse(bloodPressure.text),
+        0.0,
+        0.0,
+        17.3,
+        1.0,
+        21.0
+      ]
+    ];
+
+    // 讓model去跑input
+    interpreter.run(input, output);
+    print(output[0][0]);
+  }
+
+  final pregnant = TextEditingController();
   final glu = TextEditingController();
-  List<String> yesOrNo = [];
-  TextField question(TextEditingController controller, fontSize) {
+  final bloodPressure = TextEditingController();
+  late List data = [pregnant, glu, bloodPressure];
+  List<bool> yesOrNo = [true, false];
+  //
+
+  TextField question(TextEditingController controller) {
+    double fontSize = MediaQuery.of(context).size.width * 0.055;
     return TextField(
         controller: controller,
         style: TextStyle(fontSize: fontSize),
+        inputFormatters: [LengthLimitingTextInputFormatter(4)],
         decoration: InputDecoration(
             border:
                 OutlineInputBorder(borderRadius: BorderRadius.circular(10))));
+  }
+
+  bool result() {
+    bool fullData = true;
+    for (TextEditingController value in data) {
+      if (!value.text.contains(RegExp("^[0-9]+\$"), 0)) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            backgroundColor: Colors.red[800],
+            content: Text("請確認問卷填寫無誤再按送出！",
+                style: TextStyle(fontSize: 16, color: Colors.white)),
+            duration: Duration(seconds: 1)));
+        fullData = false;
+        break;
+      }
+    }
+    return fullData;
+  }
+
+  ToggleButtons yesNoButtons() {
+    return ToggleButtons(
+        borderRadius: BorderRadius.circular(20),
+        fillColor: Colors.blue[800],
+        selectedColor: Colors.white,
+        borderColor: Colors.black,
+        selectedBorderColor: Colors.black,
+        children: [
+          Text("否"),
+          Text("是"),
+        ],
+        isSelected: yesOrNo,
+        onPressed: (index) {
+          setState(() {
+            if (index == 0) {
+              yesOrNo[0] = true;
+              yesOrNo[1] = false;
+            } else {
+              yesOrNo[0] = false;
+              yesOrNo[1] = true;
+            }
+          });
+        });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadModel();
   }
 
   @override
@@ -111,41 +174,92 @@ class _FirstPageState extends State<FirstPage> {
               },
               icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
             )),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Row(
-              children: [
-                textStyle("1.請輸入血糖：", size.width * 0.055),
-                SizedBox(
-                  width: size.width * 0.3,
-                  child: question(glu, size.width * 0.055),
-                ),
-                textStyle(" mg/dL", size.width * 0.055)
-              ],
-            ),
-            Row(
-              children: [
-                textStyle("2.請輸入舒張壓：", size.width * 0.055),
-                SizedBox(
-                  width: size.width * 0.3,
-                  child: question(glu, size.width * 0.055),
-                ),
-                textStyle(" mmHg", size.width * 0.055)
-              ],
-            ),
-            // if (性別=='女')
-            Row(
-              children: [
-                textStyle("3.請問您是否有懷孕過：", size.width * 0.055),
-              ],
-            ),
+        body: SingleChildScrollView(
+            child: Column(children: [
+          // if (性別=='女')
+          SizedBox(height: 50),
+          Row(
+            children: [
+              textStyle("請問您是否有懷孕過：", size.width * 0.055),
+              yesNoButtons(),
+            ],
+          ),
+          yesOrNo[1] == true
+              ? Row(
+                  children: [
+                    textStyle("請輸入：", size.width * 0.055),
+                    SizedBox(
+                      width: size.width * 0.2,
+                      child: question(pregnant),
+                    ),
+                    textStyle(" 次", size.width * 0.055),
+                  ],
+                )
+              : Row(),
+          SizedBox(height: 50),
+          Row(
+            children: [
+              textStyle("請輸入血糖：", size.width * 0.055),
+              SizedBox(
+                width: size.width * 0.25,
+                child: question(glu),
+              ),
+              textStyle(" mg/dL", size.width * 0.055)
+            ],
+          ),
+          SizedBox(height: 50),
+          Row(
+            children: [
+              textStyle("請輸入舒張壓：", size.width * 0.055),
+              SizedBox(
+                width: size.width * 0.25,
+                child: question(bloodPressure),
+              ),
+              textStyle(" mmHg", size.width * 0.055)
+            ],
+          ),
+          SizedBox(height: 100),
+          OutlinedButton(
+              style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Colors.green)),
+              child: Text("送出",
+                  style: TextStyle(
+                      fontSize: size.width * 0.06, color: Colors.white)),
+              onPressed: () {
+                FocusScopeNode focus = FocusScope.of(context);
+                // 把TextField的focus移掉
+                if (!focus.hasPrimaryFocus) {
+                  focus.unfocus();
+                }
+                if (result() == true) {
+                  predict();
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => Result()));
+                }
+              }),
+        ])));
+  }
+}
 
-            SizedBox(
-              width: size.width * 0.3,
-              child: question(glu, size.width * 0.055),
-            ),
-          ],
-        ));
+class Result extends StatefulWidget {
+  @override
+  _ResultState createState() => _ResultState();
+}
+
+class _ResultState extends State<Result> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: appBar(
+            "回到首頁",
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => Change()));
+              },
+              icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
+            )),
+        body: Column());
   }
 }

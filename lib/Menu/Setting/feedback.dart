@@ -63,8 +63,11 @@ class _FeedBackState extends State<FeedBack> {
                       error = null;
                       if (fbText.text != "" && fbText.text.trim() != "") {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          duration: Duration(seconds: 2),
-                          content: Text("已成功送出！"),
+                          backgroundColor: Colors.green,
+                          duration: Duration(seconds: 1),
+                          content: Text("已成功送出！",
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.white)),
                         ));
                       } else {
                         error = "不可為空白！";
