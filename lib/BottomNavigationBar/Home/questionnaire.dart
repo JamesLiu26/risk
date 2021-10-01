@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '/appBar.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 import '/change.dart';
+import '/appBar.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 
 void main() {
@@ -67,42 +68,22 @@ class _SecondPageState extends State<SecondPage> {
   List<List<double>> output = [
     [0.0]
   ];
-  // 下載模型並取得模型大小
+
+  // 載入模型並取得模型大小
   loadModel() async {
     interpreter = await Interpreter.fromAsset("model.tflite");
-    print("Successfully!");
     interpreter.allocateTensors();
     print(interpreter.getInputTensors());
     print(interpreter.getOutputTensors());
   }
 
-  // 預測結果
-  void predict() {
-    input = [
-      [
-        double.parse(pregnant.text),
-        double.parse(glu.text),
-        double.parse(bloodPressure.text),
-        0.0,
-        0.0,
-        17.3,
-        1.0,
-        21.0
-      ]
-    ];
-
-    // 讓model去跑input
-    interpreter.run(input, output);
-    print(output[0][0]);
-  }
-
-  final pregnant = TextEditingController();
+  var pregnant = TextEditingController();
   final glu = TextEditingController();
   final bloodPressure = TextEditingController();
   late List data = [pregnant, glu, bloodPressure];
   List<bool> yesOrNo = [true, false];
-  //
 
+  //------------
   TextField question(TextEditingController controller) {
     double fontSize = MediaQuery.of(context).size.width * 0.055;
     return TextField(
@@ -114,23 +95,7 @@ class _SecondPageState extends State<SecondPage> {
                 OutlineInputBorder(borderRadius: BorderRadius.circular(10))));
   }
 
-  bool result() {
-    bool fullData = true;
-    for (TextEditingController value in data) {
-      if (!value.text.contains(RegExp("^[0-9]+\$"), 0)) {
-        print(value);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            backgroundColor: Colors.red[800],
-            content: Text("請確認問卷填寫無誤再按送出！",
-                style: TextStyle(fontSize: 16, color: Colors.white)),
-            duration: Duration(seconds: 1)));
-        fullData = false;
-        break;
-      }
-    }
-    return fullData;
-  }
-
+  // 是否懷孕
   ToggleButtons yesNoButtons() {
     return ToggleButtons(
         borderRadius: BorderRadius.circular(20),
@@ -158,15 +123,129 @@ class _SecondPageState extends State<SecondPage> {
         });
   }
 
+  // 確認每個值是否有輸入
+  bool result() {
+    bool hasFullData = true;
+    for (TextEditingController value in data) {
+      if (!value.text.contains(RegExp("^[0-9]+\$"), 0)) {
+        //
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            backgroundColor: Colors.red[800],
+            content: Text("請確認問卷填寫無誤再按送出！",
+                style: TextStyle(fontSize: 16, color: Colors.white)),
+            duration: Duration(seconds: 1)));
+        //
+        hasFullData = false;
+        break;
+      }
+    }
+    return hasFullData;
+  }
+
+  // 預測結果
+  void predict() {
+    input = [
+      [
+        double.parse(pregnant.text),
+        double.parse(glu.text),
+        double.parse(bloodPressure.text),
+        0.0,
+        0.0,
+        25,
+        1.0,
+        22.0
+      ]
+    ];
+
+    // 讓model去跑input
+    interpreter.run(input, output);
+    print((output[0][0]));
+  }
+
+  SingleChildScrollView beforePrediction() {
+    Size size = MediaQuery.of(context).size;
+    return SingleChildScrollView(
+        child: Column(children: [
+      // if (性別=='女')
+      SizedBox(height: 50),
+      Row(
+        children: [
+          textStyle("請問您是否有懷孕過：", size.width * 0.055),
+          yesNoButtons(),
+        ],
+      ),
+
+      // 顯示懷孕輸入框
+      yesOrNo[1] == true
+          ? Row(
+              children: [
+                textStyle("請輸入：", size.width * 0.055),
+                SizedBox(
+                  width: size.width * 0.2,
+                  child: question(pregnant),
+                ),
+                textStyle(" 次", size.width * 0.055),
+              ],
+            )
+          : Row(),
+      SizedBox(height: 50),
+      Row(
+        children: [
+          textStyle("請輸入血糖：", size.width * 0.055),
+          SizedBox(
+            width: size.width * 0.25,
+            child: question(glu),
+          ),
+          textStyle(" mg/dL", size.width * 0.055)
+        ],
+      ),
+      SizedBox(height: 50),
+      Row(
+        children: [
+          textStyle("請輸入舒張壓：", size.width * 0.055),
+          SizedBox(
+            width: size.width * 0.25,
+            child: question(bloodPressure),
+          ),
+          textStyle(" mmHg", size.width * 0.055)
+        ],
+      ),
+      SizedBox(height: 100),
+      OutlinedButton(
+          style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(Colors.green)),
+          child: Text("送出",
+              style:
+                  TextStyle(fontSize: size.width * 0.06, color: Colors.white)),
+          onPressed: () {
+            FocusScopeNode focus = FocusScope.of(context);
+            // 把TextField的focus移掉
+            if (!focus.hasPrimaryFocus) {
+              focus.unfocus();
+            }
+            if (result() == true) {
+              predict();
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      // 把預測結果傳到下一頁
+                      builder: (context) => FinalPage(output[0][0])));
+            }
+          }),
+    ]));
+  }
+
+  // ----------------------------
+
   @override
   void initState() {
     super.initState();
+    pregnant.text = "0";
     loadModel();
   }
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     return Scaffold(
         appBar: appBar(
             "回上頁",
@@ -176,92 +255,75 @@ class _SecondPageState extends State<SecondPage> {
               },
               icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
             )),
-        body: SingleChildScrollView(
-            child: Column(children: [
-          // if (性別=='女')
-          SizedBox(height: 50),
-          Row(
-            children: [
-              textStyle("請問您是否有懷孕過：", size.width * 0.055),
-              yesNoButtons(),
-            ],
-          ),
-          yesOrNo[1] == true
-              ? Row(
-                  children: [
-                    textStyle("請輸入：", size.width * 0.055),
-                    SizedBox(
-                      width: size.width * 0.2,
-                      child: question(pregnant),
-                    ),
-                    textStyle(" 次", size.width * 0.055),
-                  ],
-                )
-              : Row(),
-          SizedBox(height: 50),
-          Row(
-            children: [
-              textStyle("請輸入血糖：", size.width * 0.055),
-              SizedBox(
-                width: size.width * 0.25,
-                child: question(glu),
-              ),
-              textStyle(" mg/dL", size.width * 0.055)
-            ],
-          ),
-          SizedBox(height: 50),
-          Row(
-            children: [
-              textStyle("請輸入舒張壓：", size.width * 0.055),
-              SizedBox(
-                width: size.width * 0.25,
-                child: question(bloodPressure),
-              ),
-              textStyle(" mmHg", size.width * 0.055)
-            ],
-          ),
-          SizedBox(height: 100),
-          OutlinedButton(
-              style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.green)),
-              child: Text("送出",
-                  style: TextStyle(
-                      fontSize: size.width * 0.06, color: Colors.white)),
-              onPressed: () {
-                FocusScopeNode focus = FocusScope.of(context);
-                // 把TextField的focus移掉
-                if (!focus.hasPrimaryFocus) {
-                  focus.unfocus();
-                }
-                if (result() == true) {
-                  predict();
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Result()));
-                }
-              }),
-        ])));
+        body: beforePrediction());
   }
 }
 
-class Result extends StatefulWidget {
+// FinalPage
+class FinalPage extends StatefulWidget {
+  final double predictionResult;
+  FinalPage(this.predictionResult);
+
   @override
-  _ResultState createState() => _ResultState();
+  _FinalPageState createState() => _FinalPageState();
 }
 
-class _ResultState extends State<Result> {
+class _FinalPageState extends State<FinalPage> {
+  String level = "";
+  Color finalProgressColor() {
+    Color progress;
+    if (widget.predictionResult < 0.3) {
+      progress = Colors.green;
+      level = "低風險";
+    } else if (widget.predictionResult < 0.6) {
+      progress = Colors.yellow;
+      level = "中風險";
+    } else {
+      progress = Colors.red;
+      level = "高風險";
+    }
+    return progress;
+  }
+
+  TextStyle textStyle(double screenWidth) {
+    return TextStyle(fontSize: screenWidth * 0.08, color: Colors.white);
+  }
+
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double screenWidth = size.width;
+    double screenHeight = size.height;
+    String percentText =
+        "${(widget.predictionResult * 100).toStringAsFixed(1)}%";
     return Scaffold(
-        appBar: appBar(
-            "回到首頁",
-            IconButton(
-              onPressed: () {
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => Change()));
-              },
-              icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
-            )),
-        body: Column());
+        body: Container(
+            color: Colors.black,
+            width: screenWidth,
+            height: screenHeight,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text("預測結果為", style: textStyle(screenWidth)),
+                  CircularPercentIndicator(
+                    lineWidth: 20,
+                    radius: screenWidth * 0.6,
+                    progressColor: finalProgressColor(),
+                    percent: widget.predictionResult,
+                    animation: true,
+                    animationDuration: 1000,
+                    center: Text(percentText, style: textStyle(screenWidth)),
+                  ),
+                  Text(level, style: textStyle(screenWidth)),
+                  InkWell(
+                      onTap: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => Change()));
+                      },
+                      child: Text("返回首頁", style: textStyle(screenWidth)))
+                ],
+              ),
+            )));
   }
 }

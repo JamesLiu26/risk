@@ -10,9 +10,18 @@ class Appointment extends StatefulWidget {
 class _AppointmentState extends State<Appointment> {
   late WebViewController webViewController;
   double progressValue = 0;
-  String line1 = "var d=document.getElementsByTagName('div');";
-  String line2 = "if (d[d.length-1]!=null) d[d.length-1].style.display='none';";
-
+  // 把id為footer__main的div移掉
+  String footerMain = "var footerMain=document.getElementById('footer__main');";
+  String footerMainRemove =
+      "if (footerMain!=null) footerMain.style.display='none';";
+  //
+  // 新陳代謝科掛號網址
+  String? initialURL = "https://www.femh.org.tw/webregs/RegSec1?ID=0203";
+  //
+  // 把起始頁'初診'(span)的margin移掉，避免'複診'兩個字掉到下面去
+  String spanMargin =
+      "var spanMargin=document.getElementById('MainContent_labms1');";
+  String spanMarginRemove = "if (spanMargin!=null) spanMargin.style.margin=0;";
   void initState() {
     super.initState();
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
@@ -65,8 +74,7 @@ class _AppointmentState extends State<Appointment> {
               Expanded(
                   child: WebView(
                       javascriptMode: JavascriptMode.unrestricted,
-                      initialUrl:
-                          "https://hos.femh.org.tw/newfemh/mobile/wregs.aspx",
+                      initialUrl: initialURL,
                       onWebViewCreated: (controller) {
                         // 獲取WebViewController實例(初始化)
                         webViewController = controller;
@@ -76,7 +84,10 @@ class _AppointmentState extends State<Appointment> {
                           // 進度條的範圍是0.0~1.0，所以除以100
                           progressValue = progress / 100;
                         });
-                        webViewController.evaluateJavascript(line1 + line2);
+                        webViewController
+                            .evaluateJavascript(footerMain + footerMainRemove);
+                        webViewController
+                            .evaluateJavascript(spanMargin + spanMarginRemove);
                       })),
             ],
           ),
