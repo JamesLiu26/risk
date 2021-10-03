@@ -12,57 +12,13 @@ void main() {
   ));
 }
 
+//First page-------------------
 class Question extends StatefulWidget {
   @override
   _QuestionState createState() => _QuestionState();
 }
 
-Text textStyle(text, double size) {
-  return Text(text,
-      style: TextStyle(fontSize: size, color: Colors.black, height: 1.5),
-      textAlign: TextAlign.center);
-}
-
 class _QuestionState extends State<Question> {
-  @override
-  Widget build(BuildContext context) {
-    double fontSize = MediaQuery.of(context).size.width * 0.06;
-    return Scaffold(
-        appBar: appBar(
-            "問卷填寫",
-            IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
-            )),
-        body: Center(
-            child: Column(children: [
-          Spacer(flex: 2),
-          textStyle("請注意：\n建議您先透過儀器量測\n或是做完健檢再填寫此問卷", fontSize),
-          Spacer(flex: 1),
-          OutlinedButton(
-              style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.green)),
-              child: Text("繼續",
-                  style: TextStyle(fontSize: fontSize, color: Colors.white)),
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => SecondPage()));
-              }),
-          Spacer(flex: 3),
-        ])));
-  }
-}
-
-//Second page-------------------
-class SecondPage extends StatefulWidget {
-  @override
-  _SecondPageState createState() => _SecondPageState();
-}
-
-class _SecondPageState extends State<SecondPage> {
   late Interpreter interpreter;
   late List<List<double>> input;
   List<List<double>> output = [
@@ -75,6 +31,26 @@ class _SecondPageState extends State<SecondPage> {
     interpreter.allocateTensors();
     print(interpreter.getInputTensors());
     print(interpreter.getOutputTensors());
+  }
+
+  // 預測結果
+  void predict() {
+    input = [
+      [
+        double.parse(pregnant.text),
+        double.parse(glu.text),
+        double.parse(bloodPressure.text),
+        0, //SkinThickness
+        0, //Insulin
+        25, //BMI
+        0, //DiabetesPedigreeFunction
+        22 //Age
+      ]
+    ];
+
+    // 讓model去跑input
+    interpreter.run(input, output);
+    print((output[0][0]));
   }
 
   var pregnant = TextEditingController();
@@ -142,99 +118,11 @@ class _SecondPageState extends State<SecondPage> {
     return hasFullData;
   }
 
-  // 預測結果
-  void predict() {
-    input = [
-      [
-        double.parse(pregnant.text),
-        double.parse(glu.text),
-        double.parse(bloodPressure.text),
-        0.0,
-        0.0,
-        25,
-        1.0,
-        22.0
-      ]
-    ];
-
-    // 讓model去跑input
-    interpreter.run(input, output);
-    print((output[0][0]));
+  Text textStyle1(text, double size) {
+    return Text(text,
+        style: TextStyle(fontSize: size, color: Colors.black, height: 1.5),
+        textAlign: TextAlign.center);
   }
-
-  SingleChildScrollView beforePrediction() {
-    Size size = MediaQuery.of(context).size;
-    return SingleChildScrollView(
-        child: Column(children: [
-      // if (性別=='女')
-      SizedBox(height: 50),
-      Row(
-        children: [
-          textStyle("請問您是否有懷孕過：", size.width * 0.055),
-          yesNoButtons(),
-        ],
-      ),
-
-      // 顯示懷孕輸入框
-      yesOrNo[1] == true
-          ? Row(
-              children: [
-                textStyle("請輸入：", size.width * 0.055),
-                SizedBox(
-                  width: size.width * 0.2,
-                  child: question(pregnant),
-                ),
-                textStyle(" 次", size.width * 0.055),
-              ],
-            )
-          : Row(),
-      SizedBox(height: 50),
-      Row(
-        children: [
-          textStyle("請輸入血糖：", size.width * 0.055),
-          SizedBox(
-            width: size.width * 0.25,
-            child: question(glu),
-          ),
-          textStyle(" mg/dL", size.width * 0.055)
-        ],
-      ),
-      SizedBox(height: 50),
-      Row(
-        children: [
-          textStyle("請輸入舒張壓：", size.width * 0.055),
-          SizedBox(
-            width: size.width * 0.25,
-            child: question(bloodPressure),
-          ),
-          textStyle(" mmHg", size.width * 0.055)
-        ],
-      ),
-      SizedBox(height: 100),
-      OutlinedButton(
-          style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all<Color>(Colors.green)),
-          child: Text("送出",
-              style:
-                  TextStyle(fontSize: size.width * 0.06, color: Colors.white)),
-          onPressed: () {
-            FocusScopeNode focus = FocusScope.of(context);
-            // 把TextField的focus移掉
-            if (!focus.hasPrimaryFocus) {
-              focus.unfocus();
-            }
-            if (result() == true) {
-              predict();
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      // 把預測結果傳到下一頁
-                      builder: (context) => FinalPage(output[0][0])));
-            }
-          }),
-    ]));
-  }
-
   // ----------------------------
 
   @override
@@ -246,6 +134,7 @@ class _SecondPageState extends State<SecondPage> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
         appBar: appBar(
             "回上頁",
@@ -255,20 +144,90 @@ class _SecondPageState extends State<SecondPage> {
               },
               icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
             )),
-        body: beforePrediction());
+        body: SingleChildScrollView(
+            child: Column(children: [
+          SizedBox(height: 20),
+          textStyle1("建議您先透過儀器量測\n再填寫此問卷", screenWidth * 0.055),
+          // if (性別=='女')
+          SizedBox(height: 50),
+          Row(
+            children: [
+              textStyle1("    請問您是否有懷孕過：", screenWidth * 0.055),
+              yesNoButtons(),
+            ],
+          ),
+
+          // 顯示懷孕輸入框
+          yesOrNo[1] == true
+              ? Row(
+                  children: [
+                    textStyle1("    請輸入：", screenWidth * 0.055),
+                    SizedBox(
+                      width: screenWidth * 0.25,
+                      child: question(pregnant),
+                    ),
+                    textStyle1(" 次", screenWidth * 0.055),
+                  ],
+                )
+              : Row(),
+          SizedBox(height: 50),
+          Row(
+            children: [
+              textStyle1("    請輸入血糖：", screenWidth * 0.055),
+              SizedBox(
+                width: screenWidth * 0.25,
+                child: question(glu),
+              ),
+              textStyle1(" mg/dL", screenWidth * 0.055)
+            ],
+          ),
+          SizedBox(height: 50),
+          Row(
+            children: [
+              textStyle1("    請輸入舒張壓：", screenWidth * 0.055),
+              SizedBox(
+                width: screenWidth * 0.25,
+                child: question(bloodPressure),
+              ),
+              textStyle1(" mmHg", screenWidth * 0.055)
+            ],
+          ),
+          SizedBox(height: 50),
+          OutlinedButton(
+              style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Colors.green)),
+              child: Text("送出",
+                  style: TextStyle(
+                      fontSize: screenWidth * 0.06, color: Colors.white)),
+              onPressed: () {
+                FocusScopeNode focus = FocusScope.of(context);
+                // 把TextField的focus移掉
+                if (!focus.hasPrimaryFocus) {
+                  focus.unfocus();
+                }
+                if (result() == true) {
+                  predict();
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          // 把預測結果傳到下一頁
+                          builder: (context) => Final(output[0][0])));
+                }
+              }),
+        ])));
   }
 }
 
-// FinalPage
-class FinalPage extends StatefulWidget {
+class Final extends StatefulWidget {
   final double predictionResult;
-  FinalPage(this.predictionResult);
+  Final(this.predictionResult);
 
   @override
-  _FinalPageState createState() => _FinalPageState();
+  _FinalState createState() => _FinalState();
 }
 
-class _FinalPageState extends State<FinalPage> {
+class _FinalState extends State<Final> {
   String level = "";
   Color finalProgressColor() {
     Color progress;
@@ -306,15 +265,17 @@ class _FinalPageState extends State<FinalPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Text("預測結果為", style: textStyle(screenWidth)),
+                  //
                   CircularPercentIndicator(
                     lineWidth: 20,
                     radius: screenWidth * 0.6,
                     progressColor: finalProgressColor(),
                     percent: widget.predictionResult,
                     animation: true,
-                    animationDuration: 1000,
+                    animationDuration: 1500,
                     center: Text(percentText, style: textStyle(screenWidth)),
                   ),
+                  //
                   Text(level, style: textStyle(screenWidth)),
                   InkWell(
                       onTap: () {
