@@ -16,14 +16,33 @@ void main() {
   ));
 }
 
-class Home extends StatefulWidget {
-  @override
-  HomeState createState() => HomeState();
-}
-
-class HomeState extends State<Home> {
+class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    GestureDetector homeRoute(String text, String imageAsset, Widget route) {
+      double size = MediaQuery.of(context).size.width;
+      return GestureDetector(
+        child: Stack(alignment: AlignmentDirectional.center, children: [
+          Container(
+              height: size * 0.35,
+              width: size * 0.4,
+              decoration: BoxDecoration(
+                  color: Color(0xCFFFFFFF),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.black))),
+          Column(children: [
+            Image.asset(imageAsset, height: size * 0.2, width: size * 0.2),
+            Text(text,
+                style: TextStyle(color: Colors.black, fontSize: size * 0.045))
+          ])
+        ]),
+        onTap: () {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => route));
+        },
+      );
+    }
+
     return Scaffold(
         drawer: menu(context),
         appBar: appBar("首頁", menuButton()),
@@ -36,13 +55,13 @@ class HomeState extends State<Home> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       homeRoute("預約看診", "images/放大.png", Appointment()),
-                      homeRoute("問卷填寫", "images/問卷.png", Question())
+                      homeRoute("問卷評估", "images/問卷.png", Question())
                     ]),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       homeRoute("醫師洽談", "images/醫師談.png", Text("")),
-                      homeRoute("健康飲食", "images/餐具.png", Text(""))
+                      homeRoute("前期量表", "images/量測.png", Text(""))
                     ]),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -52,28 +71,5 @@ class HomeState extends State<Home> {
                     ]),
               ]),
         ));
-  }
-
-  GestureDetector homeRoute(String text, String imageAsset, Widget route) {
-    double size = MediaQuery.of(context).size.width;
-    return GestureDetector(
-      child: Stack(alignment: AlignmentDirectional.center, children: [
-        Container(
-            height: size * 0.35,
-            width: size * 0.4,
-            decoration: BoxDecoration(
-                color: Color(0xCFFFFFFF),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.black))),
-        Column(children: [
-          Image.asset(imageAsset, height: size * 0.2, width: size * 0.2),
-          Text(text,
-              style: TextStyle(color: Colors.black, fontSize: size * 0.045))
-        ])
-      ]),
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => route));
-      },
-    );
   }
 }
