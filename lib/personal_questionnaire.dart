@@ -29,8 +29,9 @@ class _PerQuestState extends State<PerQuest> {
       FirebaseFirestore.instance.collection("user");
   //
   Future addData() async {
-    DocumentReference doc = _collection.doc(_auth.currentUser!.phoneNumber);
     if (_auth.currentUser != null) {
+      // 取user集合的文件(用電話號碼)
+      DocumentReference doc = _collection.doc(_auth.currentUser!.phoneNumber);
       doc.set({
         "gender": selectGender,
         "bloodType": selectBloodType,
