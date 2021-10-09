@@ -207,7 +207,7 @@ class _SignUpState extends State<SignUp> {
                   showErrorPhone();
                   showErrorPassword();
                 });
-                // 若無任何錯誤訊息，導向登入page
+                // 若無任何錯誤訊息，導向輸入OTP頁面
                 if (errorName == null &&
                     errorPhone == null &&
                     errorPassword == null) {
@@ -236,7 +236,8 @@ class OTP extends StatefulWidget {
 
 class _OTPState extends State<OTP> {
   final otp = TextEditingController();
-
+  
+  // 新增使用者姓名&電話號碼
   Future<void> addDoc(String name, String password) async {
     _doc = FirebaseFirestore.instance.collection("user").doc(widget.phone);
     await _doc!.set({"name": name, "password": password});
@@ -276,7 +277,6 @@ class _OTPState extends State<OTP> {
           await _auth.signInWithCredential(credential);
 
           if (_auth.currentUser != null) {
-            //新增使用者
             addDoc(widget.name, widget.password);
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => PerQuest()));
