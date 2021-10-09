@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import './personal_questionnaire.dart';
 import './appBar.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 void main() {
   return runApp(MaterialApp(
@@ -14,14 +17,20 @@ class SignUp extends StatefulWidget {
   _SignUpState createState() => _SignUpState();
 }
 
+String _verifyId = "";
+FirebaseAuth _auth = FirebaseAuth.instance;
+DocumentReference? _doc;
+
 class _SignUpState extends State<SignUp> {
   // TextField的控制項&錯誤訊息
-  final mail = TextEditingController();
+
   final name = TextEditingController();
+  String phone = "";
   final password = TextEditingController();
+
   bool isPassword = true;
   String? errorName;
-  String? errorMail;
+  String? errorPhone;
   String? errorPassword;
 
   /*
@@ -35,13 +44,13 @@ class _SignUpState extends State<SignUp> {
     }
   }
 
-  void showErrorMail() {
-    if (mail.text.isEmpty || mail.text.trim() == "") {
-      errorMail = "不可空白！";
-      //  else if (!mail.text.contains(RegExp("\^09[0-9]{8}\$"), 0)) {
-      //   errorMail = "行動電話格式不正確！";
+  void showErrorPhone() {
+    if (phone.isEmpty || phone.trim() == "") {
+      errorPhone = "不可空白！";
+    } else if (!phone.contains(RegExp("\^\\+8869[0-9]{8}\$"), 0)) {
+      errorPhone = "行動電話格式不正確！";
     } else {
-      errorMail = null;
+      errorPhone = null;
     }
   }
 
@@ -56,41 +65,60 @@ class _SignUpState extends State<SignUp> {
   }
 
   // 姓名&行動電話輸入框
-  /*
-    textController TextField控制項
-    label TextField左上文字
-    hint 點擊時顯示的文字
-    error 錯誤訊息
-  */
-  Padding signUpNameAndMail(TextEditingController textController, String label,
-      String hint, String? error) {
+
+  Padding signUpName() {
     return Padding(
-        padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+        padding: EdgeInsets.all(16),
         child: TextField(
-          controller: textController,
+          controller: name,
           style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.06),
           decoration: InputDecoration(
-              labelText: label,
-              hintText: hint,
-              errorText: error,
+              labelText: "姓名",
+              hintText: "請輸入本名",
+              errorText: errorName,
               errorStyle: TextStyle(fontSize: 14),
+              floatingLabelBehavior: FloatingLabelBehavior.never,
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)))),
         ));
   }
 
-  Padding signUpPassword(TextEditingController textController, String label,
-      String hint, String? error) {
+  Padding signUpPhone() {
+    double fontSize = MediaQuery.of(context).size.width * 0.06;
+    TextStyle style = TextStyle(fontSize: fontSize);
     return Padding(
-        padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
+        padding: EdgeInsets.all(16),
+        child: InternationalPhoneNumberInput(
+            selectorConfig: SelectorConfig(
+                showFlags: false, setSelectorButtonAsPrefixIcon: true),
+            countries: ["TW"],
+            keyboardType: TextInputType.phone,
+            selectorTextStyle: style,
+            textStyle: style,
+            inputDecoration: InputDecoration(
+                labelText: "行動電話",
+                floatingLabelBehavior: FloatingLabelBehavior.never,
+                errorText: errorPhone,
+                errorStyle: TextStyle(fontSize: 14),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)))),
+            onInputChanged: (phNum) {
+              phone = phNum.toString();
+            }));
+  }
+
+  Padding signUpPassword() {
+    return Padding(
+        padding: EdgeInsets.all(16),
         child: TextField(
-          controller: textController,
+          controller: password,
           style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.06),
           decoration: InputDecoration(
-              labelText: label,
-              hintText: hint,
-              errorText: error,
+              labelText: "密碼",
+              hintText: "至少6個字元",
+              errorText: errorPassword,
               errorStyle: TextStyle(fontSize: 14),
+              floatingLabelBehavior: FloatingLabelBehavior.never,
               suffixIcon: showPasswordIconButton(),
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)))),
@@ -119,6 +147,26 @@ class _SignUpState extends State<SignUp> {
         icon: Icon(Icons.visibility));
   }
 
+  verifyPhone(String phNumber) async {
+    await _auth.verifyPhoneNumber(
+        phoneNumber: phNumber,
+        verificationCompleted: (_) async {
+          print("Successful");
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          print("====" + e.message.toString() + "====");
+        },
+        codeSent: (String id, int? token) async {
+          print("OTP is sent!");
+          _verifyId = id;
+        },
+        codeAutoRetrievalTimeout: (String id) {
+          print("Resend");
+          _verifyId = id;
+        },
+        timeout: Duration(seconds: 120));
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -137,9 +185,9 @@ class _SignUpState extends State<SignUp> {
           Column(
             children: [
               SizedBox(height: MediaQuery.of(context).size.height * 0.12),
-              signUpNameAndMail(name, "姓名", "請輸入本名", errorName),
-              signUpNameAndMail(mail, "電子信箱", "例：XXX@gmail.com", errorMail),
-              signUpPassword(password, "密碼", "請至少輸入6個字元", errorPassword)
+              signUpName(),
+              signUpPhone(),
+              signUpPassword()
             ],
           ),
           SizedBox(height: 10),
@@ -156,18 +204,111 @@ class _SignUpState extends State<SignUp> {
                 setState(() {
                   // 執行錯誤訊息function
                   showErrorName();
-                  showErrorMail();
+                  showErrorPhone();
                   showErrorPassword();
                 });
                 // 若無任何錯誤訊息，導向登入page
                 if (errorName == null &&
-                    errorMail == null &&
+                    errorPhone == null &&
                     errorPassword == null) {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => PerQuest()));
+                  verifyPhone(phone);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              OTP(name.text, phone, password.text)));
                 }
               },
               child: Text("註冊", style: TextStyle(fontSize: size.width * 0.06))),
+        ]))));
+  }
+}
+
+class OTP extends StatefulWidget {
+  final String name;
+  final String phone;
+  final String password;
+
+  OTP(this.name, this.phone, this.password);
+  @override
+  _OTPState createState() => _OTPState();
+}
+
+class _OTPState extends State<OTP> {
+  final otp = TextEditingController();
+
+  Future<void> addDoc(String name, String password) async {
+    _doc = FirebaseFirestore.instance.collection("user").doc(widget.phone);
+    await _doc!.set({"name": name, "password": password});
+  }
+
+  Padding enterOTP() {
+    return Padding(
+        padding: EdgeInsets.all(16),
+        child: TextField(
+          controller: otp,
+          keyboardType: TextInputType.number,
+          style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.06),
+          maxLength: 6,
+          decoration: InputDecoration(
+              labelText: "請輸入驗證碼",
+              floatingLabelBehavior: FloatingLabelBehavior.never,
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)))),
+        ));
+  }
+
+  ElevatedButton otpButton() {
+    double fontSize = MediaQuery.of(context).size.width * 0.06;
+
+    return ElevatedButton(
+        style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all<Color>(Colors.green)),
+        onPressed: () async {
+          FocusScopeNode focus = FocusScope.of(context);
+          // 把TextField的focus移掉
+          if (!focus.hasPrimaryFocus) {
+            focus.unfocus();
+          }
+          //電話號碼登入
+          PhoneAuthCredential credential = PhoneAuthProvider.credential(
+              verificationId: _verifyId, smsCode: otp.text);
+          await _auth.signInWithCredential(credential);
+
+          if (_auth.currentUser != null) {
+            //新增使用者
+            addDoc(widget.name, widget.password);
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => PerQuest()));
+          }
+        },
+        child: Text("驗證", style: TextStyle(fontSize: fontSize)));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _auth.setLanguageCode("zh_tw");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: appBar(
+            "電話號碼驗證",
+            IconButton(
+              icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            )),
+        body: SingleChildScrollView(
+            child: Center(
+                child: Column(children: [
+          SizedBox(height: MediaQuery.of(context).size.height * 0.12),
+          enterOTP(),
+          SizedBox(height: 20),
+          otpButton()
         ]))));
   }
 }

@@ -1,16 +1,19 @@
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 import './login.dart';
 import './appBar.dart';
 
-void main() {
-  return runApp(MaterialApp(
-    home: PerQuest(),
-    debugShowCheckedModeBanner: false,
-  ));
-}
+// void main() {
+//   return runApp(MaterialApp(
+//     home: PerQuest(),
+//     debugShowCheckedModeBanner: false,
+//   ));
+// }
 
 class PerQuest extends StatefulWidget {
   @override
@@ -21,6 +24,29 @@ List<String> gender = ["男", "女"];
 List<String> bloodType = ["O", "A", "B", "AB"];
 
 class _PerQuestState extends State<PerQuest> {
+  FirebaseAuth _auth = FirebaseAuth.instance;
+  CollectionReference _collection =
+      FirebaseFirestore.instance.collection("user");
+  //
+  Future addData() async {
+    DocumentReference doc = _collection.doc(_auth.currentUser!.phoneNumber);
+    if (_auth.currentUser != null) {
+      doc.set({
+        "gender": selectGender,
+        "bloodType": selectBloodType,
+        "birthday": birthday,
+        "age": age,
+        "bmi": bmi,
+        "history": selectHistory,
+        "address": contactAddress.text,
+        "email": contactMail.text,
+        "emerName": emerName.text,
+        "emerRelationship": emerRelationship.text,
+        "emerPhone": emerPhone
+      }, SetOptions(merge: true));
+    }
+  }
+
   // 性別核選框，預設為男
   String selectGender = gender[0];
 
@@ -48,13 +74,13 @@ class _PerQuestState extends State<PerQuest> {
 
   // 聯絡資訊
   final contactAddress = TextEditingController();
-  final contactPhone = TextEditingController();
+  final contactMail = TextEditingController();
   String? errorAddress;
-  String? errorPhone;
+
   // 緊急連絡人
   final emerName = TextEditingController();
   final emerRelationship = TextEditingController();
-  final emerPhone = TextEditingController();
+  String emerPhone = "";
 
   String? errorNa;
   String? errorRe;
@@ -186,18 +212,6 @@ class _PerQuestState extends State<PerQuest> {
         ));
   }
 
-  // 身高體重&聯絡資訊&緊急聯絡人判斷
-  String? errorBmiContact(String text) {
-    String? error;
-    if (text.trim() == "" || text.isEmpty) {
-      error = "不可空白!";
-    } else {
-      error = null;
-    }
-
-    return error;
-  }
-
   // 病史
   RadioListTile historyRadio(String value) {
     return RadioListTile(
@@ -216,17 +230,46 @@ class _PerQuestState extends State<PerQuest> {
     if (selectHistory == diabeteHistory[1]) dpf = 1.0;
   }
 
-  // 電話判斷
-  String? errorPhones(String text) {
+  // 身高體重&聯絡資訊&緊急聯絡人判斷
+  String? errorBmiContact(String text) {
     String? error;
-    if (text.isEmpty || text.trim() == "") {
-      error = "不可空白！";
-    } else if (!text.contains(RegExp("\^09[0-9]{8}\$"), 0)) {
-      error = "行動電話格式不正確！";
+    if (text.trim() == "" || text.isEmpty) {
+      error = "不可空白!";
     } else {
       error = null;
     }
+
     return error;
+  }
+
+  // 電話判斷
+  void errorEmerPhone() {
+    if (emerPhone.isEmpty || emerPhone.trim() == "") {
+      errorPh = "不可空白！";
+    } else if (!emerPhone.contains(RegExp("\^\\+8869[0-9]{8}\$"), 0)) {
+      errorPh = "行動電話格式不正確！";
+    } else {
+      errorPh = null;
+    }
+  }
+
+  Padding contactEmerPhone() {
+    return Padding(
+        padding: EdgeInsets.all(8),
+        child: InternationalPhoneNumberInput(
+            selectorConfig: SelectorConfig(
+                showFlags: false, setSelectorButtonAsPrefixIcon: true),
+            countries: ["TW"],
+            keyboardType: TextInputType.phone,
+            inputDecoration: InputDecoration(
+                labelText: "行動電話",
+                floatingLabelBehavior: FloatingLabelBehavior.never,
+                errorText: errorPh,
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)))),
+            onInputChanged: (phNum) {
+              emerPhone = phNum.toString();
+            }));
   }
 
   // 聯絡資訊輸入框
@@ -305,8 +348,8 @@ class _PerQuestState extends State<PerQuest> {
                                           backgroundColor:
                                               MaterialStateProperty.all<Color>(
                                                   Color(0xFF1565C0))),
-                                      onPressed: () {
-                                        chooseBirthday();
+                                      onPressed: () async {
+                                        await chooseBirthday();
                                       },
                                       child: textStyle(
                                           birthday, Color(0xffffffff))))
@@ -341,8 +384,8 @@ class _PerQuestState extends State<PerQuest> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             textStyle("\n  聯絡資訊"),
-                            inputContact(contactPhone, "聯絡電話", "例：0912345678",
-                                errorPhone),
+                            inputContact(
+                                contactMail, "Mail", "例：XXX@gmail.com", null),
                             inputContact(contactAddress, "通訊地址", "例：XX市XX區...",
                                 errorAddress),
                           ])),
@@ -353,8 +396,7 @@ class _PerQuestState extends State<PerQuest> {
                           textStyle("\n  緊急聯絡人"),
                           inputContact(emerName, "姓名", "", errorNa),
                           inputContact(emerRelationship, "關係", "", errorRe),
-                          inputContact(
-                              emerPhone, "聯絡電話", "例：0912345678", errorPh),
+                          contactEmerPhone()
                         ],
                       )),
 
@@ -377,12 +419,12 @@ class _PerQuestState extends State<PerQuest> {
                               // 傳遞錯誤訊息
                               errorHeight = errorBmiContact(height.text);
                               errorWeight = errorBmiContact(weight.text);
-                              errorPhone = errorPhones(contactPhone.text);
+
                               errorAddress =
                                   errorBmiContact(contactAddress.text);
                               errorNa = errorBmiContact(emerName.text);
                               errorRe = errorBmiContact(emerRelationship.text);
-                              errorPh = errorPhones(emerPhone.text);
+                              errorEmerPhone();
                             });
 
                             if (bmi != 0 &&
@@ -391,6 +433,8 @@ class _PerQuestState extends State<PerQuest> {
                                 errorNa == null &&
                                 errorRe == null &&
                                 errorPh == null) {
+                              addData();
+                              _auth.signOut();
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(

@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'Menu/person_data.dart';
 import 'Menu/setting.dart';
-import './login.dart';
+import './main.dart';
 
+FirebaseAuth _auth = FirebaseAuth.instance;
 // 建立一個選單button
 Builder menuButton() {
   return Builder(
@@ -49,12 +51,11 @@ Container menu(BuildContext context) {
                 color: Color.fromARGB(255, 0, 160, 233)),
             context,
             "設定"),
-
         Divider(color: Colors.grey),
         // -------------------------------
 
         menuPages(
-            Login(),
+            Risk(),
             Icon(Icons.run_circle,
                 size: sizeWidth * 0.13,
                 color: Color.fromARGB(255, 0, 160, 233)),
@@ -73,12 +74,14 @@ Container menu(BuildContext context) {
   pageText 頁面代表文字
   [padding=20] 間距，預設20
 */
+
 GestureDetector menuPages(
     Widget route, Widget image, BuildContext context, String pageText,
     [double padding = 20]) {
   return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) => route));
+        if (pageText == "登出") _auth.signOut();
       },
       child: Container(
           width: MediaQuery.of(context).size.width * 0.7,
