@@ -1,6 +1,6 @@
 # risk
 
-亞東科技大學 資管四B專題 疾病風險評估APP-目標預測糖尿病(4位組員)
+亞東科技大學 資管四B專題 疾病風險評估APP-目前以糖尿病為主 4 members
 
 ## Getting Started
 
