@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'Menu/person_data.dart';
@@ -5,13 +6,28 @@ import 'Menu/setting.dart';
 import './main.dart';
 
 FirebaseAuth _auth = FirebaseAuth.instance;
+String _phNum = _auth.currentUser!.phoneNumber!;
+// String _name = "";
+// void getName() {
+//   FirebaseFirestore.instance
+//       .collection("user")
+//       .doc(_phNum)
+//       .get()
+//       .then((snapshot) {
+//     _name = snapshot.data()!["name"].toString();
+//   });
+// }
+
 // 建立一個選單button
 Builder menuButton() {
   return Builder(
       builder: (context) => IconButton(
           icon: ImageIcon(AssetImage("images/選單.png"), color: Colors.blue[800]),
           // 點擊打開選單
-          onPressed: () => Scaffold.of(context).openDrawer()));
+          onPressed: () {
+            // getName();
+            Scaffold.of(context).openDrawer();
+          }));
 }
 
 Container menu(BuildContext context) {
@@ -26,8 +42,8 @@ Container menu(BuildContext context) {
         // 避免文字跑到最上面去
         SafeArea(
             child: Text(
-          "\nXXX5454545\n您好",
-          style: TextStyle(fontSize: sizeWidth * 0.045),
+          "XXXX\n您好",
+          style: TextStyle(fontSize: sizeWidth * 0.05),
           textAlign: TextAlign.center,
         )),
 
@@ -45,7 +61,7 @@ Container menu(BuildContext context) {
         // -------------------------------
 
         menuPages(
-            Settings(),
+            Setting(),
             Icon(Icons.settings,
                 size: sizeWidth * 0.13,
                 color: Color.fromARGB(255, 0, 160, 233)),
@@ -81,7 +97,13 @@ GestureDetector menuPages(
   return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) => route));
-        if (pageText == "登出") _auth.signOut();
+        if (pageText == "登出") {
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => route),
+              (Route route) => false);
+          _auth.signOut();
+        }
       },
       child: Container(
           width: MediaQuery.of(context).size.width * 0.7,

@@ -23,26 +23,26 @@ class BloodSugar {
 }
 
 class _TraceState extends State<Trace> {
-  var currentBloodSugar = [
+  var beforeBS = [
+    // 資料從1開始
+    BloodSugar(0, 0),
     BloodSugar(1, 0),
     BloodSugar(2, 0),
     BloodSugar(3, 0),
-    BloodSugar(4, 0),
+  ];
+  var afterBS = [
+    // 資料從1開始
+    BloodSugar(0, 0),
+    BloodSugar(1, 0),
+    BloodSugar(2, 0),
+    BloodSugar(3, 0),
   ];
 
-  var lowBloodSugar = [
-    BloodSugar(0, 70),
-    BloodSugar(1, 70),
-    BloodSugar(2, 70),
-    BloodSugar(3, 70),
-    BloodSugar(4, 70),
-  ];
   var eatBefore = [
     BloodSugar(0, 100),
     BloodSugar(1, 100),
     BloodSugar(2, 100),
     BloodSugar(3, 100),
-    BloodSugar(4, 100),
   ];
 
   var eat2Hours = [
@@ -50,7 +50,6 @@ class _TraceState extends State<Trace> {
     BloodSugar(1, 140),
     BloodSugar(2, 140),
     BloodSugar(3, 140),
-    BloodSugar(4, 140),
   ];
 
   charts.Series<BloodSugar, num> seriesList(id, color, data) {
@@ -64,20 +63,14 @@ class _TraceState extends State<Trace> {
     );
   }
 
-  Widget chart() {
+  Widget bChart() {
     Size size = MediaQuery.of(context).size;
-    List<charts.Series<BloodSugar, num>> sList = [
-      seriesList(
-          '飯後2小時血糖危險值', charts.MaterialPalette.red.shadeDefault, eat2Hours),
-      seriesList(
-          '飯前血糖危險值', charts.MaterialPalette.purple.shadeDefault, eatBefore),
-      seriesList(
-          '低血糖', charts.MaterialPalette.cyan.shadeDefault, lowBloodSugar),
-      seriesList(
-          '量測之血糖值', charts.MaterialPalette.blue.shadeDefault, currentBloodSugar)
+    List<charts.Series<BloodSugar, num>> list = [
+      seriesList('危險值', charts.MaterialPalette.red.shadeDefault, eatBefore),
+      seriesList('飯前血糖量測值', charts.MaterialPalette.blue.shadeDefault, beforeBS),
     ];
     var chart = charts.LineChart(
-      sList,
+      list,
       animate: true,
       behaviors: [
         charts.SeriesLegend(
@@ -92,25 +85,118 @@ class _TraceState extends State<Trace> {
     return Padding(
       padding: EdgeInsets.all(16),
       child: Container(
-        height: size.height * 0.45,
+        height: size.height * 0.4,
         width: size.width,
         child: chart,
       ),
     );
   }
 
-  //計算量測次數
-  int count = 0;
-  double bloodSugarAverage() {
-    double sum = 0;
-    for (int i = 0; i < currentBloodSugar.length; i++) {
-      sum += currentBloodSugar[i].data;
-    }
-    return sum / currentBloodSugar.length;
+  Widget aChart() {
+    Size size = MediaQuery.of(context).size;
+    List<charts.Series<BloodSugar, num>> list = [
+      seriesList('危險值', charts.MaterialPalette.red.shadeDefault, eat2Hours),
+      seriesList('飯後血糖量測值', charts.MaterialPalette.green.shadeDefault, afterBS)
+    ];
+    var chart = charts.LineChart(
+      list,
+      animate: true,
+      behaviors: [
+        charts.SeriesLegend(
+            position: charts.BehaviorPosition.bottom,
+            horizontalFirst: false,
+            cellPadding: EdgeInsets.all(4),
+            showMeasures: true, //是否顯示資料
+            measureFormatter: (num? value) =>
+                value == null ? '_' : '${value}mg/dL')
+      ],
+    );
+    return Padding(
+      padding: EdgeInsets.all(16),
+      child: Container(
+        height: size.height * 0.4,
+        width: size.width,
+        child: chart,
+      ),
+    );
   }
 
-  final bloodSugar = TextEditingController();
-  String? error;
+  final beforeCon = TextEditingController();
+  final afterCon = TextEditingController();
+  int bCount = 1;
+  int aCount = 1;
+  int bDanger = 100;
+  int aDanger = 140;
+  String type = "目前為三餐飯前血糖";
+  void addBefore() {
+    setState(() {
+      if (bCount <= 3) {
+        if (beforeCon.text != "0" && beforeCon.text != "") {
+          beforeBS[bCount].data = double.parse(beforeCon.text);
+          bCount++;
+        }
+      }
+    });
+  }
+
+  void addAfter() {
+    setState(() {
+      if (aCount <= 3) {
+        if (afterCon.text != "0" && afterCon.text != "") {
+          afterBS[aCount].data = double.parse(afterCon.text);
+          aCount++;
+        }
+      }
+    });
+  }
+
+  Icon? showIcon(TextEditingController con, int danger) {
+    if (con.text != "0" && con.text != "") {
+      if (double.parse(con.text) < danger) {
+        return Icon(Icons.check_circle, color: Colors.green, size: 50);
+      } else {
+        return Icon(Icons.cancel, color: Colors.red, size: 50);
+      }
+    } else {
+      return null;
+    }
+  }
+
+  Padding beforeMeasure() {
+    return Padding(
+      padding: EdgeInsets.all(8),
+      child: TextField(
+        controller: beforeCon,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+            labelText: "請輸入血糖值",
+            floatingLabelBehavior: FloatingLabelBehavior.never,
+            border:
+                OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
+        onSubmitted: (_) {
+          addBefore();
+        },
+      ),
+    );
+  }
+
+  Padding afterMeasure() {
+    return Padding(
+      padding: EdgeInsets.all(8),
+      child: TextField(
+        controller: afterCon,
+        keyboardType: TextInputType.number,
+        decoration: InputDecoration(
+            labelText: "請輸入血糖值",
+            floatingLabelBehavior: FloatingLabelBehavior.never,
+            border:
+                OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
+        onSubmitted: (_) {
+          addAfter();
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,47 +210,31 @@ class _TraceState extends State<Trace> {
             children: [
               SizedBox(height: 20),
               Text(
-                "今日血糖值量測次數：$count次\n點擊圖形即可查看數值",
+                "血糖值量測(單位：mg/dL)",
                 style: TextStyle(fontSize: fontSize),
                 textAlign: TextAlign.center,
               ),
-              chart(),
-              // count!=4，輸入血糖值，直到次數為4為止
-              count != 4
+              type == "目前為三餐飯前血糖"
                   ? Column(children: [
-                      Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: TextField(
-                          controller: bloodSugar,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                              labelText: "血糖值",
-                              hintText: "單位：mg/dL",
-                              errorText: error,
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10))),
-                          onSubmitted: (_) {
-                            error = null;
-                            // 血糖值不為空，加進class裡
-                            setState(() {
-                              if (bloodSugar.text != "0" &&
-                                  bloodSugar.text != "") {
-                                currentBloodSugar[count].data =
-                                    double.parse(bloodSugar.text);
-                                count++;
-                              } else
-                                error = "請輸入正常數值！";
-                            });
-                          },
-                        ),
-                      ),
+                      bChart(),
+                      beforeMeasure(),
+                      SizedBox(child: showIcon(beforeCon, bDanger)),
                     ])
-                  // 次數=4，輸入框拿掉，並顯示當日平均血糖值
-                  : Text(
-                      "今日血糖平均值：" +
-                          bloodSugarAverage().toStringAsFixed(1) +
-                          "mg/dL",
-                      style: TextStyle(fontSize: fontSize))
+                  : Column(children: [
+                      aChart(),
+                      afterMeasure(),
+                      SizedBox(child: showIcon(afterCon, aDanger))
+                    ]),
+              SizedBox(height: 10),
+              ElevatedButton(
+                  onPressed: () {
+                    setState(() {});
+                    if (type == "目前為三餐飯前血糖")
+                      type = "目前為三餐飯後血糖";
+                    else
+                      type = "目前為三餐飯前血糖";
+                  },
+                  child: Text(type, style: TextStyle(fontSize: fontSize)))
             ],
           ),
         )));

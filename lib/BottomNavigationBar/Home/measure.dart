@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import '/appBar.dart';
 
-class Advice extends StatelessWidget {
+class Measure extends StatefulWidget {
+  @override
+  _MeasureState createState() => _MeasureState();
+}
+
+class _MeasureState extends State<Measure> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.brown,
       appBar: appBar(
-          "飲食建議",
+          "問卷調查",
           IconButton(
               onPressed: () {
                 Navigator.pop(context);

@@ -4,11 +4,11 @@ import 'Setting/contact.dart';
 import 'Setting/feedback.dart';
 
 void main() => runApp(MaterialApp(
-      home: Settings(),
+      home: Setting(),
       debugShowCheckedModeBanner: false,
     ));
 
-class Settings extends StatelessWidget {
+class Setting extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

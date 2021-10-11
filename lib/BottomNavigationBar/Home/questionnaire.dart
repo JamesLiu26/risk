@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -37,12 +39,13 @@ class _QuestionState extends State<Question> {
   void predict() {
     input = [
       [
-        double.parse(pregnant.text),
+        // double.parse(pregnant.text),
+        0,
         double.parse(glu.text),
         double.parse(bloodPressure.text),
         0, //SkinThickness
         0, //Insulin
-        25, //BMI
+        bmi, //BMI
         0, //DiabetesPedigreeFunction
         22 //Age
       ]
@@ -53,56 +56,102 @@ class _QuestionState extends State<Question> {
     print((output[0][0]));
   }
 
-  var pregnant = TextEditingController();
+  // var pregnant = TextEditingController();
   final glu = TextEditingController();
+  //
+  double bmi = 0;
+  final height = TextEditingController();
+  final weight = TextEditingController();
+  String status = "";
+  //
   final bloodPressure = TextEditingController();
-  late List data = [pregnant, glu, bloodPressure];
+  // late List fillData = [pregnant, glu, bloodPressure];
+  late List fillData = [height, weight, glu, bloodPressure];
   List<bool> yesOrNo = [true, false];
 
   //------------
+
   TextField question(TextEditingController controller) {
     double fontSize = MediaQuery.of(context).size.width * 0.055;
     return TextField(
         controller: controller,
+        keyboardType: TextInputType.number,
         style: TextStyle(fontSize: fontSize),
-        inputFormatters: [LengthLimitingTextInputFormatter(4)],
+        inputFormatters: [LengthLimitingTextInputFormatter(6)],
         decoration: InputDecoration(
             border:
-                OutlineInputBorder(borderRadius: BorderRadius.circular(10))));
-  }
-
-  // 是否懷孕
-  ToggleButtons yesNoButtons() {
-    return ToggleButtons(
-        borderRadius: BorderRadius.circular(20),
-        fillColor: Colors.blue[800],
-        selectedColor: Colors.white,
-        borderColor: Colors.black,
-        selectedBorderColor: Colors.black,
-        children: [
-          Text("否"),
-          Text("是"),
-        ],
-        isSelected: yesOrNo,
-        onPressed: (index) {
-          setState(() {
-            if (index == 0) {
-              yesOrNo[0] = true;
-              yesOrNo[1] = false;
-              pregnant.text = "0";
-            } else {
-              yesOrNo[0] = false;
-              yesOrNo[1] = true;
-              pregnant.text = "";
-            }
-          });
+                OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
+        onChanged: (_) {
+          if (controller == height || controller == weight) {
+            setState(() {
+              bmiCalculator();
+            });
+          }
         });
   }
+
+  void bmiCalculator() {
+    // 判斷是否為數字
+    if (height.text.contains(RegExp("[0-9]\+")) &&
+        weight.text.contains(RegExp("[0-9]\+"))) {
+      double h = double.parse(height.text);
+      double w = double.parse(weight.text);
+      //
+      if ((h > 0 && w > 0)) {
+        bmi = w / pow(h / 100, 2);
+        if (bmi < 18.5) {
+          status = "過輕";
+        } else if (bmi < 24) {
+          status = "正常";
+        } else if (bmi < 27) {
+          status = "過重";
+        } else if (bmi < 30) {
+          status = "輕度肥胖";
+        } else if (bmi < 35) {
+          status = "中度肥胖";
+        } else {
+          status = "重度肥胖";
+        }
+        // 取到小數第1位
+        bmi = double.parse(bmi.toStringAsFixed(1));
+      }
+    } else {
+      bmi = 0;
+      status = "";
+    }
+  }
+  // // 是否懷孕
+  // ToggleButtons yesNoButtons() {
+  //   return ToggleButtons(
+  //       borderRadius: BorderRadius.circular(20),
+  //       fillColor: Colors.blue[800],
+  //       selectedColor: Colors.white,
+  //       borderColor: Colors.black,
+  //       selectedBorderColor: Colors.black,
+  //       children: [
+  //         Text("否"),
+  //         Text("是"),
+  //       ],
+  //       isSelected: yesOrNo,
+  //       onPressed: (index) {
+  //         setState(() {
+  //           if (index == 0) {
+  //             yesOrNo[0] = true;
+  //             yesOrNo[1] = false;
+  //             pregnant.text = "0";
+  //           } else {
+  //             yesOrNo[0] = false;
+  //             yesOrNo[1] = true;
+  //             pregnant.text = "";
+  //           }
+  //         });
+  //       });
+  // }
 
   // 確認每個值是否有輸入
   bool result() {
     bool hasFullData = true;
-    for (TextEditingController value in data) {
+    for (TextEditingController value in fillData) {
       if (!value.text.contains(RegExp("^[0-9]+\$"), 0)) {
         //
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -118,9 +167,10 @@ class _QuestionState extends State<Question> {
     return hasFullData;
   }
 
-  Text textStyle1(text, double size) {
+  Text textStyle1(text) {
+    double fontSize = MediaQuery.of(context).size.width * 0.055;
     return Text(text,
-        style: TextStyle(fontSize: size, color: Colors.black, height: 1.5),
+        style: TextStyle(fontSize: fontSize, color: Colors.black, height: 1.5),
         textAlign: TextAlign.center);
   }
   // ----------------------------
@@ -128,7 +178,7 @@ class _QuestionState extends State<Question> {
   @override
   void initState() {
     super.initState();
-    pregnant.text = "0";
+    // pregnant.text = "0";
     loadModel();
   }
 
@@ -137,7 +187,7 @@ class _QuestionState extends State<Question> {
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
         appBar: appBar(
-            "問卷評估",
+            "風險評估",
             IconButton(
               onPressed: () {
                 Navigator.pop(context);
@@ -147,49 +197,67 @@ class _QuestionState extends State<Question> {
         body: SingleChildScrollView(
             child: Column(children: [
           SizedBox(height: 20),
-          textStyle1("建議您先透過儀器量測\n再填寫此問卷", screenWidth * 0.055),
+          textStyle1("建議您先透過儀器量測\n再填寫此問卷"),
           // if (性別=='女')
-          SizedBox(height: 50),
-          Row(
-            children: [
-              textStyle1("    請問您是否有懷孕過：", screenWidth * 0.055),
-              yesNoButtons(),
-            ],
-          ),
+          // SizedBox(height: 50),
+          // Row(
+          //   children: [
+          //     textStyle1("    請問您是否有懷孕過：", screenWidth * 0.055),
+          //     yesNoButtons(),
+          //   ],
+          // ),
 
           // 顯示懷孕輸入框
-          yesOrNo[1] == true
-              ? Row(
-                  children: [
-                    textStyle1("    請輸入：", screenWidth * 0.055),
-                    SizedBox(
-                      width: screenWidth * 0.25,
-                      child: question(pregnant),
-                    ),
-                    textStyle1(" 次", screenWidth * 0.055),
-                  ],
-                )
-              : Row(),
+          // yesOrNo[1] == true
+          //     ? Row(
+          //         children: [
+          //           textStyle1("    請輸入：", screenWidth * 0.055),
+          //           SizedBox(
+          //               width: screenWidth * 0.25, child: question(pregnant)),
+          //           textStyle1(" 次", screenWidth * 0.055),
+          //         ],
+          //       )
+          //     : Row(),
           SizedBox(height: 50),
           Row(
             children: [
-              textStyle1("    請輸入血糖：", screenWidth * 0.055),
-              SizedBox(
-                width: screenWidth * 0.25,
-                child: question(glu),
-              ),
-              textStyle1(" mg/dL", screenWidth * 0.055)
+              textStyle1("    請輸入身高："),
+              SizedBox(width: screenWidth * 0.25, child: question(height)),
+              textStyle1(" cm")
             ],
           ),
           SizedBox(height: 50),
           Row(
             children: [
-              textStyle1("    請輸入舒張壓：", screenWidth * 0.055),
+              textStyle1("    請輸入體重："),
+              SizedBox(width: screenWidth * 0.25, child: question(weight)),
+              textStyle1(" kg")
+            ],
+          ),
+          SizedBox(height: 50),
+          Row(
+            children: [
+              textStyle1("    BMI：" + bmi.toString()),
+              textStyle1("    狀態：" + status)
+            ],
+          ),
+          SizedBox(height: 50),
+          Row(
+            children: [
+              textStyle1("    請輸入血糖："),
+              SizedBox(width: screenWidth * 0.25, child: question(glu)),
+              textStyle1(" mg/dL")
+            ],
+          ),
+          SizedBox(height: 50),
+          Row(
+            children: [
+              textStyle1("    請輸入舒張壓："),
               SizedBox(
                 width: screenWidth * 0.25,
                 child: question(bloodPressure),
               ),
-              textStyle1(" mmHg", screenWidth * 0.055)
+              textStyle1(" mmHg")
             ],
           ),
           SizedBox(height: 50),

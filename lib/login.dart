@@ -45,7 +45,7 @@ class _LoginState extends State<Login> {
 
   toOTP() async {
     if (phone != "") {
-      await _collection.doc(phone).get().then((docSnapShot) {
+      _collection.doc(phone).get().then((docSnapShot) {
         if (docSnapShot.exists) {
           Map<String, dynamic> data =
               docSnapShot.data()! as Map<String, dynamic>;
@@ -224,8 +224,10 @@ class _LoginOTPOTPState extends State<LoginOTP> {
           await _auth.signInWithCredential(credential);
 
           if (_auth.currentUser != null) {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => Change()));
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => Change()),
+                (Route route) => false);
           }
         },
         child: Text("驗證", style: TextStyle(fontSize: fontSize)));

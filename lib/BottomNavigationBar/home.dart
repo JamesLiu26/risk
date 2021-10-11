@@ -4,7 +4,8 @@ import 'Home/advice.dart';
 import 'Home/questionnaire.dart';
 import 'Home/notice.dart';
 import 'Home/appointment.dart';
-
+import 'Home/chat.dart';
+import 'Home/measure.dart';
 import '../appBar.dart';
 import '../menu.dart';
 // -------------
@@ -55,13 +56,13 @@ class Home extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       homeRoute("預約看診", "images/放大.png", Appointment()),
-                      homeRoute("問卷評估", "images/問卷.png", Question())
+                      homeRoute("風險評估", "images/問卷.png", Question())
                     ]),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      homeRoute("醫師洽談", "images/醫師談.png", Text("")),
-                      homeRoute("前期量表", "images/量測.png", Text(""))
+                      homeRoute("醫師洽談", "images/醫師談.png", Chatscreen()),
+                      homeRoute("問卷調查", "images/量測.png", Measure())
                     ]),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
