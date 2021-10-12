@@ -236,7 +236,7 @@ class OTP extends StatefulWidget {
 
 class _OTPState extends State<OTP> {
   final otp = TextEditingController();
-  
+
   // 新增使用者姓名&電話號碼
   Future<void> addDoc(String name, String password) async {
     _doc = FirebaseFirestore.instance.collection("user").doc(widget.phone);

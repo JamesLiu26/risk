@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -20,6 +22,9 @@ class Question extends StatefulWidget {
   _QuestionState createState() => _QuestionState();
 }
 
+FirebaseAuth _auth = FirebaseAuth.instance;
+CollectionReference _collection = FirebaseFirestore.instance.collection("user");
+
 class _QuestionState extends State<Question> {
   late Interpreter interpreter;
   late List<List<double>> input;
@@ -37,17 +42,35 @@ class _QuestionState extends State<Question> {
 
   // 預測結果
   void predict() {
+    double pregnant = 0;
+    double dpf = 0;
+    double age = 0;
+    if (_auth.currentUser != null) {
+      String phoNum = _auth.currentUser!.phoneNumber!;
+      _collection.doc(phoNum).get().then((snapshot) {
+        pregnant = snapshot.get("pregnant") * 1.0;
+        dpf = snapshot.get("diabetesPedigreeFunction");
+        age = snapshot.get("age");
+        print("懷孕次數: $pregnant");
+        print("血糖：${glu.text}");
+        print("血壓：${bloodPressure.text}");
+        print("0");
+        print("0");
+        print("BMI:$bmi");
+        print("譜系功能：$dpf");
+        print("年齡：$age");
+      });
+    }
     input = [
       [
-        // double.parse(pregnant.text),
-        0,
+        pregnant,
         double.parse(glu.text),
         double.parse(bloodPressure.text),
         0, //SkinThickness
         0, //Insulin
-        bmi, //BMI
-        0, //DiabetesPedigreeFunction
-        22 //Age
+        bmi,
+        dpf,
+        age
       ]
     ];
 
@@ -56,7 +79,6 @@ class _QuestionState extends State<Question> {
     print((output[0][0]));
   }
 
-  // var pregnant = TextEditingController();
   final glu = TextEditingController();
   //
   double bmi = 0;
@@ -65,9 +87,7 @@ class _QuestionState extends State<Question> {
   String status = "";
   //
   final bloodPressure = TextEditingController();
-  // late List fillData = [pregnant, glu, bloodPressure];
   late List fillData = [height, weight, glu, bloodPressure];
-  List<bool> yesOrNo = [true, false];
 
   //------------
 
@@ -120,33 +140,6 @@ class _QuestionState extends State<Question> {
       status = "";
     }
   }
-  // // 是否懷孕
-  // ToggleButtons yesNoButtons() {
-  //   return ToggleButtons(
-  //       borderRadius: BorderRadius.circular(20),
-  //       fillColor: Colors.blue[800],
-  //       selectedColor: Colors.white,
-  //       borderColor: Colors.black,
-  //       selectedBorderColor: Colors.black,
-  //       children: [
-  //         Text("否"),
-  //         Text("是"),
-  //       ],
-  //       isSelected: yesOrNo,
-  //       onPressed: (index) {
-  //         setState(() {
-  //           if (index == 0) {
-  //             yesOrNo[0] = true;
-  //             yesOrNo[1] = false;
-  //             pregnant.text = "0";
-  //           } else {
-  //             yesOrNo[0] = false;
-  //             yesOrNo[1] = true;
-  //             pregnant.text = "";
-  //           }
-  //         });
-  //       });
-  // }
 
   // 確認每個值是否有輸入
   bool result() {
@@ -178,7 +171,6 @@ class _QuestionState extends State<Question> {
   @override
   void initState() {
     super.initState();
-    // pregnant.text = "0";
     loadModel();
   }
 
@@ -190,7 +182,12 @@ class _QuestionState extends State<Question> {
             "風險評估",
             IconButton(
               onPressed: () {
-                Navigator.pop(context);
+                FocusScopeNode focus = FocusScope.of(context);
+                // 把TextField的focus移掉
+                if (!focus.hasPrimaryFocus) {
+                  focus.unfocus();
+                  Navigator.pop(context);
+                }
               },
               icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
             )),
@@ -198,26 +195,6 @@ class _QuestionState extends State<Question> {
             child: Column(children: [
           SizedBox(height: 20),
           textStyle1("建議您先透過儀器量測\n再填寫此問卷"),
-          // if (性別=='女')
-          // SizedBox(height: 50),
-          // Row(
-          //   children: [
-          //     textStyle1("    請問您是否有懷孕過：", screenWidth * 0.055),
-          //     yesNoButtons(),
-          //   ],
-          // ),
-
-          // 顯示懷孕輸入框
-          // yesOrNo[1] == true
-          //     ? Row(
-          //         children: [
-          //           textStyle1("    請輸入：", screenWidth * 0.055),
-          //           SizedBox(
-          //               width: screenWidth * 0.25, child: question(pregnant)),
-          //           textStyle1(" 次", screenWidth * 0.055),
-          //         ],
-          //       )
-          //     : Row(),
           SizedBox(height: 50),
           Row(
             children: [
@@ -235,12 +212,9 @@ class _QuestionState extends State<Question> {
             ],
           ),
           SizedBox(height: 50),
-          Row(
-            children: [
-              textStyle1("    BMI：" + bmi.toString()),
-              textStyle1("    狀態：" + status)
-            ],
-          ),
+          Row(children: [textStyle1("    BMI：" + bmi.toString())]),
+          SizedBox(height: 50),
+          Row(children: [textStyle1("    狀態：" + status)]),
           SizedBox(height: 50),
           Row(
             children: [
@@ -323,6 +297,16 @@ class _FinalState extends State<Final> {
     double screenHeight = size.height;
     String percentText =
         "${(widget.predictionResult * 100).toStringAsFixed(1)}%";
+    //
+    CircularPercentIndicator percentIndicator() => CircularPercentIndicator(
+          lineWidth: 20,
+          radius: screenWidth * 0.6,
+          progressColor: finalProgressColor(),
+          percent: widget.predictionResult,
+          animation: true,
+          animationDuration: 1500,
+          center: Text(percentText, style: textStyle(screenWidth)),
+        );
     return Scaffold(
         body: Container(
             color: Colors.black,
@@ -333,17 +317,7 @@ class _FinalState extends State<Final> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Text("預測結果為", style: textStyle(screenWidth)),
-                  //
-                  CircularPercentIndicator(
-                    lineWidth: 20,
-                    radius: screenWidth * 0.6,
-                    progressColor: finalProgressColor(),
-                    percent: widget.predictionResult,
-                    animation: true,
-                    animationDuration: 1500,
-                    center: Text(percentText, style: textStyle(screenWidth)),
-                  ),
-                  //
+                  percentIndicator(),
                   Text(level, style: textStyle(screenWidth)),
                   InkWell(
                       onTap: () {

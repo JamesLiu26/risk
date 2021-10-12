@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -28,28 +26,35 @@ class _PerQuestState extends State<PerQuest> {
   CollectionReference _collection =
       FirebaseFirestore.instance.collection("user");
   //
-  Future addData() async {
+  Future<void> addData() async {
     if (_auth.currentUser != null) {
+      print("Write data!!!");
       // 取user集合的文件(用電話號碼)
       DocumentReference doc = _collection.doc(_auth.currentUser!.phoneNumber);
-      doc.set({
+      await doc.set({
         "gender": selectGender,
+        "pregnant": selectGender == "女" ? double.parse(pregnant.text) : 0.0,
         "bloodType": selectBloodType,
         "birthday": birthday,
         "age": age,
-        "bmi": bmi,
         "history": selectHistory,
+        "diabetesPedigreeFunction": dpf,
         "address": contactAddress.text,
         "email": contactMail.text,
         "emerName": emerName.text,
         "emerRelationship": emerRelationship.text,
         "emerPhone": emerPhone
-      }, SetOptions(merge: true));
+      }, SetOptions(merge: true)).whenComplete(() {
+        _auth.signOut();
+      });
     }
   }
 
   // 性別核選框，預設為男
   String selectGender = gender[0];
+
+  // 懷孕次數
+  final pregnant = TextEditingController();
 
   // 血型核選框，預設為O型
   String selectBloodType = bloodType[0];
@@ -59,14 +64,6 @@ class _PerQuestState extends State<PerQuest> {
   double age = 0;
   // 當下時間
   DateTime currentDate = DateTime.now();
-
-  //bmi
-  double bmi = 0;
-  final height = TextEditingController();
-  final weight = TextEditingController();
-  String? errorHeight;
-  String? errorWeight;
-  String status = "";
 
   // 家族/過往病史
   static List<String> diabeteHistory = ["無", "有"];
@@ -98,7 +95,7 @@ class _PerQuestState extends State<PerQuest> {
   }
 
   // 性別radio buttons
-  RadioListTile<String> genderRadio(String value) {
+  RadioListTile genderRadio(String value) {
     return RadioListTile(
         title: textStyle(value),
         // value是取List裡的值
@@ -106,20 +103,20 @@ class _PerQuestState extends State<PerQuest> {
         groupValue: selectGender,
         onChanged: (currentValue) {
           setState(() {
-            selectGender = currentValue.toString();
+            selectGender = currentValue;
           });
         });
   }
 
   // 血型radio buttons
-  RadioListTile<String> bloodRadio(String value) {
+  RadioListTile bloodRadio(String value) {
     return RadioListTile(
         title: textStyle(value),
         value: value,
         groupValue: selectBloodType,
         onChanged: (currentValue) {
           setState(() {
-            selectBloodType = currentValue.toString();
+            selectBloodType = currentValue;
           });
         });
   }
@@ -132,13 +129,9 @@ class _PerQuestState extends State<PerQuest> {
       // 只能透過日曆選日期
       initialEntryMode: DatePickerEntryMode.calendarOnly,
       context: context,
-      // 一開始預設的日期為目前日期
       initialDate: currentDate,
-      // 最早可選到100年前
       firstDate: DateTime(currentDate.year - 100),
-      // 最後一天為目前日期
       lastDate: currentDate,
-      // 右下角的文字
       cancelText: "取消",
       confirmText: "確定",
     ).then((selectDate) {
@@ -157,62 +150,6 @@ class _PerQuestState extends State<PerQuest> {
     });
   }
 
-  // bmi計算
-  void bmiCalculator() {
-    // 判斷是否為數字
-    if (height.text.contains(RegExp("[0-9]\+")) &&
-        weight.text.contains(RegExp("[0-9]\+"))) {
-      double h = double.parse(height.text);
-      double w = double.parse(weight.text);
-      //
-      if ((h > 0 && w > 0)) {
-        bmi = w / pow(h / 100, 2);
-
-        if (bmi < 18.5) {
-          status = "過輕";
-        } else if (bmi < 24) {
-          status = "正常";
-        } else if (bmi < 27) {
-          status = "過重";
-        } else if (bmi < 30) {
-          status = "輕度肥胖";
-        } else if (bmi < 35) {
-          status = "中度肥胖";
-        } else {
-          status = "重度肥胖";
-        }
-        // 取到小數第1位
-        bmi = double.parse(bmi.toStringAsFixed(1));
-      }
-    } else {
-      bmi = 0;
-      status = "";
-    }
-  }
-
-  // 身高體重輸入框
-  Padding inputCmKg(
-      TextEditingController controller, String label, String? error) {
-    return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: TextField(
-          maxLength: 5,
-          decoration: InputDecoration(
-              counterText: "",
-              labelText: label,
-              errorText: error,
-              floatingLabelBehavior: FloatingLabelBehavior.never,
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
-          onChanged: (String value) {
-            setState(() {
-              controller.text = value;
-              bmiCalculator();
-            });
-          },
-        ));
-  }
-
   // 病史
   RadioListTile historyRadio(String value) {
     return RadioListTile(
@@ -222,17 +159,16 @@ class _PerQuestState extends State<PerQuest> {
         onChanged: (currentValue) {
           setState(() {
             selectHistory = currentValue;
-            print(selectHistory);
+            if (selectHistory == diabeteHistory[1])
+              dpf = 1;
+            else
+              dpf = 0;
           });
         });
   }
 
-  void dpfOrNot() {
-    if (selectHistory == diabeteHistory[1]) dpf = 1.0;
-  }
-
-  // 身高體重&聯絡資訊&緊急聯絡人判斷
-  String? errorBmiContact(String text) {
+  // 其他判斷
+  String? errorData(String text) {
     String? error;
     if (text.trim() == "" || text.isEmpty) {
       error = "不可空白!";
@@ -273,11 +209,11 @@ class _PerQuestState extends State<PerQuest> {
             }));
   }
 
-  // 聯絡資訊輸入框
-  Padding inputContact(TextEditingController controller, String label,
-      String hint, String? error) {
+  // 其他文字輸入框
+  Padding dataField(TextEditingController controller, String label, String hint,
+      String? error) {
     return Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: EdgeInsets.all(8.0),
         child: TextField(
           controller: controller,
           decoration: InputDecoration(
@@ -291,7 +227,7 @@ class _PerQuestState extends State<PerQuest> {
         ));
   }
 
-  // 資料區塊
+  // 問題資料區塊
   Container questionArea(Widget child) {
     return Container(
         width: MediaQuery.of(context).size.width * 0.9,
@@ -300,6 +236,8 @@ class _PerQuestState extends State<PerQuest> {
             color: Colors.white, borderRadius: BorderRadius.circular(10)),
         child: child);
   }
+
+// ---
 
 // ----
   @override
@@ -324,7 +262,16 @@ class _PerQuestState extends State<PerQuest> {
                           ])),
 
                       // ----
-
+                      selectGender == "女"
+                          ? questionArea(Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                textStyle("\n  是否有懷孕過"),
+                                dataField(pregnant, "懷孕次數", "沒有請填0", null)
+                              ],
+                            ))
+                          : Row(),
+                      // ---
                       questionArea(Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -343,7 +290,7 @@ class _PerQuestState extends State<PerQuest> {
                             children: [
                               textStyle("\n  年齡：${age.toStringAsFixed(0)}歲"),
                               Padding(
-                                  padding: const EdgeInsets.all(10),
+                                  padding: EdgeInsets.all(10),
                                   child: OutlinedButton(
                                       style: ButtonStyle(
                                           backgroundColor:
@@ -360,19 +307,6 @@ class _PerQuestState extends State<PerQuest> {
                       // ----
 
                       questionArea(Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          textStyle("\n  身高&體重"),
-                          textStyle(
-                              "  BMI=" + bmi.toString() + "  狀態：" + status),
-                          inputCmKg(height, "身高", errorHeight),
-                          inputCmKg(weight, "體重", errorWeight),
-                        ],
-                      )),
-
-                      // ----
-
-                      questionArea(Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             textStyle("\n  是否有糖尿病家族/過往病史"),
@@ -385,9 +319,9 @@ class _PerQuestState extends State<PerQuest> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             textStyle("\n  聯絡資訊"),
-                            inputContact(
-                                contactMail, "Mail", "例：XXX@gmail.com", null),
-                            inputContact(contactAddress, "通訊地址", "例：XX市XX區...",
+                            dataField(contactMail, "Mail(沒有可不必填寫)",
+                                "例：XXX@gmail.com", null),
+                            dataField(contactAddress, "通訊地址", "例：XX市XX區...",
                                 errorAddress),
                           ])),
 
@@ -395,8 +329,8 @@ class _PerQuestState extends State<PerQuest> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           textStyle("\n  緊急聯絡人"),
-                          inputContact(emerName, "姓名", "", errorNa),
-                          inputContact(emerRelationship, "關係", "", errorRe),
+                          dataField(emerName, "姓名", "", errorNa),
+                          dataField(emerRelationship, "關係", "", errorRe),
                           contactEmerPhone()
                         ],
                       )),
@@ -407,7 +341,7 @@ class _PerQuestState extends State<PerQuest> {
                           style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all<Color>(
                                   Colors.green)),
-                          onPressed: () {
+                          onPressed: () async {
                             FocusScopeNode focus = FocusScope.of(context);
                             // 把TextField的focus移掉
                             if (!focus.hasPrimaryFocus) {
@@ -415,27 +349,18 @@ class _PerQuestState extends State<PerQuest> {
                             }
 
                             setState(() {
-                              // 判斷家族有無得過糖尿病
-                              dpfOrNot();
                               // 傳遞錯誤訊息
-                              errorHeight = errorBmiContact(height.text);
-                              errorWeight = errorBmiContact(weight.text);
-
-                              errorAddress =
-                                  errorBmiContact(contactAddress.text);
-                              errorNa = errorBmiContact(emerName.text);
-                              errorRe = errorBmiContact(emerRelationship.text);
+                              errorAddress = errorData(contactAddress.text);
+                              errorNa = errorData(emerName.text);
+                              errorRe = errorData(emerRelationship.text);
                               errorEmerPhone();
                             });
-
-                            if (bmi != 0 &&
-                                birthday != "點選此處選擇生日" &&
+                            if (birthday != "點選此處選擇生日" &&
                                 errorAddress == null &&
                                 errorNa == null &&
                                 errorRe == null &&
                                 errorPh == null) {
-                              addData();
-                              _auth.signOut();
+                              await addData();
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
