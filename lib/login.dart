@@ -45,7 +45,9 @@ class _LoginState extends State<Login> {
 
   toOTP() async {
     if (phone != "") {
-      _collection.doc(phone).get().then((docSnapShot) {
+      _collection.doc(phone).get().onError((error, stackTrace) {
+        throw "========${error.toString()}=============";
+      }).then((docSnapShot) {
         if (docSnapShot.exists) {
           Map<String, dynamic> data =
               docSnapShot.data()! as Map<String, dynamic>;

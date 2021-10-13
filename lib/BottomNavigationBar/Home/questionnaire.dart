@@ -51,6 +51,7 @@ class _QuestionState extends State<Question> {
         pregnant = snapshot.get("pregnant") * 1.0;
         dpf = snapshot.get("diabetesPedigreeFunction");
         age = snapshot.get("age");
+      }).whenComplete(() {
         print("懷孕次數: $pregnant");
         print("血糖：${glu.text}");
         print("血壓：${bloodPressure.text}");
