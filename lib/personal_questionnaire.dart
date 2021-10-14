@@ -31,7 +31,7 @@ class _PerQuestState extends State<PerQuest> {
       print("Write data!!!");
       // 取user集合的文件(用電話號碼)
       DocumentReference doc = _collection.doc(_auth.currentUser!.phoneNumber);
-      await doc.set({
+      doc.set({
         "gender": selectGender,
         "pregnant": selectGender == "女" ? double.parse(pregnant.text) : 0.0,
         "bloodType": selectBloodType,

@@ -47,11 +47,9 @@ class _LoginState extends State<Login> {
     if (phone != "") {
       _collection.doc(phone).get().onError((error, stackTrace) {
         throw "========${error.toString()}=============";
-      }).then((docSnapShot) {
-        if (docSnapShot.exists) {
-          Map<String, dynamic> data =
-              docSnapShot.data()! as Map<String, dynamic>;
-          if (data["password"] == password.text) {
+      }).then((snapshot) {
+        if (snapshot.exists) {
+          if (snapshot.get("password") == password.text) {
             verifyPhone(phone);
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => LoginOTP(phone)));

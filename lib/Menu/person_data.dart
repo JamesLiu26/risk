@@ -1,7 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../appBar.dart';
 
-// MediaQuery.of(context).size.width * 0.05
 void main() {
   runApp(MaterialApp(
     home: PersonData(),
@@ -9,12 +10,24 @@ void main() {
   ));
 }
 
+FirebaseAuth _auth = FirebaseAuth.instance;
+CollectionReference _collection = FirebaseFirestore.instance.collection("user");
+
 class PersonData extends StatefulWidget {
   @override
   _PersonDataState createState() => _PersonDataState();
 }
 
 class _PersonDataState extends State<PersonData> {
+  String _phNum = _auth.currentUser!.phoneNumber!;
+  String _name = "";
+  String _gender = "";
+  String _address = "";
+  String _mail = "";
+  String _emerName = "";
+  String _emerRel = "";
+  String _emerPh = "";
+
   Text textStyle(String text, [double rate = 0.045]) {
     return Text(text,
         style: TextStyle(fontSize: MediaQuery.of(context).size.width * rate));
@@ -27,6 +40,24 @@ class _PersonDataState extends State<PersonData> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [textStyle(text1), textStyle(text2)]),
     );
+  }
+
+  @override
+  initState() {
+    super.initState();
+    _collection.doc(_phNum).get().onError((error, stackTrace) {
+      throw "========${error.toString()}=============";
+    }).then((snapshot) {
+      setState(() {
+        _name = snapshot.get("name");
+        _gender = snapshot.get("gender");
+        _address = snapshot.get("address");
+        _mail = snapshot.get("email");
+        _emerName = snapshot.get("emerName");
+        _emerRel = snapshot.get("emerRelationship");
+        _emerPh = snapshot.get("emerPhone");
+      });
+    });
   }
 
   @override
@@ -44,32 +75,23 @@ class _PersonDataState extends State<PersonData> {
         body: Center(
             child: SingleChildScrollView(
           child: Column(children: [
-            Padding(
-              padding: EdgeInsets.only(top: 10),
-              child: textStyle("  基本資料", 0.05),
-            ),
-            textLayout("姓名", "XXX"),
-            textLayout("性別", "男"),
-            textLayout("行動電話", "0998765432"),
-            Divider(
-              color: Colors.grey,
-            ),
-            Row(children: [textStyle("  體態", 0.05)]),
-            textLayout("身高", "200cm"),
-            textLayout("體重", "100kg"),
+            Row(children: [textStyle("  基本資料", 0.05)]),
+            textLayout("姓名", _name),
+            textLayout("性別", _gender),
+            textLayout("行動電話", _phNum),
             Divider(
               color: Colors.grey,
             ),
             Row(children: [textStyle("  聯絡方式", 0.05)]),
-            textLayout("通訊地址", "XX市XX區XX路"),
-            textLayout("電子郵件", "123@gmail.com"),
+            textLayout("通訊地址", _address),
+            textLayout("電子郵件", _mail),
             Divider(
               color: Colors.grey,
             ),
             Row(children: [textStyle("  緊急聯絡人資料", 0.05)]),
-            textLayout("姓名", "AAA"),
-            textLayout("關係", "XX"),
-            textLayout("行動電話", "0912345678"),
+            textLayout("姓名", _emerName),
+            textLayout("關係", _emerRel),
+            textLayout("行動電話", _emerPh),
           ]),
         )));
   }

@@ -7,26 +7,25 @@ import './main.dart';
 
 FirebaseAuth _auth = FirebaseAuth.instance;
 String _phNum = _auth.currentUser!.phoneNumber!;
-// String _name = "";
-// void getName() {
-//   FirebaseFirestore.instance
-//       .collection("user")
-//       .doc(_phNum)
-//       .get()
-//       .then((snapshot) {
-//     _name = snapshot.data()!["name"].toString();
-//   });
-// }
+String _name = "";
 
 // 建立一個選單button
-Builder menuButton() {
-  return Builder(
-      builder: (context) => IconButton(
+StatefulBuilder menuButton() {
+  return StatefulBuilder(
+      builder: (context, StateSetter setState) => IconButton(
           icon: ImageIcon(AssetImage("images/選單.png"), color: Colors.blue[800]),
           // 點擊打開選單
           onPressed: () {
-            // getName();
             Scaffold.of(context).openDrawer();
+            FirebaseFirestore.instance
+                .collection("user")
+                .doc(_phNum)
+                .get()
+                .then((snapshot) {
+              setState(() {
+                _name = snapshot.get("name").toString();
+              });
+            });
           }));
 }
 
@@ -42,7 +41,7 @@ Container menu(BuildContext context) {
         // 避免文字跑到最上面去
         SafeArea(
             child: Text(
-          "XXXX\n您好",
+          "$_name\n您好",
           style: TextStyle(fontSize: sizeWidth * 0.05),
           textAlign: TextAlign.center,
         )),
