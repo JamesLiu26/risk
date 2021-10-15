@@ -73,26 +73,27 @@ class _PersonDataState extends State<PersonData> {
           ),
         ),
         body: Center(
-            child: SingleChildScrollView(
-          child: Column(children: [
-            Row(children: [textStyle("  基本資料", 0.05)]),
-            textLayout("姓名", _name),
-            textLayout("性別", _gender),
-            textLayout("行動電話", _phNum),
-            Divider(
-              color: Colors.grey,
-            ),
-            Row(children: [textStyle("  聯絡方式", 0.05)]),
-            textLayout("通訊地址", _address),
-            textLayout("電子郵件", _mail),
-            Divider(
-              color: Colors.grey,
-            ),
-            Row(children: [textStyle("  緊急聯絡人資料", 0.05)]),
-            textLayout("姓名", _emerName),
-            textLayout("關係", _emerRel),
-            textLayout("行動電話", _emerPh),
-          ]),
-        )));
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Row(children: [textStyle("  基本資料", 0.05)]),
+                textLayout("姓名", _name),
+                textLayout("性別", _gender),
+                textLayout("行動電話", _phNum),
+                Divider(
+                  color: Colors.grey,
+                ),
+                Row(children: [textStyle("  聯絡方式", 0.05)]),
+                textLayout("通訊地址", _address),
+                textLayout("電子郵件", _mail),
+                Divider(
+                  color: Colors.grey,
+                ),
+                Row(children: [textStyle("  緊急聯絡人資料", 0.05)]),
+                textLayout("姓名", _emerName),
+                textLayout("關係", _emerRel),
+                textLayout("行動電話", _emerPh),
+              ]),
+        ));
   }
 }
