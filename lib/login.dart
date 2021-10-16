@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import './change.dart';
 import './appBar.dart';
@@ -44,8 +45,9 @@ class _LoginState extends State<Login> {
   }
 
   toOTP() async {
-    if (phone != "") {
-      _collection.doc(phone).get().onError((error, stackTrace) {
+    // print(",,,$phone,,,");
+    if (phone != "+886" && phone != "") {
+      _collection.doc(phone).get().onError((error, _) {
         throw "========${error.toString()}=============";
       }).then((snapshot) {
         if (snapshot.exists) {
@@ -54,14 +56,21 @@ class _LoginState extends State<Login> {
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => LoginOTP(phone)));
           } else {
-            errorPassword = "密碼錯誤！";
+            setState(() {
+              errorPhone = null;
+              errorPassword = "密碼錯誤！";
+            });
           }
         } else {
-          errorPhone = "此電話號碼未註冊過！";
+          setState(() {
+            errorPhone = "此電話號碼未註冊過！";
+          });
         }
       });
     } else {
-      errorPhone = "不可空白！";
+      setState(() {
+        errorPhone = "不可空白！";
+      });
     }
   }
 
@@ -87,6 +96,7 @@ class _LoginState extends State<Login> {
             textStyle: style,
             inputDecoration: InputDecoration(
                 labelText: "行動電話",
+                hintText: "例：912345678",
                 floatingLabelBehavior: FloatingLabelBehavior.never,
                 errorText: errorPhone,
                 errorStyle: TextStyle(fontSize: 14),
@@ -170,9 +180,7 @@ class _LoginState extends State<Login> {
               if (!focus.hasPrimaryFocus) {
                 focus.unfocus();
               }
-              setState(() {
-                toOTP();
-              });
+              toOTP();
             },
             child: Text("登入", style: TextStyle(fontSize: size.width * 0.06))),
       ]))),
@@ -190,6 +198,7 @@ class LoginOTP extends StatefulWidget {
 
 class _LoginOTPOTPState extends State<LoginOTP> {
   final otp = TextEditingController();
+
   Padding enterOTP() {
     return Padding(
         padding: EdgeInsets.all(16),
@@ -219,10 +228,24 @@ class _LoginOTPOTPState extends State<LoginOTP> {
             focus.unfocus();
           }
           //電話號碼登入
+
+          // try {
           PhoneAuthCredential credential = PhoneAuthProvider.credential(
               verificationId: _verifyId, smsCode: otp.text);
           await _auth.signInWithCredential(credential);
-
+          // } on FirebaseAuthException catch (e) {
+          //   if (e.code == "invalid-verification-code")
+          //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          //         backgroundColor: Colors.red[800],
+          //         content: Text("驗證碼錯誤！",
+          //             style: TextStyle(fontSize: 16, color: Colors.white))));
+          //   else if (e.code == "session-expired") {
+          //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          //         backgroundColor: Colors.red[800],
+          //         content: Text("驗證碼已過期，請返回上一頁重新登入！",
+          //             style: TextStyle(fontSize: 16, color: Colors.white))));
+          //   }
+          // }
           if (_auth.currentUser != null) {
             Navigator.pushAndRemoveUntil(
                 context,

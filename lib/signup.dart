@@ -97,6 +97,7 @@ class _SignUpState extends State<SignUp> {
             textStyle: style,
             inputDecoration: InputDecoration(
                 labelText: "行動電話",
+                hintText: "例：912345678",
                 floatingLabelBehavior: FloatingLabelBehavior.never,
                 errorText: errorPhone,
                 errorStyle: TextStyle(fontSize: 14),

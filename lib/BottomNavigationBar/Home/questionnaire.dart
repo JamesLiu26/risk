@@ -187,8 +187,8 @@ class _QuestionState extends State<Question> {
                 // 把TextField的focus移掉
                 if (!focus.hasPrimaryFocus) {
                   focus.unfocus();
-                  Navigator.pop(context);
                 }
+                Navigator.pop(context);
               },
               icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
             )),

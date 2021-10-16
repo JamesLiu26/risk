@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '/appBar.dart';
+import './result.dart';
 
 class Measure extends StatefulWidget {
   @override
@@ -7,107 +8,266 @@ class Measure extends StatefulWidget {
 }
 
 class _MeasureState extends State<Measure> {
-  @override
-  void initState() {
-    super.initState();
-  }
+  int total = 0,
+      score01 = 0,
+      score02 = 0,
+      score03 = 0,
+      score04 = 0,
+      score05 = 0,
+      score06 = 0;
+  late List<int> scorelist = [
+    score01,
+    score02,
+    score03,
+    score04,
+    score05,
+    score06
+  ];
 
   @override
   Widget build(BuildContext context) {
-    tbcenter(String text, [color = Colors.black]) {
+    tbcenter(String text,
+        [fontSize, color = Colors.black, fontWeight = FontWeight.normal]) {
       return Text(
         text,
-        style: TextStyle(
-          color: color,
-          fontSize: MediaQuery.of(context).size.width * 0.046,
-          //letterSpacing: 1,
-        ),
-        textAlign: TextAlign.center,
+        style:
+            TextStyle(color: color, fontSize: fontSize, fontWeight: fontWeight
+                //letterSpacing: 1,
+                ),
+        //textAlign: TextAlign.center,
       );
     }
 
+//container 背景白
+    Container conbkwhite(Column content) {
+      return Container(
+        child: content,
+        padding: EdgeInsets.all(8.0),
+        margin: EdgeInsets.all(8.0),
+        width: MediaQuery.of(context).size.width * 0.9,
+        decoration: BoxDecoration(
+            color: Colors.white, borderRadius: BorderRadius.circular(10)),
+      );
+    }
+
+//方框順序row
+    Row conRow(String queue, String category) {
+      return Row(
+        children: [
+          Container(
+              alignment: Alignment.topLeft,
+              width: MediaQuery.of(context).size.width * 0.1,
+              height: MediaQuery.of(context).size.width * 0.1,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  color: Colors.blue),
+              child: Center(
+                  child: tbcenter(
+                      queue,
+                      MediaQuery.of(context).size.width * 0.049,
+                      Colors.white,
+                      FontWeight.bold))),
+          SizedBox(
+            width: 20,
+          ),
+          tbcenter(category, MediaQuery.of(context).size.width * 0.049,
+              Colors.black, FontWeight.bold),
+        ],
+      );
+    }
+
+    //年齡radio
+    RadioListTile ageRadio(int value, String detail) {
+      return RadioListTile(
+          title: tbcenter(detail),
+          // value是取List裡的值
+          value: value,
+          groupValue: score01,
+          onChanged: (currentValue) {
+            setState(() {
+              score01 = currentValue;
+            });
+          });
+    }
+
+    //腰圍radio
+    RadioListTile waiRadio(int value, String detail) {
+      return RadioListTile(
+          title: tbcenter(detail),
+          // value是取List裡的值
+          value: value,
+          groupValue: score02,
+          onChanged: (currentValue) {
+            setState(() {
+              score02 = currentValue;
+            });
+          });
+    }
+
+    //家族遺傳radio
+    RadioListTile genRadio(int value, String detail) {
+      return RadioListTile(
+          title: tbcenter(detail),
+          // value是取List裡的值
+          value: value,
+          groupValue: score03,
+          onChanged: (currentValue) {
+            setState(() {
+              score03 = currentValue;
+            });
+          });
+    }
+
+    //運動習慣radio
+    RadioListTile sportRadio(int value, String detail) {
+      return RadioListTile(
+          title: tbcenter(detail),
+          // value是取List裡的值
+          value: value,
+          groupValue: score04,
+          onChanged: (currentValue) {
+            setState(() {
+              score04 = currentValue;
+            });
+          });
+    }
+
+    //藥物控制radio
+    RadioListTile drugRadio(int value, String detail) {
+      return RadioListTile(
+          title: tbcenter(detail),
+          // value是取List裡的值
+          value: value,
+          groupValue: score05,
+          onChanged: (currentValue) {
+            setState(() {
+              score05 = currentValue;
+            });
+          });
+    }
+
+    //吸菸或喝酒習慣radio
+    RadioListTile habitRadio(int value, String detail) {
+      return RadioListTile(
+          title: tbcenter(detail),
+          // value是取List裡的值
+          value: value,
+          groupValue: score06,
+          onChanged: (currentValue) {
+            setState(() {
+              score06 = currentValue;
+            });
+          });
+    }
+
     return Scaffold(
-        appBar: appBar(
-            "問卷調查",
-            IconButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]))),
-        body: Container(
-            // alignment: Alignment.bottomCenter,
-            child: SingleChildScrollView(
-          child: Table(
-              border: TableBorder.all(
-                  color: Colors.black87, width: 2.0, style: BorderStyle.solid),
-              columnWidths: <int, TableColumnWidth>{
-                0: FlexColumnWidth(),
-                1: FlexColumnWidth(3),
+      backgroundColor: Colors.grey,
+      appBar: appBar(
+          "問卷調查",
+          IconButton(
+              onPressed: () {
+                Navigator.pop(context);
               },
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              children: <TableRow>[
-                TableRow(
-                  children: <Widget>[
-                    Text(
-                      "分數",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: MediaQuery.of(context).size.width * 0.046),
-                    ),
-                    Text(
-                      "評語",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: MediaQuery.of(context).size.width * 0.046),
-                    )
-                  ],
-                ),
-                TableRow(
-                    decoration: BoxDecoration(color: Colors.green[50]),
-                    children: <Widget>[
-                      TableCell(
-                        child: Container(child: tbcenter("0~6分")),
-                      ),
-                      TableCell(
-                          child: Container(
-                              child: Text("屬於安全地帶，罹病風險低，但需要密切注意自身身體。",
-                                  textAlign: TextAlign.left,
-                                  style: TextStyle(
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.046,
-                                  ))))
-                    ]),
-                TableRow(children: <Widget>[
-                  TableCell(child: Container(child: tbcenter("7~15分"))),
-                  TableCell(
-                      child: Container(
-                          child: Text("很有可能罹患糖尿病，需改變生活習慣及飲食。",
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                fontSize:
-                                    MediaQuery.of(context).size.width * 0.046,
-                              ))))
-                ]),
-                TableRow(
-                    decoration: BoxDecoration(color: Colors.green[50]),
-                    children: <Widget>[
-                      TableCell(child: Container(child: tbcenter("16~22分"))),
-                      TableCell(
-                          child: Container(
-                              child: Text("須立刻找尋醫師幫助，發現問題，立即處理。",
-                                  textAlign: TextAlign.left,
-                                  style: TextStyle(
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                            0.046,
-                                  ))))
-                    ]),
-              ]),
-        )));
+              icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]))),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(
+            children: [
+              conbkwhite(Column(
+                children: [
+                  conRow("01", "年齡"),
+                  Column(
+                    children: [
+                      ageRadio(0, "未滿40歲"),
+                      ageRadio(2, "40~64歲"),
+                      ageRadio(4, "65歲以上"),
+                    ],
+                  ),
+                ],
+              )),
+              // conbkwhite(Column(
+              //   children: [
+              //     conRow("02", "腰圍"),
+              //     Column(
+              //       children: [
+              //         waiRadio(0, "未滿40歲"),
+              //         ageRadio(2, "40~64歲"),
+              //         ageRadio(4, "65歲以上"),
+              //       ],
+              //     ),
+              //   ],
+              // )),
+              conbkwhite(Column(
+                children: [
+                  conRow("03", "家族遺傳"),
+                  Column(
+                    children: [
+                      genRadio(0, "無"),
+                      genRadio(3, "旁系血親：堂表兄弟姊妹、叔叔、姑姑"),
+                      genRadio(5, "直系血親：父母、兄弟姊妹、兒女"),
+                    ],
+                  ),
+                ],
+              )),
+              conbkwhite(Column(
+                children: [
+                  conRow("04", "運動習慣 "),
+                  Column(
+                    children: [
+                      sportRadio(0, "經常運動，每周三~五天，至少150分鐘"),
+                      sportRadio(2, "偶爾運動或是甚至沒有"),
+                    ],
+                  ),
+                ],
+              )),
+              conbkwhite(Column(
+                children: [
+                  conRow("05", "藥物控制"),
+                  Column(
+                    children: [
+                      drugRadio(0, "無使用任何降血壓或血糖的藥"),
+                      drugRadio(2, "現在或是曾經服用過降血壓或血糖的藥"),
+                    ],
+                  ),
+                ],
+              )),
+              conbkwhite(Column(
+                children: [
+                  conRow("06", "吸菸或喝酒習慣"),
+                  Column(
+                    children: [
+                      habitRadio(0, "無任何吸菸或喝酒的習慣"),
+                      habitRadio(2, "現在有吸菸或喝酒其中一項的習慣"),
+                      habitRadio(4, "以前到現在都有吸菸或喝酒的習慣")
+                    ],
+                  ),
+                ],
+              )),
+              SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.4,
+                  child: OutlinedButton(
+                      style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all<Color>(Colors.orange)),
+                      child: Text("送出",
+                          style: TextStyle(
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.06,
+                              color: Colors.white)),
+                      onPressed: () {
+                        total = 0;
+                        scorelist.forEach((int val) {
+                          total += val;
+                        });
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Result(total)));
+                      }))
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

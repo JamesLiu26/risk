@@ -164,18 +164,18 @@ class _TraceState extends State<Trace> {
 
   Padding beforeMeasure() {
     return Padding(
-      padding: EdgeInsets.all(8),
+      padding: EdgeInsets.all(20),
       child: TextField(
         controller: beforeCon,
         keyboardType: TextInputType.number,
         decoration: InputDecoration(
-            labelText: "請輸入血糖值",
+            labelText: "請輸入飯前血糖",
             floatingLabelBehavior: FloatingLabelBehavior.never,
             border:
                 OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
-        onSubmitted: (_) {
-          addBefore();
-        },
+        // onSubmitted: (_) {
+        //   addBefore();
+        // },
       ),
     );
   }
@@ -191,16 +191,50 @@ class _TraceState extends State<Trace> {
             floatingLabelBehavior: FloatingLabelBehavior.never,
             border:
                 OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
-        onSubmitted: (_) {
-          addAfter();
-        },
+        // onSubmitted: (_) {
+        //   addAfter();
+        // },
       ),
     );
   }
 
+  List rice = ["飯前", "飯後"];
+  List<bool> boolVal = [true, false];
+  ToggleButtons riceBA() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return ToggleButtons(
+      textStyle: TextStyle(fontSize: screenWidth * 0.06),
+      children: [Text(rice[0]), Text(rice[1])],
+      constraints: BoxConstraints.expand(width: screenWidth * 0.25),
+      isSelected: boolVal,
+      fillColor: Colors.blue[800],
+      selectedColor: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      borderColor: Colors.black,
+      selectedBorderColor: Colors.black,
+      //
+      onPressed: (selIndex) {
+        setState(() {
+          if (selIndex == 0) {
+            boolVal[0] = true;
+            boolVal[1] = false;
+          } else {
+            boolVal[0] = false;
+            boolVal[1] = true;
+          }
+        });
+      },
+    );
+  }
+
+  Text traceStyle(String text) {
+    double fontSize = MediaQuery.of(context).size.width * 0.05;
+    return Text(text, style: TextStyle(fontSize: fontSize));
+  }
+
   @override
   Widget build(BuildContext context) {
-    double fontSize = MediaQuery.of(context).size.width * 0.05;
+    double fontSize = MediaQuery.of(context).size.width * 0.06;
     return Scaffold(
         drawer: menu(context),
         appBar: appBar("每日追蹤", menuButton()),
@@ -210,31 +244,40 @@ class _TraceState extends State<Trace> {
             children: [
               SizedBox(height: 20),
               Text(
-                "血糖值量測(單位：mg/dL)",
+                "血糖值量測(mg/dL)\n",
                 style: TextStyle(fontSize: fontSize),
                 textAlign: TextAlign.center,
               ),
-              type == "目前為三餐飯前血糖"
-                  ? Column(children: [
-                      bChart(),
-                      beforeMeasure(),
-                      SizedBox(child: showIcon(beforeCon, bDanger)),
-                    ])
-                  : Column(children: [
-                      aChart(),
-                      afterMeasure(),
-                      SizedBox(child: showIcon(afterCon, aDanger))
-                    ]),
-              SizedBox(height: 10),
+              riceBA(),
+              beforeMeasure(),
               ElevatedButton(
-                  onPressed: () {
-                    setState(() {});
-                    if (type == "目前為三餐飯前血糖")
-                      type = "目前為三餐飯後血糖";
-                    else
-                      type = "目前為三餐飯前血糖";
-                  },
-                  child: Text(type, style: TextStyle(fontSize: fontSize)))
+                  style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Color(0xFF1565C0))),
+                  onPressed: () {},
+                  child: Text("提交", style: TextStyle(fontSize: fontSize)))
+
+              // type == "目前為三餐飯前血糖"
+              //     ? Column(children: [
+              //         bChart(),
+              //         beforeMeasure(),
+              //         SizedBox(child: showIcon(beforeCon, bDanger)),
+              //       ])
+              //     : Column(children: [
+              //         aChart(),
+              //         afterMeasure(),
+              //         SizedBox(child: showIcon(afterCon, aDanger))
+              //       ]),
+              // SizedBox(height: 10),
+              // ElevatedButton(
+              //     onPressed: () {
+              //       setState(() {});
+              //       if (type == "目前為三餐飯前血糖")
+              //         type = "目前為三餐飯後血糖";
+              //       else
+              //         type = "目前為三餐飯前血糖";
+              //     },
+              //     child: Text(type, style: TextStyle(fontSize: fontSize)))
             ],
           ),
         )));
