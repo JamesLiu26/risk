@@ -30,6 +30,14 @@
           }
         },
         {
+          "client_id": "1059217212914-vc0er917ispli345vpr15tekdqs0t0nt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.risk",
+            "certificate_hash": "dc6a5e2cfd68a6fa752865feb185882075c115da"
+          }
+        },
+        {
           "client_id": "1059217212914-u4ljihe62hg5g0dop9pggrev4l6sa9na.apps.googleusercontent.com",
           "client_type": 3
         }

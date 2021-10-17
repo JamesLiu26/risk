@@ -9,23 +9,23 @@ import '/change.dart';
 import '/appBar.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 
-void main() {
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: Question(),
-  ));
-}
+// void main() {
+//   runApp(MaterialApp(
+//     debugShowCheckedModeBanner: false,
+//     home: Assessment(),
+//   ));
+// }
 
 //First page-------------------
-class Question extends StatefulWidget {
+class Assessment extends StatefulWidget {
   @override
-  _QuestionState createState() => _QuestionState();
+  _AssessmentState createState() => _AssessmentState();
 }
 
 FirebaseAuth _auth = FirebaseAuth.instance;
 CollectionReference _collection = FirebaseFirestore.instance.collection("user");
 
-class _QuestionState extends State<Question> {
+class _AssessmentState extends State<Assessment> {
   late Interpreter interpreter;
   late List<List<double>> input;
   List<List<double>> output = [
@@ -92,7 +92,7 @@ class _QuestionState extends State<Question> {
 
   //------------
 
-  TextField question(TextEditingController controller) {
+  TextField question(TextEditingController controller, String hintText) {
     double fontSize = MediaQuery.of(context).size.width * 0.055;
     return TextField(
         controller: controller,
@@ -100,6 +100,7 @@ class _QuestionState extends State<Question> {
         style: TextStyle(fontSize: fontSize),
         inputFormatters: [LengthLimitingTextInputFormatter(6)],
         decoration: InputDecoration(
+            hintText: hintText,
             border:
                 OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
         onChanged: (_) {
@@ -150,7 +151,7 @@ class _QuestionState extends State<Question> {
         //
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             backgroundColor: Colors.red[800],
-            content: Text("請確認問卷填寫無誤再按送出！",
+            content: Text("請確認填寫無誤再按送出！",
                 style: TextStyle(fontSize: 16, color: Colors.white)),
             duration: Duration(seconds: 1)));
         //
@@ -167,6 +168,11 @@ class _QuestionState extends State<Question> {
         style: TextStyle(fontSize: fontSize, color: Colors.black, height: 1.5),
         textAlign: TextAlign.center);
   }
+
+  Container area(Widget child) {
+    return Container(margin: EdgeInsets.all(20), child: child);
+  }
+
   // ----------------------------
 
   @override
@@ -179,6 +185,7 @@ class _QuestionState extends State<Question> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
+        // backgroundColor: Colors.black,
         appBar: appBar(
             "風險評估",
             IconButton(
@@ -195,51 +202,37 @@ class _QuestionState extends State<Question> {
         body: SingleChildScrollView(
             child: Column(children: [
           SizedBox(height: 20),
-          textStyle1("建議您先透過儀器量測\n再填寫此問卷"),
-          SizedBox(height: 50),
-          Row(
-            children: [
-              textStyle1("    請輸入身高："),
-              SizedBox(width: screenWidth * 0.25, child: question(height)),
-              textStyle1(" cm")
-            ],
-          ),
-          SizedBox(height: 50),
-          Row(
-            children: [
-              textStyle1("    請輸入體重："),
-              SizedBox(width: screenWidth * 0.25, child: question(weight)),
-              textStyle1(" kg")
-            ],
-          ),
-          SizedBox(height: 50),
-          Row(children: [textStyle1("    BMI：" + bmi.toString())]),
-          SizedBox(height: 50),
-          Row(children: [textStyle1("    狀態：" + status)]),
-          SizedBox(height: 50),
-          Row(
-            children: [
-              textStyle1("    請輸入血糖："),
-              SizedBox(width: screenWidth * 0.25, child: question(glu)),
-              textStyle1(" mg/dL")
-            ],
-          ),
-          SizedBox(height: 50),
-          Row(
-            children: [
-              textStyle1("    請輸入舒張壓："),
-              SizedBox(
-                width: screenWidth * 0.25,
-                child: question(bloodPressure),
-              ),
-              textStyle1(" mmHg")
-            ],
-          ),
-          SizedBox(height: 50),
+          textStyle1("建議您先透過\n儀器量測再填寫\n"),
+          area(Row(children: [
+            textStyle1("身高："),
+            SizedBox(width: screenWidth * 0.35, child: question(height, "cm")),
+          ])),
+          //
+          area(Row(children: [
+            textStyle1("體重："),
+            SizedBox(width: screenWidth * 0.35, child: question(weight, "kg")),
+          ])),
+          //
+          area(Row(children: [textStyle1("BMI：" + bmi.toString())])),
+          area(Row(children: [textStyle1("狀態：" + status)])),
+          //
+          area(Row(children: [
+            textStyle1("血糖："),
+            SizedBox(width: screenWidth * 0.35, child: question(glu, "mg/dL")),
+          ])),
+          //
+          area(Row(children: [
+            textStyle1("舒張壓："),
+            SizedBox(
+              width: screenWidth * 0.35,
+              child: question(bloodPressure, "mmHg"),
+            ),
+          ])),
+          //
+          SizedBox(height: 30),
           OutlinedButton(
               style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.green)),
+                  backgroundColor: MaterialStateProperty.all(Colors.green)),
               child: Text("送出",
                   style: TextStyle(
                       fontSize: screenWidth * 0.06, color: Colors.white)),
@@ -262,6 +255,7 @@ class _QuestionState extends State<Question> {
   }
 }
 
+// 結果
 class Final extends StatefulWidget {
   final double predictionResult;
   Final(this.predictionResult);
@@ -287,7 +281,7 @@ class _FinalState extends State<Final> {
     return progress;
   }
 
-  TextStyle textStyle(double screenWidth) {
+  TextStyle textStyle2(double screenWidth) {
     return TextStyle(fontSize: screenWidth * 0.08, color: Colors.white);
   }
 
@@ -306,8 +300,9 @@ class _FinalState extends State<Final> {
           percent: widget.predictionResult,
           animation: true,
           animationDuration: 1500,
-          center: Text(percentText, style: textStyle(screenWidth)),
+          center: Text(percentText, style: textStyle2(screenWidth)),
         );
+    //
     return Scaffold(
         body: Container(
             color: Colors.black,
@@ -317,15 +312,17 @@ class _FinalState extends State<Final> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Text("預測結果為", style: textStyle(screenWidth)),
+                  Text("預測結果為", style: textStyle2(screenWidth)),
                   percentIndicator(),
-                  Text(level, style: textStyle(screenWidth)),
+                  Text(level, style: textStyle2(screenWidth)),
                   InkWell(
                       onTap: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => Change()));
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => Change()),
+                            (Route route) => false);
                       },
-                      child: Text("返回首頁", style: textStyle(screenWidth)))
+                      child: Text("返回首頁", style: textStyle2(screenWidth)))
                 ],
               ),
             )));

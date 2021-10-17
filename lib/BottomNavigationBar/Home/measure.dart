@@ -248,7 +248,7 @@ class _MeasureState extends State<Measure> {
                   child: OutlinedButton(
                       style: ButtonStyle(
                           backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.orange)),
+                              MaterialStateProperty.all<Color>(Colors.blue)),
                       child: Text("送出",
                           style: TextStyle(
                               fontSize:

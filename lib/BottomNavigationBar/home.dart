@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'Home/advice.dart';
-import 'Home/questionnaire.dart';
+import 'Home/assessment.dart';
 import 'Home/notice.dart';
 import 'Home/appointment.dart';
 import 'Home/chat.dart';
@@ -10,12 +10,12 @@ import '../appBar.dart';
 import '../menu.dart';
 // -------------
 
-void main() {
-  return runApp(MaterialApp(
-    home: Home(),
-    debugShowCheckedModeBanner: false,
-  ));
-}
+// void main() {
+//   return runApp(MaterialApp(
+//     home: Home(),
+//     debugShowCheckedModeBanner: false,
+//   ));
+// }
 
 class Home extends StatelessWidget {
   @override
@@ -56,7 +56,7 @@ class Home extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       homeRoute("預約看診", "images/放大.png", Appointment()),
-                      homeRoute("風險評估", "images/問卷.png", Question())
+                      homeRoute("風險評估", "images/問卷.png", Assessment())
                     ]),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
