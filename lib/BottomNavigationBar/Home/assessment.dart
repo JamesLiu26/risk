@@ -92,15 +92,19 @@ class _AssessmentState extends State<Assessment> {
 
   //------------
 
-  TextField question(TextEditingController controller, String hintText) {
-    double fontSize = MediaQuery.of(context).size.width * 0.055;
+  TextField question(TextEditingController controller, String labelText) {
+    double fontSize = MediaQuery.of(context).size.width * 0.06;
     return TextField(
         controller: controller,
         keyboardType: TextInputType.number,
-        style: TextStyle(fontSize: fontSize),
+        style: TextStyle(fontSize: fontSize, color: Colors.white),
         inputFormatters: [LengthLimitingTextInputFormatter(6)],
         decoration: InputDecoration(
-            hintText: hintText,
+            filled: true,
+            fillColor: Colors.blue[800],
+            labelStyle: TextStyle(color: Colors.white),
+            labelText: labelText,
+            floatingLabelBehavior: FloatingLabelBehavior.never,
             border:
                 OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
         onChanged: (_) {
@@ -163,9 +167,9 @@ class _AssessmentState extends State<Assessment> {
   }
 
   Text textStyle1(text) {
-    double fontSize = MediaQuery.of(context).size.width * 0.055;
+    double fontSize = MediaQuery.of(context).size.width * 0.06;
     return Text(text,
-        style: TextStyle(fontSize: fontSize, color: Colors.black, height: 1.5),
+        style: TextStyle(fontSize: fontSize, color: Colors.white, height: 1.5),
         textAlign: TextAlign.center);
   }
 
@@ -185,7 +189,7 @@ class _AssessmentState extends State<Assessment> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-        // backgroundColor: Colors.black,
+        backgroundColor: Colors.black,
         appBar: appBar(
             "風險評估",
             IconButton(
@@ -232,7 +236,7 @@ class _AssessmentState extends State<Assessment> {
           SizedBox(height: 30),
           OutlinedButton(
               style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.green)),
+                  backgroundColor: MaterialStateProperty.all(Colors.blue[800])),
               child: Text("送出",
                   style: TextStyle(
                       fontSize: screenWidth * 0.06, color: Colors.white)),
@@ -282,7 +286,7 @@ class _FinalState extends State<Final> {
   }
 
   TextStyle textStyle2(double screenWidth) {
-    return TextStyle(fontSize: screenWidth * 0.08, color: Colors.white);
+    return TextStyle(fontSize: screenWidth * 0.075, color: Colors.white);
   }
 
   @override
@@ -315,14 +319,17 @@ class _FinalState extends State<Final> {
                   Text("預測結果為", style: textStyle2(screenWidth)),
                   percentIndicator(),
                   Text(level, style: textStyle2(screenWidth)),
-                  InkWell(
-                      onTap: () {
+                  OutlinedButton(
+                      style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all(Colors.blue[800])),
+                      onPressed: () {
                         Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(builder: (context) => Change()),
                             (Route route) => false);
                       },
-                      child: Text("返回首頁", style: textStyle2(screenWidth)))
+                      child: Text("返回首頁", style: textStyle2(screenWidth))),
                 ],
               ),
             )));

@@ -113,10 +113,12 @@ class _RiskState extends State<Risk> {
                 child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text("疾病風險評估",
+                Text("糖尿病\n健康管理",
                     style: TextStyle(
                         fontSize: MediaQuery.of(context).size.width * 0.1,
-                        color: Colors.white)),
+                        color: Colors.white,
+                        height: 1.5),
+                    textAlign: TextAlign.center),
                 Column(
                   children: [
                     signButton("註冊", SignUp()),

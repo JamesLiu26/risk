@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '/appBar.dart';
 import './result.dart';
 
@@ -8,6 +10,11 @@ class Measure extends StatefulWidget {
 }
 
 class _MeasureState extends State<Measure> {
+  User? _user = FirebaseAuth.instance.currentUser;
+  String phNum = "";
+  String gen = "";
+  CollectionReference _collection =
+      FirebaseFirestore.instance.collection("user");
   int total = 0,
       score01 = 0,
       score02 = 0,
@@ -23,6 +30,17 @@ class _MeasureState extends State<Measure> {
     score05,
     score06
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    phNum = _user!.phoneNumber!;
+    _collection.doc(phNum).get().then((snapshot) {
+      setState(() {
+        gen = snapshot.get("gender");
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -185,18 +203,33 @@ class _MeasureState extends State<Measure> {
                   ),
                 ],
               )),
-              // conbkwhite(Column(
-              //   children: [
-              //     conRow("02", "腰圍"),
-              //     Column(
-              //       children: [
-              //         waiRadio(0, "未滿40歲"),
-              //         ageRadio(2, "40~64歲"),
-              //         ageRadio(4, "65歲以上"),
-              //       ],
-              //     ),
-              //   ],
-              // )),
+              //
+              gen == "男"
+                  ? conbkwhite(Column(
+                      children: [
+                        conRow("02", "腰圍"),
+                        Column(
+                          children: [
+                            waiRadio(0, "未滿90公分"),
+                            waiRadio(3, "90~100公分"),
+                            waiRadio(5, "100公分以上"),
+                          ],
+                        ),
+                      ],
+                    ))
+                  : conbkwhite(Column(
+                      children: [
+                        conRow("02", "腰圍"),
+                        Column(
+                          children: [
+                            waiRadio(0, "未滿80公分"),
+                            waiRadio(3, "80~90公分"),
+                            waiRadio(5, "90公分以上"),
+                          ],
+                        ),
+                      ],
+                    )),
+              //
               conbkwhite(Column(
                 children: [
                   conRow("03", "家族遺傳"),
@@ -244,7 +277,7 @@ class _MeasureState extends State<Measure> {
                 ],
               )),
               SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.4,
+                  width: MediaQuery.of(context).size.width * 0.3,
                   child: OutlinedButton(
                       style: ButtonStyle(
                           backgroundColor:
