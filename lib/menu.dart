@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'Menu/person_data.dart';
@@ -6,26 +5,15 @@ import 'Menu/setting.dart';
 import './main.dart';
 
 FirebaseAuth _auth = FirebaseAuth.instance;
-String _phNum = _auth.currentUser!.phoneNumber!;
-String _name = "";
 
 // 建立一個選單button
-StatefulBuilder menuButton() {
-  return StatefulBuilder(
-      builder: (context, StateSetter setState) => IconButton(
+Builder menuButton() {
+  return Builder(
+      builder: (context) => IconButton(
           icon: ImageIcon(AssetImage("images/選單.png"), color: Colors.blue[800]),
           // 點擊打開選單
           onPressed: () {
             Scaffold.of(context).openDrawer();
-            FirebaseFirestore.instance
-                .collection("user")
-                .doc(_phNum)
-                .get()
-                .then((snapshot) {
-              setState(() {
-                _name = snapshot.get("name").toString();
-              });
-            });
           }));
 }
 
@@ -41,8 +29,9 @@ Container menu(BuildContext context) {
         // 避免文字跑到最上面去
         SafeArea(
             child: Text(
-          "$_name\n您好",
-          style: TextStyle(fontSize: sizeWidth * 0.05),
+          "您好",
+          // "12",
+          style: TextStyle(fontSize: sizeWidth * 0.05, height: 1.5),
           textAlign: TextAlign.center,
         )),
 

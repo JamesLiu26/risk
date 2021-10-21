@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '/appBar.dart';
 import 'Setting/contact.dart';
-import 'Setting/feedback.dart';
+// import 'Setting/feedback.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() => runApp(MaterialApp(
       home: Setting(),
@@ -24,11 +25,11 @@ class Setting extends StatelessWidget {
       body: Column(
         children: [
           Spacer(flex: 1),
-          settingPages(Text("1"), context, "提醒時間"),
+          settingPages(context, "提醒時間"),
           Divider(color: Colors.grey),
-          settingPages(Contact(), context, "醫院聯絡方式"),
+          settingPages(context, "醫院聯絡方式"),
           Divider(color: Colors.grey),
-          settingPages(FeedBack(), context, "意見回饋"),
+          settingPages(context, "意見回饋"),
           Divider(color: Colors.grey),
           Spacer(flex: 10)
         ],
@@ -37,10 +38,27 @@ class Setting extends StatelessWidget {
   }
 }
 
-GestureDetector settingPages(Widget route, BuildContext context, String text) {
+GestureDetector settingPages(BuildContext context, String text) {
+  String mail = "fkproject123@gmail.com";
+  Future<void> toMail() async {
+    if (await canLaunch("mailto:$mail")) {
+      launch("mailto:$mail");
+    } else {
+      throw "Error!";
+    }
+  }
+
   return GestureDetector(
     onTap: () {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => route));
+      if (text == "提醒時間") {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => Text("1")));
+      } else if (text == "醫院聯絡方式") {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => Contact()));
+      } else if (text == "意見回饋") {
+        toMail();
+      }
     },
     child: Container(
         width: MediaQuery.of(context).size.width,

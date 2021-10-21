@@ -181,7 +181,7 @@ class _MeasureState extends State<Measure> {
     return Scaffold(
       backgroundColor: Colors.grey,
       appBar: appBar(
-          "問卷調查",
+          "前期量表",
           IconButton(
               onPressed: () {
                 Navigator.pop(context);
