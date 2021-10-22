@@ -124,6 +124,10 @@ class _PerQuestState extends State<PerQuest> {
   // 日期選擇(生日)
   Future<DateTime?> chooseBirthday() {
     return showDatePicker(
+      builder: (conetxt, child) => Theme(
+          child: child!,
+          data: ThemeData.light().copyWith(
+              colorScheme: ColorScheme.light(primary: Color(0xff1565c0)))),
       // 一開始先選年
       initialDatePickerMode: DatePickerMode.year,
       // 只能透過日曆選日期

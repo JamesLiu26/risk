@@ -21,8 +21,15 @@ class Trace extends StatefulWidget {
 
 class BS {
   final String level;
-  final double times;
-  BS(this.level, this.times);
+  double times;
+  final Color color;
+  BS(this.level, this.times, this.color);
+}
+
+class BSline {
+  final DateTime day;
+  final double bsValue;
+  BSline(this.day, this.bsValue);
 }
 
 class _TraceState extends State<Trace> {
@@ -32,22 +39,87 @@ class _TraceState extends State<Trace> {
   //
   final bsCon = TextEditingController();
   DateTime? setDate;
-  TimeOfDay? setTime;
-  DateTime? dateTime;
-  String dateTimeString = "選擇量測日期";
-  // int time = 0;
-  List<BS> bs = [BS("低", 0), BS("高", 0), BS("正常", 0)];
+  // TimeOfDay? setTime;
+  // DateTime? dateTime;
+  String dateTimeString = "選擇";
+  double low = 0, normal = 0, high = 0;
 
-  SfCircularChart pieChart() {
-    return SfCircularChart(legend: Legend(isVisible: true), series: [
-      DoughnutSeries<BS, String>(
-          dataSource: bs,
-          dataLabelSettings: DataLabelSettings(
-              isVisible: true, textStyle: TextStyle(fontSize: 14)),
-          xValueMapper: (data, _) => data.level,
-          yValueMapper: (data, _) => data.times,
-          explode: true)
-    ]);
+  late List<BS> bs;
+  @override
+  void initState() {
+    super.initState();
+    bs = [
+      BS("低", low, Colors.blue),
+      BS("正常", normal, Colors.green),
+      BS("高", high, Colors.red)
+    ];
+    circleCal("before");
+
+    // circleCal("after");
+  }
+
+  circleCal(String text) {
+    low = 0;
+    normal = 0;
+    high = 0;
+    collection.doc(phNum).collection(text).get().then((snapshot) {
+      for (var query in snapshot.docs) {
+        int val = int.parse(query.get("bloodSugar"));
+        if (val < 70)
+          low += 1;
+        else if (val < 100)
+          normal += 1;
+        else
+          high += 1;
+      }
+      setState(() {
+        bs = [
+          BS("低", low, Colors.blue),
+          BS("正常", normal, Color(0xff43a047)),
+          BS("高", high, Colors.red)
+        ];
+      });
+    });
+  }
+
+  List<BSline> bsline = [
+    BSline(DateTime(2021, 10, 22), 80),
+    BSline(DateTime(2021, 10, 23), 90),
+    BSline(DateTime(2021, 10, 24), 70),
+    BSline(DateTime(2021, 10, 25), 120),
+    BSline(DateTime(2021, 10, 30), 200),
+  ];
+
+  pieChart() {
+    return SfCircularChart(
+        legend: Legend(
+            textStyle: TextStyle(fontSize: 18),
+            position: LegendPosition.left,
+            isVisible: true),
+        series: [
+          PieSeries<BS, String>(
+              dataSource: bs,
+              dataLabelSettings: DataLabelSettings(
+                  isVisible: true, textStyle: TextStyle(fontSize: 18)),
+              xValueMapper: (data, _) => data.level,
+              yValueMapper: (data, _) => data.times,
+              pointColorMapper: (data, _) => data.color,
+              explode: true)
+        ]);
+  }
+
+  lineChart() {
+    return SfCartesianChart(
+        primaryXAxis: DateTimeAxis(dateFormat: DateFormat.Md()),
+        series: [
+          LineSeries<BSline, DateTime>(
+            dataSource: bsline,
+            dataLabelSettings: DataLabelSettings(
+                isVisible: true, textStyle: TextStyle(fontSize: 14)),
+            xValueMapper: (data, _) => data.day,
+            yValueMapper: (data, _) => data.bsValue,
+          )
+        ]);
   }
 
   Padding bsField() {
@@ -89,9 +161,11 @@ class _TraceState extends State<Trace> {
           if (selIndex == 0) {
             boolVal[0] = true;
             boolVal[1] = false;
+            circleCal("before");
           } else {
             boolVal[0] = false;
             boolVal[1] = true;
+            circleCal("after");
           }
         });
       },
@@ -103,43 +177,53 @@ class _TraceState extends State<Trace> {
     return Text(text, style: TextStyle(fontSize: fontSize));
   }
 
+  Future<void> setDateTime() async {
+    // 選擇(年月日)
+    setDate = await showDatePicker(
+        // 更改顏色
+        builder: (conetxt, child) => Theme(
+            child: child!,
+            data: ThemeData.light().copyWith(
+                colorScheme: ColorScheme.light(primary: Color(0xff1565c0)))),
+        initialEntryMode: DatePickerEntryMode.calendarOnly,
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(DateTime.now().year - 100),
+        lastDate: DateTime.now());
+
+    if (setDate != null) {
+      // // 選擇小時、分鐘
+      // setTime = await showTimePicker(
+      //     // 更改顏色
+      //     builder: (conetxt, child) => Theme(
+      //         child: child!,
+      //         data: ThemeData.light().copyWith(
+      //             colorScheme: ColorScheme.light(primary: Color(0xff1565c0)))),
+      //     context: context,
+      //     initialTime: TimeOfDay.now());
+      // if (setTime != null) {
+      setState(() {
+        // 儲存日期
+        // dateTime = DateTime(setDate!.year, setDate!.month, setDate!.day,
+        //     setTime!.hour, setTime!.minute);
+        //
+        // print("DateTime:${dateTime.toString()}");
+        // 日期轉成字串格式
+        dateTimeString = DateFormat("yyyy-MM-dd").format(setDate!);
+      });
+      // }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-
-    Future<void> setDateTime() async {
-      // 選擇(年月日)
-      setDate = await showDatePicker(
-          initialEntryMode: DatePickerEntryMode.calendarOnly,
-          context: context,
-          initialDate: DateTime.now(),
-          firstDate: DateTime(DateTime.now().year - 100),
-          lastDate: DateTime.now());
-
-      if (setDate != null) {
-        // 選擇小時、分鐘
-        setTime = await showTimePicker(
-            context: context, initialTime: TimeOfDay.now());
-        if (setTime != null) {
-          setState(() {
-            // 儲存日期
-            dateTime = DateTime(setDate!.year, setDate!.month, setDate!.day,
-                setTime!.hour, setTime!.minute);
-            //
-            print("DateTime:${dateTime.toString()}");
-            // 顯示日期格式
-            dateTimeString =
-                DateFormat("yyyy-MM-dd HH:mm EEEE", "zh_tw").format(dateTime!);
-          });
-        }
-      }
-    }
-
-    snackBar() {
+    double screenHeight = MediaQuery.of(context).size.height;
+    snackBar(Color color, String text) {
       return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: Colors.red[800],
-          content: Text("請填寫完再按送出！",
-              style: TextStyle(fontSize: 16, color: Colors.white)),
+          backgroundColor: color,
+          content:
+              Text(text, style: TextStyle(fontSize: 16, color: Colors.white)),
           duration: Duration(seconds: 1)));
     }
 
@@ -148,17 +232,13 @@ class _TraceState extends State<Trace> {
         drawer: menu(context),
         appBar: appBar("每日追蹤", menuButton()),
         body: Center(
+            child: SingleChildScrollView(
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  traceStyle("血糖："),
-                  SizedBox(width: screenWidth * 0.35, child: bsField()),
-                  riceButton()
-                ],
-              ),
-              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              SizedBox(height: 20),
+              Row(children: [
+                // 選擇量測日期button
+                traceStyle("  量測日期："),
                 ElevatedButton(
                     style: ButtonStyle(
                         backgroundColor:
@@ -170,35 +250,47 @@ class _TraceState extends State<Trace> {
                     },
                     child: traceStyle(dateTimeString))
               ]),
-
-              // ? SizedBox(width: screenWidth * 0.7, child: pieChart()):
-              SizedBox(width: 10, height: 10),
+              Row(
+                children: [
+                  traceStyle("  血糖："),
+                  SizedBox(width: screenWidth * 0.35, child: bsField()),
+                  riceButton()
+                ],
+              ),
               ElevatedButton(
                   style: ButtonStyle(
                       backgroundColor:
                           MaterialStateProperty.all(Colors.blue[800])),
                   onPressed: () {
-                    if (dateTime == null) {
-                      snackBar();
+                    FocusScopeNode focus = FocusScope.of(context);
+                    // 把TextField的focus移掉
+                    if (!focus.hasPrimaryFocus) {
+                      focus.unfocus();
+                    }
+                    if (setDate == null || bsCon.text == "") {
+                      snackBar(Color(0xffc62828), "請填寫完再按送出！");
                     } else if (boolVal[0] == true) {
-                      print("before");
-                      // collection
-                      //     .doc(phNum)
-                      //     .collection("before")
-                      //     .doc(dateTime.toString())
-                      //     .set({"bloodSugar": bsCon.text});
+                      collection
+                          .doc(phNum)
+                          .collection("before")
+                          .doc(dateTimeString)
+                          .set({"bloodSugar": bsCon.text});
+                      snackBar(Color(0xff4caf50), "已成功送出！");
                     } else {
-                      print("after");
-                      // collection
-                      //     .doc(phNum)
-                      //     .collection("after")
-                      //     .doc(dateTime.toString())
-                      //     .set({"bloodSugar": bsCon.text});
+                      collection
+                          .doc(phNum)
+                          .collection("after")
+                          .doc(dateTimeString)
+                          .set({"bloodSugar": bsCon.text});
+                      snackBar(Color(0xff4caf50), "已成功送出！");
                     }
                   },
-                  child: traceStyle("提交"))
+                  child: traceStyle("提交")),
+              SizedBox(height: screenHeight * 0.3, child: pieChart()),
+              Divider(color: Colors.grey, thickness: 2),
+              SizedBox(height: screenHeight * 0.4, child: lineChart()),
             ],
           ),
-        ));
+        )));
   }
 }
