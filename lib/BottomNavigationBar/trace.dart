@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import '../menu.dart';
 import '../appBar.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -30,8 +31,11 @@ class _TraceState extends State<Trace> {
       FirebaseFirestore.instance.collection("user");
   //
   final bsCon = TextEditingController();
-  int time = 0;
-  var setTime;
+  DateTime? setDate;
+  TimeOfDay? setTime;
+  DateTime? dateTime;
+  String dateTimeString = "選擇量測日期";
+  // int time = 0;
   List<BS> bs = [BS("低", 0), BS("高", 0), BS("正常", 0)];
 
   SfCircularChart pieChart() {
@@ -66,6 +70,7 @@ class _TraceState extends State<Trace> {
 
   List rice = ["飯前", "飯後"];
   List<bool> boolVal = [true, false];
+
   ToggleButtons riceButton() {
     double screenWidth = MediaQuery.of(context).size.width;
     return ToggleButtons(
@@ -94,13 +99,49 @@ class _TraceState extends State<Trace> {
   }
 
   Text traceStyle(String text) {
-    double fontSize = MediaQuery.of(context).size.width * 0.06;
+    double fontSize = MediaQuery.of(context).size.width * 0.055;
     return Text(text, style: TextStyle(fontSize: fontSize));
   }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+
+    Future<void> setDateTime() async {
+      // 選擇(年月日)
+      setDate = await showDatePicker(
+          initialEntryMode: DatePickerEntryMode.calendarOnly,
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(DateTime.now().year - 100),
+          lastDate: DateTime.now());
+
+      if (setDate != null) {
+        // 選擇小時、分鐘
+        setTime = await showTimePicker(
+            context: context, initialTime: TimeOfDay.now());
+        if (setTime != null) {
+          setState(() {
+            // 儲存日期
+            dateTime = DateTime(setDate!.year, setDate!.month, setDate!.day,
+                setTime!.hour, setTime!.minute);
+            //
+            print("DateTime:${dateTime.toString()}");
+            // 顯示日期格式
+            dateTimeString =
+                DateFormat("yyyy-MM-dd HH:mm EEEE", "zh_tw").format(dateTime!);
+          });
+        }
+      }
+    }
+
+    snackBar() {
+      return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: Colors.red[800],
+          content: Text("請填寫完再按送出！",
+              style: TextStyle(fontSize: 16, color: Colors.white)),
+          duration: Duration(seconds: 1)));
+    }
 
     // double fontSize = screenWidth * 0.06;
     return Scaffold(
@@ -110,38 +151,50 @@ class _TraceState extends State<Trace> {
           child: Column(
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   traceStyle("血糖："),
                   SizedBox(width: screenWidth * 0.35, child: bsField()),
                   riceButton()
                 ],
               ),
-              Row(children: [
-                traceStyle("量測時間："),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 ElevatedButton(
                     style: ButtonStyle(
                         backgroundColor:
                             MaterialStateProperty.all(Colors.blue[800])),
-                    onPressed: () async {
-                      setTime = await showTimePicker(
-                          context: context, initialTime: TimeOfDay.now());
-                      print(setTime);
+                    onPressed: () {
+                      setState(() {
+                        setDateTime();
+                      });
                     },
-                    child: traceStyle("選擇"))
+                    child: traceStyle(dateTimeString))
               ]),
-              time != 0
-                  ? SizedBox(width: screenWidth * 0.7, child: pieChart())
-                  : SizedBox(width: 10, height: 10),
+
+              // ? SizedBox(width: screenWidth * 0.7, child: pieChart()):
+              SizedBox(width: 10, height: 10),
               ElevatedButton(
                   style: ButtonStyle(
                       backgroundColor:
                           MaterialStateProperty.all(Colors.blue[800])),
                   onPressed: () {
-                    // collection
-                    //     .doc(phNum)
-                    //     .collection("BloodSugar")
-                    //     .doc(time.toString())
-                    //     .set({"bloodSugar": bsCon.text});
+                    if (dateTime == null) {
+                      snackBar();
+                    } else if (boolVal[0] == true) {
+                      print("before");
+                      // collection
+                      //     .doc(phNum)
+                      //     .collection("before")
+                      //     .doc(dateTime.toString())
+                      //     .set({"bloodSugar": bsCon.text});
+                    } else {
+                      print("after");
+                      // collection
+                      //     .doc(phNum)
+                      //     .collection("after")
+                      //     .doc(dateTime.toString())
+                      //     .set({"bloodSugar": bsCon.text});
+                    }
                   },
                   child: traceStyle("提交"))
             ],
