@@ -39,12 +39,19 @@ class _TraceState extends State<Trace> {
   //
   final bsCon = TextEditingController();
   DateTime? setDate;
-  // TimeOfDay? setTime;
-  // DateTime? dateTime;
+  TimeOfDay? setTime;
+  DateTime? dateTime;
   String dateTimeString = "選擇";
   double low = 0, normal = 0, high = 0;
 
   late List<BS> bs;
+  late List<BSline> bsline = [
+    // BSline(DateTime(2021, 10, 22), 80),
+    // BSline(DateTime(2021, 10, 23), 90),
+    // BSline(DateTime(2021, 10, 24), 70),
+    // BSline(DateTime(2021, 10, 25), 120),
+    // BSline(DateTime(2021, 10, 30), 200),
+  ];
   @override
   void initState() {
     super.initState();
@@ -53,24 +60,35 @@ class _TraceState extends State<Trace> {
       BS("正常", normal, Colors.green),
       BS("高", high, Colors.red)
     ];
-    circleCal("before");
+    // 一開始顯示飯前
+    levelTimes("before");
 
-    // circleCal("after");
+    // levelTimes("after");
   }
 
-  circleCal(String text) {
+  // 計算血糖程度低、正常、高各幾次
+  void levelTimes(String type) {
     low = 0;
     normal = 0;
     high = 0;
-    collection.doc(phNum).collection(text).get().then((snapshot) {
+    collection.doc(phNum).collection(type).get().then((snapshot) {
       for (var query in snapshot.docs) {
         int val = int.parse(query.get("bloodSugar"));
-        if (val < 70)
-          low += 1;
-        else if (val < 100)
-          normal += 1;
-        else
-          high += 1;
+        if (type == "before") {
+          if (val < 70)
+            low += 1;
+          else if (val < 100)
+            normal += 1;
+          else
+            high += 1;
+        } else if (type == "after") {
+          if (val < 80)
+            low += 1;
+          else if (val < 140)
+            normal += 1;
+          else
+            high += 1;
+        }
       }
       setState(() {
         bs = [
@@ -82,44 +100,42 @@ class _TraceState extends State<Trace> {
     });
   }
 
-  List<BSline> bsline = [
-    BSline(DateTime(2021, 10, 22), 80),
-    BSline(DateTime(2021, 10, 23), 90),
-    BSline(DateTime(2021, 10, 24), 70),
-    BSline(DateTime(2021, 10, 25), 120),
-    BSline(DateTime(2021, 10, 30), 200),
-  ];
+  Future<void> setDateTime() async {
+    // 選擇(年月日)
+    setDate = await showDatePicker(
+        // 更改顏色
+        builder: (conetxt, child) => Theme(
+            child: child!,
+            data: ThemeData.light().copyWith(
+                colorScheme: ColorScheme.light(primary: Color(0xff1565c0)))),
+        initialEntryMode: DatePickerEntryMode.calendarOnly,
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(DateTime.now().year - 100),
+        lastDate: DateTime.now());
 
-  pieChart() {
-    return SfCircularChart(
-        legend: Legend(
-            textStyle: TextStyle(fontSize: 18),
-            position: LegendPosition.left,
-            isVisible: true),
-        series: [
-          PieSeries<BS, String>(
-              dataSource: bs,
-              dataLabelSettings: DataLabelSettings(
-                  isVisible: true, textStyle: TextStyle(fontSize: 18)),
-              xValueMapper: (data, _) => data.level,
-              yValueMapper: (data, _) => data.times,
-              pointColorMapper: (data, _) => data.color,
-              explode: true)
-        ]);
-  }
+    if (setDate != null) {
+      // 選擇小時、分鐘
+      setTime = await showTimePicker(
+          // 更改顏色
+          builder: (conetxt, child) => Theme(
+              child: child!,
+              data: ThemeData.light().copyWith(
+                  colorScheme: ColorScheme.light(primary: Color(0xff1565c0)))),
+          context: context,
+          initialTime: TimeOfDay.now());
+      if (setTime != null) {
+        setState(() {
+          // 儲存日期
+          dateTime = DateTime(setDate!.year, setDate!.month, setDate!.day,
+              setTime!.hour, setTime!.minute);
 
-  lineChart() {
-    return SfCartesianChart(
-        primaryXAxis: DateTimeAxis(dateFormat: DateFormat.Md()),
-        series: [
-          LineSeries<BSline, DateTime>(
-            dataSource: bsline,
-            dataLabelSettings: DataLabelSettings(
-                isVisible: true, textStyle: TextStyle(fontSize: 14)),
-            xValueMapper: (data, _) => data.day,
-            yValueMapper: (data, _) => data.bsValue,
-          )
-        ]);
+          print("DateTime:${dateTime.toString()}");
+          // 日期轉成字串格式
+          dateTimeString = DateFormat("yyyy-MM-dd HH:mm").format(dateTime!);
+        });
+      }
+    }
   }
 
   Padding bsField() {
@@ -157,17 +173,15 @@ class _TraceState extends State<Trace> {
       selectedBorderColor: Colors.black,
       //
       onPressed: (selIndex) {
-        setState(() {
-          if (selIndex == 0) {
-            boolVal[0] = true;
-            boolVal[1] = false;
-            circleCal("before");
-          } else {
-            boolVal[0] = false;
-            boolVal[1] = true;
-            circleCal("after");
-          }
-        });
+        if (selIndex == 0) {
+          boolVal[0] = true;
+          boolVal[1] = false;
+          levelTimes("before");
+        } else {
+          boolVal[0] = false;
+          boolVal[1] = true;
+          levelTimes("after");
+        }
       },
     );
   }
@@ -177,55 +191,59 @@ class _TraceState extends State<Trace> {
     return Text(text, style: TextStyle(fontSize: fontSize));
   }
 
-  Future<void> setDateTime() async {
-    // 選擇(年月日)
-    setDate = await showDatePicker(
-        // 更改顏色
-        builder: (conetxt, child) => Theme(
-            child: child!,
-            data: ThemeData.light().copyWith(
-                colorScheme: ColorScheme.light(primary: Color(0xff1565c0)))),
-        initialEntryMode: DatePickerEntryMode.calendarOnly,
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(DateTime.now().year - 100),
-        lastDate: DateTime.now());
+  pieChart() {
+    return SfCircularChart(
+        legend: Legend(
+            textStyle: TextStyle(fontSize: 18),
+            position: LegendPosition.left,
+            isVisible: true),
+        series: [
+          PieSeries<BS, String>(
+              dataSource: bs,
+              dataLabelSettings: DataLabelSettings(
+                  isVisible: true, textStyle: TextStyle(fontSize: 18)),
+              xValueMapper: (data, _) => data.level,
+              yValueMapper: (data, _) => data.times,
+              pointColorMapper: (data, _) => data.color,
+              explode: true)
+        ]);
+  }
 
-    if (setDate != null) {
-      // // 選擇小時、分鐘
-      // setTime = await showTimePicker(
-      //     // 更改顏色
-      //     builder: (conetxt, child) => Theme(
-      //         child: child!,
-      //         data: ThemeData.light().copyWith(
-      //             colorScheme: ColorScheme.light(primary: Color(0xff1565c0)))),
-      //     context: context,
-      //     initialTime: TimeOfDay.now());
-      // if (setTime != null) {
-      setState(() {
-        // 儲存日期
-        // dateTime = DateTime(setDate!.year, setDate!.month, setDate!.day,
-        //     setTime!.hour, setTime!.minute);
-        //
-        // print("DateTime:${dateTime.toString()}");
-        // 日期轉成字串格式
-        dateTimeString = DateFormat("yyyy-MM-dd").format(setDate!);
-      });
-      // }
-    }
+  lineChart() {
+    return SfCartesianChart(
+        primaryXAxis: DateTimeAxis(dateFormat: DateFormat.Md()),
+        series: [
+          LineSeries<BSline, DateTime>(
+            dataSource: bsline,
+            dataLabelSettings: DataLabelSettings(
+                isVisible: true, textStyle: TextStyle(fontSize: 14)),
+            xValueMapper: (data, _) => data.day,
+            yValueMapper: (data, _) => data.bsValue,
+          )
+        ]);
+  }
+
+  snackBar(Color color, String text) {
+    return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: color,
+        content:
+            Text(text, style: TextStyle(fontSize: 16, color: Colors.white)),
+        duration: Duration(seconds: 1)));
+  }
+
+  void addData(String type) {
+    collection
+        .doc(phNum)
+        .collection(type)
+        .doc(dateTimeString)
+        .set({"bloodSugar": bsCon.text});
+    snackBar(Color(0xff4caf50), "已成功送出！");
   }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-    snackBar(Color color, String text) {
-      return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: color,
-          content:
-              Text(text, style: TextStyle(fontSize: 16, color: Colors.white)),
-          duration: Duration(seconds: 1)));
-    }
 
     // double fontSize = screenWidth * 0.06;
     return Scaffold(
@@ -244,9 +262,7 @@ class _TraceState extends State<Trace> {
                         backgroundColor:
                             MaterialStateProperty.all(Colors.blue[800])),
                     onPressed: () {
-                      setState(() {
-                        setDateTime();
-                      });
+                      setDateTime();
                     },
                     child: traceStyle(dateTimeString))
               ]),
@@ -270,24 +286,14 @@ class _TraceState extends State<Trace> {
                     if (setDate == null || bsCon.text == "") {
                       snackBar(Color(0xffc62828), "請填寫完再按送出！");
                     } else if (boolVal[0] == true) {
-                      collection
-                          .doc(phNum)
-                          .collection("before")
-                          .doc(dateTimeString)
-                          .set({"bloodSugar": bsCon.text});
-                      snackBar(Color(0xff4caf50), "已成功送出！");
+                      addData("before");
                     } else {
-                      collection
-                          .doc(phNum)
-                          .collection("after")
-                          .doc(dateTimeString)
-                          .set({"bloodSugar": bsCon.text});
-                      snackBar(Color(0xff4caf50), "已成功送出！");
+                      addData("after");
                     }
                   },
                   child: traceStyle("提交")),
+              traceStyle("\n飯前血糖：70~99mg/dL\n飯後血糖：80~140mg/dL"),
               SizedBox(height: screenHeight * 0.3, child: pieChart()),
-              Divider(color: Colors.grey, thickness: 2),
               SizedBox(height: screenHeight * 0.4, child: lineChart()),
             ],
           ),
