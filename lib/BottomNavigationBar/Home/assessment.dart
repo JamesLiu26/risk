@@ -174,7 +174,7 @@ class _AssessmentState extends State<Assessment> {
   }
 
   Container area(Widget child) {
-    return Container(margin: EdgeInsets.all(20), child: child);
+    return Container(margin: EdgeInsets.fromLTRB(50, 30, 0, 30), child: child);
   }
 
   // ----------------------------

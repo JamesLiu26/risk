@@ -19,20 +19,32 @@ class Trace extends StatefulWidget {
   _TraceState createState() => _TraceState();
 }
 
-class BS {
+class BloodSugarPie {
   final String level;
-  double times;
+  int times;
   final Color color;
-  BS(this.level, this.times, this.color);
+  BloodSugarPie(this.level, this.times, this.color);
 }
 
-class BSline {
+class BloodSugarLine {
   final DateTime day;
   final double bsValue;
-  BSline(this.day, this.bsValue);
+  BloodSugarLine(this.day, this.bsValue);
 }
 
 class _TraceState extends State<Trace> {
+  @override
+  void initState() {
+    super.initState();
+    pieList = [
+      BloodSugarPie("低", low, Colors.blue),
+      BloodSugarPie("正常", normal, Colors.green),
+      BloodSugarPie("高", high, Colors.red)
+    ];
+    // 一開始顯示飯前
+    getPieLineData("before");
+  }
+
   String phNum = FirebaseAuth.instance.currentUser!.phoneNumber!;
   CollectionReference collection =
       FirebaseFirestore.instance.collection("user");
@@ -42,65 +54,57 @@ class _TraceState extends State<Trace> {
   TimeOfDay? setTime;
   DateTime? dateTime;
   String dateTimeString = "選擇";
-  double low = 0, normal = 0, high = 0;
+  int low = 0, normal = 0, high = 0;
 
-  late List<BS> bs;
-  late List<BSline> bsline = [
-    // BSline(DateTime(2021, 10, 22), 80),
-    // BSline(DateTime(2021, 10, 23), 90),
-    // BSline(DateTime(2021, 10, 24), 70),
-    // BSline(DateTime(2021, 10, 25), 120),
-    // BSline(DateTime(2021, 10, 30), 200),
-  ];
-  @override
-  void initState() {
-    super.initState();
-    bs = [
-      BS("低", low, Colors.blue),
-      BS("正常", normal, Colors.green),
-      BS("高", high, Colors.red)
-    ];
-    // 一開始顯示飯前
-    levelTimes("before");
+  late List<BloodSugarPie> pieList;
+  List<BloodSugarLine> lineList = [];
 
-    // levelTimes("after");
-  }
-
-  // 計算血糖程度低、正常、高各幾次
-  void levelTimes(String type) {
+  void getPieLineData(String type) {
+    // 每次執行清空lineList的值(因為list.add會一直新增)
+    lineList.clear();
+    //
+    // 計算血糖程度低、正常、高各幾次
     low = 0;
     normal = 0;
     high = 0;
+    int lowBS = 0;
+    int highBS = 0;
+    //
     collection.doc(phNum).collection(type).get().then((snapshot) {
       for (var query in snapshot.docs) {
-        int val = int.parse(query.get("bloodSugar"));
+        // 將document的id轉成日期格式
+        DateTime time = DateTime.parse(query.id);
+        double val = double.parse(query.get("bloodSugar"));
+        // 新增資料到lineList裡(用於折線圖)
+        lineList.add(BloodSugarLine(time, val));
+
+        // 判斷是飯前or飯後，界定標準值
         if (type == "before") {
-          if (val < 70)
-            low += 1;
-          else if (val < 100)
-            normal += 1;
-          else
-            high += 1;
-        } else if (type == "after") {
-          if (val < 80)
-            low += 1;
-          else if (val < 140)
-            normal += 1;
-          else
-            high += 1;
+          lowBS = 70;
+          highBS = 99;
+        } else {
+          lowBS = 80;
+          highBS = 139;
         }
+        // 判斷血糖介於何處
+        if (val < lowBS)
+          low += 1;
+        else if (val < highBS)
+          normal += 1;
+        else
+          high += 1;
       }
       setState(() {
-        bs = [
-          BS("低", low, Colors.blue),
-          BS("正常", normal, Color(0xff43a047)),
-          BS("高", high, Colors.red)
+        pieList = [
+          BloodSugarPie("低", low, Colors.blue),
+          BloodSugarPie("正常", normal, Color(0xff43a047)),
+          BloodSugarPie("高", high, Colors.red)
         ];
       });
     });
   }
 
-  Future<void> setDateTime() async {
+  Future<void> chooseDateTime() async {
     // 選擇(年月日)
     setDate = await showDatePicker(
         // 更改顏色
@@ -130,7 +134,7 @@ class _TraceState extends State<Trace> {
           dateTime = DateTime(setDate!.year, setDate!.month, setDate!.day,
               setTime!.hour, setTime!.minute);
 
-          print("DateTime:${dateTime.toString()}");
+          // print("DateTime:${dateTime.toString()}");
           // 日期轉成字串格式
           dateTimeString = DateFormat("yyyy-MM-dd HH:mm").format(dateTime!);
         });
@@ -176,11 +180,11 @@ class _TraceState extends State<Trace> {
         if (selIndex == 0) {
           boolVal[0] = true;
           boolVal[1] = false;
-          levelTimes("before");
+          getPieLineData("before");
         } else {
           boolVal[0] = false;
           boolVal[1] = true;
-          levelTimes("after");
+          getPieLineData("after");
         }
       },
     );
@@ -192,31 +196,45 @@ class _TraceState extends State<Trace> {
   }
 
   pieChart() {
+    double fontSize = MediaQuery.of(context).size.width * 0.05;
     return SfCircularChart(
+        title: ChartTitle(
+            text: "分布程度",
+            textStyle: TextStyle(fontSize: fontSize),
+            alignment: ChartAlignment.near),
         legend: Legend(
-            textStyle: TextStyle(fontSize: 18),
+            textStyle: TextStyle(fontSize: fontSize),
             position: LegendPosition.left,
             isVisible: true),
         series: [
-          PieSeries<BS, String>(
-              dataSource: bs,
-              dataLabelSettings: DataLabelSettings(
-                  isVisible: true, textStyle: TextStyle(fontSize: 18)),
-              xValueMapper: (data, _) => data.level,
-              yValueMapper: (data, _) => data.times,
-              pointColorMapper: (data, _) => data.color,
-              explode: true)
+          PieSeries<BloodSugarPie, String>(
+            animationDuration: 0,
+            dataSource: pieList,
+            dataLabelSettings: DataLabelSettings(
+                isVisible: true, textStyle: TextStyle(fontSize: fontSize)),
+            xValueMapper: (data, _) => data.level,
+            yValueMapper: (data, _) => data.times,
+            pointColorMapper: (data, _) => data.color,
+          )
         ]);
   }
 
   lineChart() {
+    double screenWidth = MediaQuery.of(context).size.width;
     return SfCartesianChart(
+        margin: EdgeInsets.fromLTRB(10, 10, 20, 20),
+        title: ChartTitle(
+            text: "記錄\n",
+            textStyle: TextStyle(fontSize: screenWidth * 0.05),
+            alignment: ChartAlignment.near),
         primaryXAxis: DateTimeAxis(dateFormat: DateFormat.Md()),
         series: [
-          LineSeries<BSline, DateTime>(
-            dataSource: bsline,
+          LineSeries<BloodSugarLine, DateTime>(
+            animationDuration: 0,
+            dataSource: lineList,
             dataLabelSettings: DataLabelSettings(
-                isVisible: true, textStyle: TextStyle(fontSize: 14)),
+                isVisible: true,
+                textStyle: TextStyle(fontSize: screenWidth * 0.04)),
             xValueMapper: (data, _) => data.day,
             yValueMapper: (data, _) => data.bsValue,
           )
@@ -238,65 +256,88 @@ class _TraceState extends State<Trace> {
         .doc(dateTimeString)
         .set({"bloodSugar": bsCon.text});
     snackBar(Color(0xff4caf50), "已成功送出！");
+    bsCon.clear();
   }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-
-    // double fontSize = screenWidth * 0.06;
+    boxPadding(Widget child) =>
+        Padding(padding: EdgeInsets.fromLTRB(30, 10, 0, 10), child: child);
     return Scaffold(
         drawer: menu(context),
         appBar: appBar("每日追蹤", menuButton()),
         body: Center(
-            child: SingleChildScrollView(
-          child: Column(
-            children: [
-              SizedBox(height: 20),
-              Row(children: [
-                // 選擇量測日期button
-                traceStyle("  量測日期："),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                //
+                boxPadding(Row(children: [
+                  traceStyle("量測日期："),
+                  // 選擇量測日期button
+                  ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all(Colors.blue[800])),
+                      onPressed: () {
+                        FocusScopeNode focus = FocusScope.of(context);
+                        // 把TextField的focus移掉
+                        if (!focus.hasPrimaryFocus) {
+                          focus.unfocus();
+                        }
+                        chooseDateTime();
+                      },
+                      child: traceStyle(dateTimeString))
+                ])),
+                //
+                boxPadding(Row(children: [
+                  traceStyle("類型："),
+                  // 選擇飯前飯後button
+                  riceButton(),
+                ])),
+                //
+                boxPadding(Row(children: [
+                  traceStyle("血糖："),
+                  // 輸入血糖值
+                  SizedBox(width: screenWidth * 0.35, child: bsField()),
+                ])),
+                traceStyle("\n飯前血糖：70~99mg/dL\n飯後血糖：80~139mg/dL\n"),
+                //
                 ElevatedButton(
                     style: ButtonStyle(
                         backgroundColor:
                             MaterialStateProperty.all(Colors.blue[800])),
                     onPressed: () {
-                      setDateTime();
+                      FocusScopeNode focus = FocusScope.of(context);
+                      // 把TextField的focus移掉
+                      if (!focus.hasPrimaryFocus) {
+                        focus.unfocus();
+                      }
+                      if (setDate == null || bsCon.text == "") {
+                        snackBar(Color(0xffc62828), "請填寫完再按送出！");
+                      } else if (boolVal[0] == true) {
+                        addData("before");
+                      } else {
+                        addData("after");
+                      }
                     },
-                    child: traceStyle(dateTimeString))
-              ]),
-              Row(
-                children: [
-                  traceStyle("  血糖："),
-                  SizedBox(width: screenWidth * 0.35, child: bsField()),
-                  riceButton()
-                ],
-              ),
-              ElevatedButton(
-                  style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all(Colors.blue[800])),
-                  onPressed: () {
-                    FocusScopeNode focus = FocusScope.of(context);
-                    // 把TextField的focus移掉
-                    if (!focus.hasPrimaryFocus) {
-                      focus.unfocus();
-                    }
-                    if (setDate == null || bsCon.text == "") {
-                      snackBar(Color(0xffc62828), "請填寫完再按送出！");
-                    } else if (boolVal[0] == true) {
-                      addData("before");
-                    } else {
-                      addData("after");
-                    }
-                  },
-                  child: traceStyle("提交")),
-              traceStyle("\n飯前血糖：70~99mg/dL\n飯後血糖：80~140mg/dL"),
-              SizedBox(height: screenHeight * 0.3, child: pieChart()),
-              SizedBox(height: screenHeight * 0.4, child: lineChart()),
-            ],
+                    child: traceStyle("提交")),
+                Container(
+                    margin: EdgeInsets.only(top: 10, bottom: 20),
+                    decoration: BoxDecoration(
+                        border: Border.all(),
+                        borderRadius: BorderRadius.circular(10)),
+                    width: screenWidth * 0.95,
+                    child: pieChart()),
+                Container(
+                    decoration: BoxDecoration(
+                        border: Border.all(),
+                        borderRadius: BorderRadius.circular(10)),
+                    width: screenWidth * 0.95,
+                    child: lineChart()),
+              ],
+            ),
           ),
-        )));
+        ));
   }
 }
