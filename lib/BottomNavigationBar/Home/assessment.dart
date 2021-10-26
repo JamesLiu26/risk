@@ -34,7 +34,7 @@ class _AssessmentState extends State<Assessment> {
 
   // 載入模型並取得模型大小
   loadModel() async {
-    interpreter = await Interpreter.fromAsset("model.tflite");
+    interpreter = await Interpreter.fromAsset("model2.tflite");
     interpreter.allocateTensors();
     print(interpreter.getInputTensors());
     print(interpreter.getOutputTensors());
@@ -49,8 +49,8 @@ class _AssessmentState extends State<Assessment> {
       String phoNum = _auth.currentUser!.phoneNumber!;
       _collection.doc(phoNum).get().then((snapshot) {
         pregnant = snapshot.get("pregnant") * 1.0;
-        dpf = snapshot.get("diabetesPedigreeFunction");
-        age = snapshot.get("age");
+        dpf = snapshot.get("diabetesPedigreeFunction") * 1.0;
+        age = snapshot.get("age") * 1.0;
       }).whenComplete(() {
         print("懷孕次數: $pregnant");
         print("血糖：${glu.text}");

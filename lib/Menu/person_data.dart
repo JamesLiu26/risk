@@ -3,12 +3,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../appBar.dart';
 
-void main() {
-  runApp(MaterialApp(
-    home: PersonData(),
-    debugShowCheckedModeBanner: false,
-  ));
-}
+// void main() {
+//   runApp(MaterialApp(
+//     home: PersonData(),
+//     debugShowCheckedModeBanner: false,
+//   ));
+// }
 
 FirebaseAuth _auth = FirebaseAuth.instance;
 CollectionReference _collection = FirebaseFirestore.instance.collection("user");
@@ -28,17 +28,20 @@ class _PersonDataState extends State<PersonData> {
   String _emerRel = "";
   String _emerPh = "";
 
-  Text textStyle(String text, [double rate = 0.045]) {
+  Text textStyle(String text, [double rate = 0.052]) {
     return Text(text,
         style: TextStyle(fontSize: MediaQuery.of(context).size.width * rate));
   }
 
   Padding textLayout(String text1, String text2) {
     return Padding(
-      padding: EdgeInsets.only(left: 14, top: 10, bottom: 10, right: 14),
-      child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [textStyle(text1), textStyle(text2)]),
+      padding: EdgeInsets.only(top: 5, right: 5, bottom: 5, left: 10),
+      child: Column(children: [
+        Row(children: [textStyle(text1)]),
+        Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [textStyle(text2)])
+      ]),
     );
   }
 
@@ -72,28 +75,30 @@ class _PersonDataState extends State<PersonData> {
             },
           ),
         ),
-        body: Center(
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Row(children: [textStyle("  基本資料", 0.05)]),
-                textLayout("姓名", _name),
-                textLayout("性別", _gender),
-                textLayout("行動電話", _phNum),
-                Divider(
-                  color: Colors.grey,
-                ),
-                Row(children: [textStyle("  聯絡方式", 0.05)]),
-                textLayout("通訊地址", _address),
-                textLayout("電子郵件", _mail),
-                Divider(
-                  color: Colors.grey,
-                ),
-                Row(children: [textStyle("  緊急聯絡人資料", 0.05)]),
-                textLayout("姓名", _emerName),
-                textLayout("關係", _emerRel),
-                textLayout("行動電話", _emerPh),
-              ]),
+        body: SingleChildScrollView(
+          child: Center(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Row(children: [textStyle(" 基本資料", 0.06)]),
+                  textLayout("姓名", _name),
+                  textLayout("性別", _gender),
+                  textLayout("行動電話", _phNum),
+                  Divider(
+                    color: Colors.grey,
+                  ),
+                  Row(children: [textStyle(" 聯絡方式", 0.06)]),
+                  textLayout("通訊地址", _address),
+                  textLayout("電子郵件", _mail),
+                  Divider(
+                    color: Colors.grey,
+                  ),
+                  Row(children: [textStyle(" 緊急聯絡人資料", 0.06)]),
+                  textLayout("姓名", _emerName),
+                  textLayout("關係", _emerRel),
+                  textLayout("行動電話", _emerPh),
+                ]),
+          ),
         ));
   }
 }
