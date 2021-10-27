@@ -30,7 +30,8 @@ class _PersonDataState extends State<PersonData> {
 
   Text textStyle(String text, [double rate = 0.052]) {
     return Text(text,
-        style: TextStyle(fontSize: MediaQuery.of(context).size.width * rate));
+        style: TextStyle(
+            fontSize: MediaQuery.of(context).size.width * rate, height: 1.5));
   }
 
   Padding textLayout(String text1, String text2) {
@@ -80,20 +81,20 @@ class _PersonDataState extends State<PersonData> {
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Row(children: [textStyle(" 基本資料", 0.06)]),
+                  Row(children: [textStyle(" 基本資料", 0.058)]),
                   textLayout("姓名", _name),
                   textLayout("性別", _gender),
                   textLayout("行動電話", _phNum),
                   Divider(
                     color: Colors.grey,
                   ),
-                  Row(children: [textStyle(" 聯絡方式", 0.06)]),
+                  Row(children: [textStyle(" 聯絡方式", 0.058)]),
                   textLayout("通訊地址", _address),
                   textLayout("電子郵件", _mail),
                   Divider(
                     color: Colors.grey,
                   ),
-                  Row(children: [textStyle(" 緊急聯絡人資料", 0.06)]),
+                  Row(children: [textStyle(" 緊急聯絡人資料", 0.058)]),
                   textLayout("姓名", _emerName),
                   textLayout("關係", _emerRel),
                   textLayout("行動電話", _emerPh),

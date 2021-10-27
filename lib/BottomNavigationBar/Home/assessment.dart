@@ -255,6 +255,7 @@ class _AssessmentState extends State<Assessment> {
                           builder: (context) => Final(output[0][0])));
                 }
               }),
+          SizedBox(height: 20)
         ])));
   }
 }
