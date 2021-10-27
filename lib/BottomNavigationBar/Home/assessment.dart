@@ -34,7 +34,7 @@ class _AssessmentState extends State<Assessment> {
 
   // 載入模型並取得模型大小
   loadModel() async {
-    interpreter = await Interpreter.fromAsset("model2.tflite");
+    interpreter = await Interpreter.fromAsset("model.tflite");
     interpreter.allocateTensors();
     print(interpreter.getInputTensors());
     print(interpreter.getOutputTensors());
