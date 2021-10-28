@@ -61,13 +61,13 @@ class Home extends StatelessWidget {
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      homeRoute("醫師洽談", "images/醫師談.png", Chatscreen()),
+                      homeRoute("飲食建議", "images/食物.png", Advice()),
                       homeRoute("前期量表", "images/問卷.png", Measure())
                     ]),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      homeRoute("飲食建議", "images/食物.png", Advice()),
+                      homeRoute("醫師洽談", "images/醫師談.png", Chatscreen()),
                       homeRoute("注意事項", "images/注意.png", Notice())
                     ]),
               ]),

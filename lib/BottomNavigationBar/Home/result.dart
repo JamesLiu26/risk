@@ -36,7 +36,7 @@ class Result extends StatelessWidget {
 
     return Scaffold(
         appBar: appBar(
-            "問卷調查",
+            "前期量表",
             IconButton(
                 onPressed: () {
                   Navigator.pop(context);

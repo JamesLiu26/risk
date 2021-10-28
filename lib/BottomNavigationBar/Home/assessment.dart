@@ -93,16 +93,16 @@ class _AssessmentState extends State<Assessment> {
   //------------
 
   TextField question(TextEditingController controller, String labelText) {
-    double fontSize = MediaQuery.of(context).size.width * 0.06;
+    double fontSize = MediaQuery.of(context).size.width * 0.055;
     return TextField(
         controller: controller,
         keyboardType: TextInputType.number,
-        style: TextStyle(fontSize: fontSize, color: Colors.white),
+        style: TextStyle(fontSize: fontSize, color: Colors.black),
         inputFormatters: [LengthLimitingTextInputFormatter(6)],
         decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.blue[800],
-            labelStyle: TextStyle(color: Colors.white),
+            fillColor: Colors.white,
+            labelStyle: TextStyle(color: Colors.grey),
             labelText: labelText,
             floatingLabelBehavior: FloatingLabelBehavior.never,
             border:
@@ -167,16 +167,24 @@ class _AssessmentState extends State<Assessment> {
   }
 
   Text textStyle1(text) {
-    double fontSize = MediaQuery.of(context).size.width * 0.06;
+    double fontSize = MediaQuery.of(context).size.width * 0.055;
     return Text(text,
-        style: TextStyle(fontSize: fontSize, color: Colors.white, height: 1.5),
+        style: TextStyle(fontSize: fontSize, color: Colors.black, height: 1.5),
         textAlign: TextAlign.center);
   }
 
-  Container area(Widget child) {
-    return Container(margin: EdgeInsets.fromLTRB(50, 30, 0, 30), child: child);
+  Padding areaPadding(Widget child) {
+    return Padding(padding: EdgeInsets.all(10), child: child);
   }
 
+  Container area(Widget child) {
+    return Container(
+        margin: EdgeInsets.all(10),
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10), color: Colors.blue[100]),
+        child: child);
+  }
   // ----------------------------
 
   @override
@@ -189,7 +197,7 @@ class _AssessmentState extends State<Assessment> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.pink[100],
         appBar: appBar(
             "風險評估",
             IconButton(
@@ -204,59 +212,91 @@ class _AssessmentState extends State<Assessment> {
               icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
             )),
         body: SingleChildScrollView(
-            child: Column(children: [
-          SizedBox(height: 20),
-          textStyle1("建議您先透過\n儀器量測再填寫\n"),
-          area(Row(children: [
-            textStyle1("身高："),
-            SizedBox(width: screenWidth * 0.35, child: question(height, "cm")),
-          ])),
-          //
-          area(Row(children: [
-            textStyle1("體重："),
-            SizedBox(width: screenWidth * 0.35, child: question(weight, "kg")),
-          ])),
-          //
-          area(Row(children: [textStyle1("BMI：" + bmi.toString())])),
-          area(Row(children: [textStyle1("狀態：" + status)])),
-          //
-          area(Row(children: [
-            textStyle1("血糖："),
-            SizedBox(width: screenWidth * 0.35, child: question(glu, "mg/dL")),
-          ])),
-          //
-          area(Row(children: [
-            textStyle1("舒張壓："),
-            SizedBox(
-              width: screenWidth * 0.35,
-              child: question(bloodPressure, "mmHg"),
+            child: Center(
+          child: Column(children: [
+            SizedBox(height: 20),
+            textStyle1("建議您先透過\n儀器量測再填寫\n"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                area(Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      textStyle1("身高"),
+                      Container(
+                          margin: EdgeInsets.all(10),
+                          width: screenWidth * 0.3,
+                          child: question(height, "cm"))
+                    ])),
+                //
+                area(Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      textStyle1("體重"),
+                      Container(
+                          margin: EdgeInsets.all(10),
+                          width: screenWidth * 0.3,
+                          child: question(weight, "kg"))
+                    ])),
+              ],
             ),
-          ])),
-          //
-          SizedBox(height: 30),
-          OutlinedButton(
-              style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.blue[800])),
-              child: Text("送出",
-                  style: TextStyle(
-                      fontSize: screenWidth * 0.06, color: Colors.white)),
-              onPressed: () {
-                FocusScopeNode focus = FocusScope.of(context);
-                // 把TextField的focus移掉
-                if (!focus.hasPrimaryFocus) {
-                  focus.unfocus();
-                }
-                if (result() == true) {
-                  predict();
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          // 把預測結果傳到下一頁
-                          builder: (context) => Final(output[0][0])));
-                }
-              }),
-          SizedBox(height: 20)
-        ])));
+            //
+            // Column(children: [
+
+            area(textStyle1("BMI: \n" + bmi.toString())),
+            // textStyle1("    狀態: " + status)
+
+            // ]),
+
+            //
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  textStyle1("血糖"),
+                  Container(
+                      margin: EdgeInsets.all(10),
+                      width: screenWidth * 0.3,
+                      child: question(glu, "mg/dL"))
+                ]),
+                //
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  textStyle1("舒張壓"),
+                  Container(
+                    margin: EdgeInsets.all(10),
+                    width: screenWidth * 0.3,
+                    child: question(bloodPressure, "mmHg"),
+                  )
+                ]),
+              ],
+            ),
+            //
+            SizedBox(height: 30),
+            OutlinedButton(
+                style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all(Colors.blue[800])),
+                child: Text("送出",
+                    style: TextStyle(
+                        fontSize: screenWidth * 0.06, color: Colors.white)),
+                onPressed: () {
+                  FocusScopeNode focus = FocusScope.of(context);
+                  // 把TextField的focus移掉
+                  if (!focus.hasPrimaryFocus) {
+                    focus.unfocus();
+                  }
+                  if (result() == true) {
+                    predict();
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            // 把預測結果傳到下一頁
+                            builder: (context) => Final(output[0][0])));
+                  }
+                }),
+            SizedBox(height: 20)
+          ]),
+        )));
   }
 }
 
