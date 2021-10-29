@@ -173,16 +173,12 @@ class _AssessmentState extends State<Assessment> {
         textAlign: TextAlign.center);
   }
 
-  Padding areaPadding(Widget child) {
-    return Padding(padding: EdgeInsets.all(10), child: child);
-  }
-
   Container area(Widget child) {
     return Container(
         margin: EdgeInsets.all(10),
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10), color: Colors.blue[100]),
+            borderRadius: BorderRadius.circular(10), color: Colors.pink[100]),
         child: child);
   }
   // ----------------------------
@@ -197,7 +193,7 @@ class _AssessmentState extends State<Assessment> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-        backgroundColor: Colors.pink[100],
+        backgroundColor: Colors.orange[100],
         appBar: appBar(
             "風險評估",
             IconButton(
@@ -243,8 +239,8 @@ class _AssessmentState extends State<Assessment> {
             //
             // Column(children: [
 
-            area(textStyle1("BMI: \n" + bmi.toString())),
-            // textStyle1("    狀態: " + status)
+            area(textStyle1("BMI\n" + bmi.toString())),
+            // area(textStyle1("狀態: " + status)),
 
             // ]),
 
@@ -252,22 +248,26 @@ class _AssessmentState extends State<Assessment> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  textStyle1("血糖"),
-                  Container(
-                      margin: EdgeInsets.all(10),
-                      width: screenWidth * 0.3,
-                      child: question(glu, "mg/dL"))
-                ]),
+                area(Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      textStyle1("血糖"),
+                      Container(
+                          margin: EdgeInsets.all(10),
+                          width: screenWidth * 0.3,
+                          child: question(glu, "mg/dL"))
+                    ])),
                 //
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  textStyle1("舒張壓"),
-                  Container(
-                    margin: EdgeInsets.all(10),
-                    width: screenWidth * 0.3,
-                    child: question(bloodPressure, "mmHg"),
-                  )
-                ]),
+                area(Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      textStyle1("舒張壓"),
+                      Container(
+                        margin: EdgeInsets.all(10),
+                        width: screenWidth * 0.3,
+                        child: question(bloodPressure, "mmHg"),
+                      )
+                    ])),
               ],
             ),
             //
