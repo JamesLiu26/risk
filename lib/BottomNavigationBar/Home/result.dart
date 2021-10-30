@@ -92,7 +92,7 @@ class Result extends StatelessWidget {
                           ]),
                     ]),
               ),
-              OutlinedButton(
+              ElevatedButton(
                   style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(Colors.green)),
                   onPressed: () {

@@ -278,7 +278,7 @@ class _MeasureState extends State<Measure> {
               )),
               SizedBox(
                   width: MediaQuery.of(context).size.width * 0.3,
-                  child: OutlinedButton(
+                  child: ElevatedButton(
                       style: ButtonStyle(
                           backgroundColor:
                               MaterialStateProperty.all<Color>(Colors.blue)),

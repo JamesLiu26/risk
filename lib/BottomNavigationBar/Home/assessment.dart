@@ -98,7 +98,7 @@ class _AssessmentState extends State<Assessment> {
         controller: controller,
         keyboardType: TextInputType.number,
         style: TextStyle(fontSize: fontSize, color: Colors.black),
-        inputFormatters: [LengthLimitingTextInputFormatter(6)],
+        inputFormatters: [LengthLimitingTextInputFormatter(5)],
         decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white,
@@ -151,7 +151,7 @@ class _AssessmentState extends State<Assessment> {
   bool result() {
     bool hasFullData = true;
     for (TextEditingController value in fillData) {
-      if (!value.text.contains(RegExp("^[0-9]+\$"), 0)) {
+      if (!value.text.contains(RegExp("^[0-9\.]+\$"), 0)) {
         //
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             backgroundColor: Colors.red[800],
@@ -166,19 +166,19 @@ class _AssessmentState extends State<Assessment> {
     return hasFullData;
   }
 
-  Text textStyle1(text) {
+  Text textStyle1(text, [Color color = Colors.white]) {
     double fontSize = MediaQuery.of(context).size.width * 0.055;
     return Text(text,
-        style: TextStyle(fontSize: fontSize, color: Colors.black, height: 1.5),
+        style: TextStyle(fontSize: fontSize, color: color, height: 1.5),
         textAlign: TextAlign.center);
   }
 
-  Container area(Widget child) {
+  Container marginPadding(Widget child, [Color color = Colors.blue]) {
     return Container(
         margin: EdgeInsets.all(10),
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10), color: Colors.pink[100]),
+            borderRadius: BorderRadius.circular(10), color: color),
         child: child);
   }
   // ----------------------------
@@ -211,11 +211,11 @@ class _AssessmentState extends State<Assessment> {
             child: Center(
           child: Column(children: [
             SizedBox(height: 20),
-            textStyle1("建議您先透過\n儀器量測再填寫\n"),
+            textStyle1("建議您先透過\n儀器量測再填寫\n", Colors.black),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                area(Column(
+                marginPadding(Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       textStyle1("身高"),
@@ -225,7 +225,7 @@ class _AssessmentState extends State<Assessment> {
                           child: question(height, "cm"))
                     ])),
                 //
-                area(Column(
+                marginPadding(Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       textStyle1("體重"),
@@ -236,19 +236,15 @@ class _AssessmentState extends State<Assessment> {
                     ])),
               ],
             ),
-            //
-            // Column(children: [
 
-            area(textStyle1("BMI\n" + bmi.toString())),
-            // area(textStyle1("狀態: " + status)),
+            marginPadding(SizedBox(
+                width: screenWidth * 0.5,
+                child: textStyle1("BMI  ${bmi.toString()}\n狀態  $status"))),
 
-            // ]),
-
-            //
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                area(Column(
+                marginPadding(Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       textStyle1("血糖"),
@@ -258,7 +254,7 @@ class _AssessmentState extends State<Assessment> {
                           child: question(glu, "mg/dL"))
                     ])),
                 //
-                area(Column(
+                marginPadding(Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       textStyle1("舒張壓"),
@@ -272,10 +268,11 @@ class _AssessmentState extends State<Assessment> {
             ),
             //
             SizedBox(height: 30),
-            OutlinedButton(
+            ElevatedButton(
                 style: ButtonStyle(
+                    shadowColor: MaterialStateProperty.all(Colors.white),
                     backgroundColor:
-                        MaterialStateProperty.all(Colors.blue[800])),
+                        MaterialStateProperty.all(Colors.orange[800])),
                 child: Text("送出",
                     style: TextStyle(
                         fontSize: screenWidth * 0.06, color: Colors.white)),
@@ -360,7 +357,7 @@ class _FinalState extends State<Final> {
                   Text("預測結果為", style: textStyle2(screenWidth)),
                   percentIndicator(),
                   Text(level, style: textStyle2(screenWidth)),
-                  OutlinedButton(
+                  ElevatedButton(
                       style: ButtonStyle(
                           backgroundColor:
                               MaterialStateProperty.all(Colors.blue[800])),

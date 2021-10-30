@@ -295,7 +295,7 @@ class _PerQuestState extends State<PerQuest> {
                               textStyle("\n  年齡：${age.toStringAsFixed(0)}歲"),
                               Padding(
                                   padding: EdgeInsets.all(10),
-                                  child: OutlinedButton(
+                                  child: ElevatedButton(
                                       style: ButtonStyle(
                                           backgroundColor:
                                               MaterialStateProperty.all<Color>(
@@ -341,7 +341,7 @@ class _PerQuestState extends State<PerQuest> {
 
                       // ----
 
-                      OutlinedButton(
+                      ElevatedButton(
                           style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all<Color>(
                                   Colors.green)),
