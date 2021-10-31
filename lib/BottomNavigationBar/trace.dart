@@ -40,107 +40,6 @@ class _TraceState extends State<Trace> {
   void initState() {
     super.initState();
     dateTimeString = DateFormat("yyyy-MM-dd HH:mm").format(DateTime.now());
-    pieList = [
-      BloodSugarPie("過低", low, Colors.blue),
-      BloodSugarPie("正常", normal, Colors.green),
-      BloodSugarPie("過高", high, Colors.red)
-    ];
-    getPieLineData("before");
-  }
-
-  int low = 0, normal = 0, high = 0;
-
-  late List<BloodSugarPie> pieList;
-  List<BloodSugarLine> lineList = [];
-  void getPieLineData(String type) {
-    // 每次執行清空lineList的值(因為list.add會一直新增)
-    lineList.clear();
-    //
-    // 計算血糖程度低、正常、高各幾次
-    low = 0;
-    normal = 0;
-    high = 0;
-    int lowBS = 0;
-    int highBS = 0;
-    //
-    _collection.doc(_phNum).collection(type).get().then((snapshot) {
-      for (var query in snapshot.docs) {
-        // 將document的id轉成日期格式
-        DateTime time = DateTime.parse(query.id);
-        double val = double.parse(query.get("bloodSugar"));
-        // 新增資料到lineList裡(用於折線圖)
-        lineList.add(BloodSugarLine(time, val));
-
-        // 判斷是飯前or飯後，界定標準值
-        if (type == "before") {
-          lowBS = 70;
-          highBS = 99;
-        } else {
-          lowBS = 80;
-          highBS = 139;
-        }
-        // 判斷血糖落於何處
-        if (val < lowBS)
-          low += 1;
-        else if (val < highBS)
-          normal += 1;
-        else
-          high += 1;
-      }
-      setState(() {
-        pieList = [
-          BloodSugarPie("過低", low, Colors.blue),
-          BloodSugarPie("正常", normal, Color(0xff43a047)),
-          BloodSugarPie("過高", high, Colors.red)
-        ];
-      });
-    });
-  }
-
-  pieChart() {
-    double fontSize = MediaQuery.of(context).size.width * 0.05;
-    return SfCircularChart(
-        title: ChartTitle(
-            text: "分布程度(次數)",
-            textStyle: TextStyle(fontSize: fontSize),
-            alignment: ChartAlignment.near),
-        legend: Legend(
-            textStyle: TextStyle(fontSize: fontSize),
-            position: LegendPosition.left,
-            isVisible: true),
-        series: [
-          PieSeries<BloodSugarPie, String>(
-            animationDuration: 0,
-            dataSource: pieList,
-            dataLabelSettings: DataLabelSettings(
-                isVisible: true, textStyle: TextStyle(fontSize: fontSize)),
-            xValueMapper: (data, _) => data.level,
-            yValueMapper: (data, _) => data.times,
-            pointColorMapper: (data, _) => data.color,
-          )
-        ]);
-  }
-
-  lineChart() {
-    double screenWidth = MediaQuery.of(context).size.width;
-    return SfCartesianChart(
-        margin: EdgeInsets.fromLTRB(10, 10, 20, 20),
-        title: ChartTitle(
-            text: "記錄\n",
-            textStyle: TextStyle(fontSize: screenWidth * 0.05),
-            alignment: ChartAlignment.near),
-        primaryXAxis: DateTimeAxis(dateFormat: DateFormat.Md()),
-        series: [
-          LineSeries<BloodSugarLine, DateTime>(
-            animationDuration: 0,
-            dataSource: lineList,
-            dataLabelSettings: DataLabelSettings(
-                isVisible: true,
-                textStyle: TextStyle(fontSize: screenWidth * 0.04)),
-            xValueMapper: (data, _) => data.day,
-            yValueMapper: (data, _) => data.bsValue,
-          )
-        ]);
   }
 
   //
@@ -186,7 +85,7 @@ class _TraceState extends State<Trace> {
     }
   }
 
-  TextField bsField() {
+  TextField bsTextField() {
     double fontSize = MediaQuery.of(context).size.width * 0.06;
     return TextField(
       style: TextStyle(fontSize: fontSize),
@@ -207,7 +106,8 @@ class _TraceState extends State<Trace> {
     return ToggleButtons(
       textStyle: TextStyle(fontSize: screenWidth * 0.06),
       children: [Text(riceType[0]), Text(riceType[1])],
-      constraints: BoxConstraints.expand(width: screenWidth * 0.2),
+      constraints: BoxConstraints.expand(
+          width: screenWidth * 0.2, height: screenWidth * 0.1),
       isSelected: boolVal,
       fillColor: Colors.blue[800],
       selectedColor: Colors.white,
@@ -225,34 +125,6 @@ class _TraceState extends State<Trace> {
             boolVal[1] = true;
           }
         });
-      },
-    );
-  }
-
-  List riceBS = ["飯前血糖", "飯後血糖"];
-  List<bool> boolVal2 = [true, false];
-  ToggleButtons switchButton() {
-    double screenWidth = MediaQuery.of(context).size.width;
-    return ToggleButtons(
-      textStyle: TextStyle(fontSize: screenWidth * 0.06),
-      children: [Text(riceBS[0]), Text(riceBS[1])],
-      constraints: BoxConstraints.expand(width: screenWidth * 0.35),
-      isSelected: boolVal2,
-      fillColor: Colors.blue[800],
-      selectedColor: Colors.white,
-      borderRadius: BorderRadius.circular(10),
-      borderColor: Colors.black,
-      selectedBorderColor: Colors.black,
-      onPressed: (selIndex) {
-        if (selIndex == 0) {
-          boolVal2[0] = true;
-          boolVal2[1] = false;
-          getPieLineData("before");
-        } else {
-          boolVal2[0] = false;
-          boolVal2[1] = true;
-          getPieLineData("after");
-        }
       },
     );
   }
@@ -299,12 +171,9 @@ class _TraceState extends State<Trace> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            //
             SizedBox(height: 20),
-
             boxMargin(
                 traceStyle("選擇日期"),
-                // 選擇量測日期button
                 ElevatedButton(
                     style: ButtonStyle(
                         backgroundColor:
@@ -317,15 +186,9 @@ class _TraceState extends State<Trace> {
                       chooseDateTime();
                     },
                     child: traceStyle(dateTimeString!))),
-
             boxMargin(traceStyle("類型"), typeButton()),
-
             boxMargin(traceStyle("血糖"),
-                SizedBox(width: screenWidth * 0.35, child: bsField())),
-
-            // traceStyle("血糖正常範圍"),
-            // traceStyle("飯前血糖：70~99mg/dL\n飯後血糖：80~139mg/dL\n"),
-            //
+                SizedBox(width: screenWidth * 0.35, child: bsTextField())),
             ElevatedButton(
                 style: ButtonStyle(
                     backgroundColor:
@@ -348,34 +211,21 @@ class _TraceState extends State<Trace> {
               padding: EdgeInsets.only(top: 10, bottom: 10),
               child: Divider(thickness: 1, color: Colors.black),
             ),
-            traceStyle("顯示圖表\n"),
-            switchButton(),
-            // ElevatedButton(
-            //   child: traceStyle("顯示圖表"),
-            //   style: ButtonStyle(
-            //       backgroundColor: MaterialStateProperty.all(Colors.blue[800])),
-            //   onPressed: () {
-            //     if (!focus.hasPrimaryFocus) {
-            //       focus.unfocus();
-            //     }
-            //     Navigator.push(
-            //         context, MaterialPageRoute(builder: (context) => Chart()));
-            //   },
-            // ),
-
-            Container(
-                margin: EdgeInsets.only(top: 20, bottom: 20),
-                decoration: BoxDecoration(
-                    border: Border.all(),
-                    borderRadius: BorderRadius.circular(10)),
-                width: screenWidth * 0.95,
-                child: pieChart()),
-            Container(
-                decoration: BoxDecoration(
-                    border: Border.all(),
-                    borderRadius: BorderRadius.circular(10)),
-                width: screenWidth * 0.95,
-                child: lineChart()),
+            traceStyle("血糖正常範圍"),
+            boxMargin(traceStyle("飯前血糖"), traceStyle("70~99mg/dL")),
+            boxMargin(traceStyle("飯後血糖"), traceStyle("80~139mg/dL")),
+            ElevatedButton(
+              child: traceStyle("顯示圖表"),
+              style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.blue[800])),
+              onPressed: () {
+                if (!focus.hasPrimaryFocus) {
+                  focus.unfocus();
+                }
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => Chart()));
+              },
+            ),
           ],
         ),
       ),
@@ -383,179 +233,233 @@ class _TraceState extends State<Trace> {
   }
 }
 
-// class Chart extends StatefulWidget {
-//   @override
-//   ChartState createState() => ChartState();
-// }
+// ----------------
 
-// class ChartState extends State<Chart> {
-//   @override
-//   void initState() {
-//     super.initState();
-//     pieList = [
-//       BloodSugarPie("低", low, Colors.blue),
-//       BloodSugarPie("正常", normal, Colors.green),
-//       BloodSugarPie("高", high, Colors.red)
-//     ];
-//     getPieLineData("before");
-//   }
+class Chart extends StatefulWidget {
+  @override
+  ChartState createState() => ChartState();
+}
 
-//   int low = 0, normal = 0, high = 0;
+class ChartState extends State<Chart> {
+  @override
+  void initState() {
+    super.initState();
+    pieList = [
+      BloodSugarPie("低", low, Colors.blue),
+      BloodSugarPie("正常", normal, Colors.green),
+      BloodSugarPie("高", high, Colors.red)
+    ];
+    getPieLineData("before");
+    startDate =
+        DateTime.now().subtract(Duration(days: 7)).toString().split(" ")[0];
+    endDate = DateTime.now().toString().split(" ")[0];
+  }
 
-//   late List<BloodSugarPie> pieList;
-//   List<BloodSugarLine> lineList = [];
-//   void getPieLineData(String type) {
-//     // 每次執行清空lineList的值(因為list.add會一直新增)
-//     lineList.clear();
-//     //
-//     // 計算血糖程度低、正常、高各幾次
-//     low = 0;
-//     normal = 0;
-//     high = 0;
-//     int lowBS = 0;
-//     int highBS = 0;
-//     //
-//     _collection.doc(_phNum).collection(type).get().then((snapshot) {
-//       for (var query in snapshot.docs) {
-//         // 將document的id轉成日期格式
-//         DateTime time = DateTime.parse(query.id);
-//         double val = double.parse(query.get("bloodSugar"));
-//         // 新增資料到lineList裡(用於折線圖)
-//         lineList.add(BloodSugarLine(time, val));
+  int low = 0, normal = 0, high = 0;
 
-//         // 判斷是飯前or飯後，界定標準值
-//         if (type == "before") {
-//           lowBS = 70;
-//           highBS = 99;
-//         } else {
-//           lowBS = 80;
-//           highBS = 139;
-//         }
-//         // 判斷血糖落於何處
-//         if (val < lowBS)
-//           low += 1;
-//         else if (val < highBS)
-//           normal += 1;
-//         else
-//           high += 1;
-//       }
-//       setState(() {
-//         pieList = [
-//           BloodSugarPie("過低", low, Colors.blue),
-//           BloodSugarPie("正常", normal, Color(0xff43a047)),
-//           BloodSugarPie("過高", high, Colors.red)
-//         ];
-//       });
-//     });
-//   }
+  late List<BloodSugarPie> pieList;
+  List<BloodSugarLine> lineList = [];
+  DateTimeRange? range;
+  late String startDate, endDate;
+  late String showRange = "$startDate ~ $endDate";
+  void getPieLineData(String type) {
+    // 每次執行清空lineList的值(因為list.add會一直新增)
+    lineList.clear();
+    //
+    // 計算血糖程度低、正常、高各幾次
+    low = 0;
+    normal = 0;
+    high = 0;
+    int lowBS = 0;
+    int highBS = 0;
 
-//   List rice = ["飯前血糖", "飯後血糖"];
-//   List<bool> boolVal = [true, false];
-//   ToggleButtons riceButton() {
-//     double screenWidth = MediaQuery.of(context).size.width;
-//     return ToggleButtons(
-//       textStyle: TextStyle(fontSize: screenWidth * 0.06),
-//       children: [Text(rice[0]), Text(rice[1])],
-//       constraints: BoxConstraints.expand(width: screenWidth * 0.3),
-//       isSelected: boolVal,
-//       fillColor: Colors.blue[800],
-//       selectedColor: Colors.white,
-//       borderRadius: BorderRadius.circular(10),
-//       borderColor: Colors.black,
-//       selectedBorderColor: Colors.black,
-//       //
-//       onPressed: (selIndex) {
-//         setState(() {
-//           if (selIndex == 0) {
-//             boolVal[0] = true;
-//             boolVal[1] = false;
-//             getPieLineData("before");
-//           } else {
-//             boolVal[0] = false;
-//             boolVal[1] = true;
-//             getPieLineData("after");
-//           }
-//         });
-//       },
-//     );
-//   }
+    //
+    _collection.doc(_phNum).collection(type).get().then((snapshot) {
+      for (var query in snapshot.docs) {
+        // 將document的id轉成日期格式
+        DateTime time = DateTime.parse(query.id);
 
-//   pieChart() {
-//     double fontSize = MediaQuery.of(context).size.width * 0.05;
-//     return SfCircularChart(
-//         title: ChartTitle(
-//             text: "分布程度(次數)",
-//             textStyle: TextStyle(fontSize: fontSize),
-//             alignment: ChartAlignment.near),
-//         legend: Legend(
-//             textStyle: TextStyle(fontSize: fontSize),
-//             position: LegendPosition.left,
-//             isVisible: true),
-//         series: [
-//           PieSeries<BloodSugarPie, String>(
-//             dataSource: pieList,
-//             dataLabelSettings: DataLabelSettings(
-//                 isVisible: true, textStyle: TextStyle(fontSize: fontSize)),
-//             xValueMapper: (data, _) => data.level,
-//             yValueMapper: (data, _) => data.times,
-//             pointColorMapper: (data, _) => data.color,
-//           )
-//         ]);
-//   }
+        // 日期落在區間內就加進資料裡
+        /*
+        startDate = 2021-10-27, subtracted from 1 second = 2021-10-26:23:59:59
+        endDate = 2021-10-31, added to 1 day = 2021-11-01
 
-//   lineChart() {
-//     double screenWidth = MediaQuery.of(context).size.width;
-//     return SfCartesianChart(
-//         margin: EdgeInsets.fromLTRB(10, 10, 20, 20),
-//         title: ChartTitle(
-//             text: "記錄\n",
-//             textStyle: TextStyle(fontSize: screenWidth * 0.05),
-//             alignment: ChartAlignment.near),
-//         primaryXAxis: DateTimeAxis(dateFormat: DateFormat.Md()),
-//         series: [
-//           LineSeries<BloodSugarLine, DateTime>(
-//             dataSource: lineList,
-//             dataLabelSettings: DataLabelSettings(
-//                 isVisible: true,
-//                 textStyle: TextStyle(fontSize: screenWidth * 0.04)),
-//             xValueMapper: (data, _) => data.day,
-//             yValueMapper: (data, _) => data.bsValue,
-//           )
-//         ]);
-//   }
+        before after 的日期不包含在內
+        */
+        if (time.isAfter(
+                DateTime.parse(startDate).subtract(Duration(seconds: 1))) &&
+            time.isBefore(DateTime.parse(endDate).add(Duration(days: 1)))) {
+          double val = double.parse(query.get("bloodSugar"));
+          // 新增資料到lineList裡(用於折線圖)
+          lineList.add(BloodSugarLine(time, val));
 
-//   @override
-//   Widget build(BuildContext context) {
-//     double screenWidth = MediaQuery.of(context).size.width;
-//     return Scaffold(
-//         appBar: appBar(
-//             "每日追蹤",
-//             IconButton(
-//                 onPressed: () {
-//                   Navigator.pop(context);
-//                 },
-//                 icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]))),
-//         body: SingleChildScrollView(
-//           child: Center(
-//             child: Column(children: [
-//               SizedBox(height: 20),
-//               riceButton(),
-//               Container(
-//                   margin: EdgeInsets.only(top: 20, bottom: 20),
-//                   decoration: BoxDecoration(
-//                       border: Border.all(),
-//                       borderRadius: BorderRadius.circular(10)),
-//                   width: screenWidth * 0.95,
-//                   child: pieChart()),
-//               Container(
-//                   margin: EdgeInsets.only(bottom: 20),
-//                   decoration: BoxDecoration(
-//                       border: Border.all(),
-//                       borderRadius: BorderRadius.circular(10)),
-//                   width: screenWidth * 0.95,
-//                   child: lineChart()),
-//             ]),
-//           ),
-//         ));
-//   }
-// }
+          // 判斷是飯前or飯後，界定標準值
+          if (type == "before") {
+            lowBS = 70;
+            highBS = 99;
+          } else {
+            lowBS = 80;
+            highBS = 139;
+          }
+          // 判斷血糖落於何處
+          if (val < lowBS)
+            low += 1;
+          else if (val < highBS)
+            normal += 1;
+          else
+            high += 1;
+        }
+      }
+      setState(() {
+        pieList = [
+          BloodSugarPie("過低", low, Colors.blue),
+          BloodSugarPie("正常", normal, Color(0xff43a047)),
+          BloodSugarPie("過高", high, Colors.red)
+        ];
+      });
+    });
+  }
+
+  List riceBS = ["飯前血糖", "飯後血糖"];
+  List<bool> boolVal2 = [true, false];
+  ToggleButtons switchButton() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return ToggleButtons(
+      textStyle: TextStyle(fontSize: screenWidth * 0.06),
+      children: [Text(riceBS[0]), Text(riceBS[1])],
+      constraints: BoxConstraints.expand(
+          width: screenWidth * 0.35, height: screenWidth * 0.1),
+      isSelected: boolVal2,
+      fillColor: Colors.blue[800],
+      selectedColor: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      borderColor: Colors.black,
+      selectedBorderColor: Colors.black,
+      onPressed: (selIndex) {
+        if (selIndex == 0) {
+          boolVal2[0] = true;
+          boolVal2[1] = false;
+          getPieLineData("before");
+        } else {
+          boolVal2[0] = false;
+          boolVal2[1] = true;
+          getPieLineData("after");
+        }
+      },
+    );
+  }
+
+  pieChart() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return SfCircularChart(
+        title: ChartTitle(
+            text: "分布程度(次數)",
+            textStyle: TextStyle(fontSize: screenWidth * 0.06),
+            alignment: ChartAlignment.near),
+        legend: Legend(
+            textStyle: TextStyle(fontSize: screenWidth * 0.06),
+            position: LegendPosition.left,
+            isVisible: true),
+        series: [
+          PieSeries<BloodSugarPie, String>(
+            dataSource: pieList,
+            dataLabelSettings: DataLabelSettings(
+                isVisible: low == 0 && normal == 0 && high == 0 ? false : true,
+                textStyle: TextStyle(fontSize: screenWidth * 0.08)),
+            xValueMapper: (data, _) => data.level,
+            yValueMapper: (data, _) => data.times,
+            pointColorMapper: (data, _) => data.color,
+          )
+        ]);
+  }
+
+  lineChart() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return SfCartesianChart(
+        margin: EdgeInsets.fromLTRB(10, 10, 20, 20),
+        title: ChartTitle(
+            text: "記錄\n",
+            textStyle: TextStyle(fontSize: screenWidth * 0.06),
+            alignment: ChartAlignment.near),
+        primaryXAxis: DateTimeAxis(dateFormat: DateFormat.Md()),
+        series: [
+          LineSeries<BloodSugarLine, DateTime>(
+            animationDuration: 0,
+            dataSource: lineList,
+            dataLabelSettings: DataLabelSettings(
+                isVisible: true,
+                textStyle: TextStyle(fontSize: screenWidth * 0.04)),
+            xValueMapper: (data, _) => data.day,
+            yValueMapper: (data, _) => data.bsValue,
+          )
+        ]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return Scaffold(
+        appBar: appBar(
+            "顯示圖表",
+            IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]))),
+        body: SingleChildScrollView(
+          child: Center(
+            child: Column(children: [
+              SizedBox(height: 20),
+              Text("區間選擇", style: TextStyle(fontSize: screenWidth * 0.06)),
+              ElevatedButton(
+                  style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(Colors.blue[800])),
+                  onPressed: () async {
+                    range = await showDateRangePicker(
+                        initialEntryMode: DatePickerEntryMode.calendarOnly,
+                        builder: (context, child) => Theme(
+                            child: child!,
+                            data: ThemeData.light().copyWith(
+                                colorScheme: ColorScheme.light(
+                                    primary: Color(0xff1565c0)))),
+                        context: context,
+                        firstDate: DateTime(DateTime.now().year - 100),
+                        lastDate: DateTime.now());
+                    if (range != null) {
+                      List<String> rangeString = range.toString().split(" - ");
+                      startDate = rangeString[0].split(" ")[0];
+                      endDate = rangeString[1].split(" ")[0];
+
+                      setState(() {
+                        showRange = "$startDate ~ $endDate";
+                        if (boolVal2[0] == true)
+                          getPieLineData("before");
+                        else
+                          getPieLineData("after");
+                      });
+                    }
+                  },
+                  child: Text(showRange,
+                      style: TextStyle(fontSize: screenWidth * 0.06))),
+              SizedBox(height: 20),
+              switchButton(),
+              Container(
+                  margin: EdgeInsets.only(top: 20, bottom: 20),
+                  decoration: BoxDecoration(
+                      border: Border.all(),
+                      borderRadius: BorderRadius.circular(10)),
+                  width: screenWidth * 0.95,
+                  child: pieChart()),
+              Container(
+                  margin: EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                      border: Border.all(),
+                      borderRadius: BorderRadius.circular(10)),
+                  width: screenWidth * 0.95,
+                  child: lineChart()),
+            ]),
+          ),
+        ));
+  }
+}
