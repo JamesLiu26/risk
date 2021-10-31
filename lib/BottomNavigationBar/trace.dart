@@ -281,8 +281,8 @@ class ChartState extends State<Chart> {
 
         // 日期落在區間內就加進資料裡
         /*
-        startDate = 2021-10-27, subtracted from 1 second = 2021-10-26:23:59:59
-        endDate = 2021-10-31, added to 1 day = 2021-11-01
+        startDate = 2021-10-27, subtracted 1 second from startDate  = 2021-10-26:23:59:59
+        endDate = 2021-10-31, endDate add 1 day = 2021-11-01
 
         before after 的日期不包含在內
         */
