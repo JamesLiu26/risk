@@ -12,6 +12,7 @@ import '../appBar.dart';
 
 FirebaseAuth _auth = FirebaseAuth.instance;
 CollectionReference _collection = FirebaseFirestore.instance.collection("user");
+String _phNum = _auth.currentUser!.phoneNumber!;
 
 class PersonData extends StatefulWidget {
   @override
@@ -19,24 +20,25 @@ class PersonData extends StatefulWidget {
 }
 
 class _PersonDataState extends State<PersonData> {
-  String _phNum = _auth.currentUser!.phoneNumber!;
-  String _name = "";
-  String _gender = "";
-  String _address = "";
-  String _mail = "";
-  String _emerName = "";
-  String _emerRel = "";
-  String _emerPh = "";
-
+  String name = "";
+  String gender = "";
+  String address = "";
+  String mail = "";
+  String emerName = "";
+  String emerRel = "";
+  String emerPh = "";
+  bool normal = false;
+  bool contact = false;
+  bool emerContact = false;
   Text textStyle(String text, [double rate = 0.052]) {
     return Text(text,
         style: TextStyle(
             fontSize: MediaQuery.of(context).size.width * rate, height: 1.5));
   }
 
-  Padding textLayout(String text1, String text2) {
-    return Padding(
-      padding: EdgeInsets.only(top: 5, right: 5, bottom: 5, left: 10),
+  Container textLayout(String text1, String text2) {
+    return Container(
+      padding: EdgeInsets.all(10),
       child: Column(children: [
         Row(children: [textStyle(text1)]),
         Row(
@@ -53,51 +55,73 @@ class _PersonDataState extends State<PersonData> {
       throw "========${error.toString()}=============";
     }).then((snapshot) {
       setState(() {
-        _name = snapshot.get("name");
-        _gender = snapshot.get("gender");
-        _address = snapshot.get("address");
-        _mail = snapshot.get("email");
-        _emerName = snapshot.get("emerName");
-        _emerRel = snapshot.get("emerRelationship");
-        _emerPh = snapshot.get("emerPhone");
+        name = snapshot.get("name");
+        gender = snapshot.get("gender");
+        address = snapshot.get("address");
+        mail = snapshot.get("email");
+        emerName = snapshot.get("emerName");
+        emerRel = snapshot.get("emerRelationship");
+        emerPh = snapshot.get("emerPhone");
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    double iconSize = MediaQuery.of(context).size.width * 0.08;
     return Scaffold(
-        appBar: appBar(
-          "個人資料",
-          IconButton(
+        appBar: AppBar(
+          title: Text("個人資料", style: TextStyle(color: Colors.black)),
+          backgroundColor: Color.fromARGB(255, 225, 230, 255),
+          leading: IconButton(
             icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
             onPressed: () {
               Navigator.pop(context);
             },
           ),
+          actions: [
+            Row(
+              children: [
+                IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.edit_outlined,
+                        size: iconSize, color: Colors.blue[800])),
+              ],
+            )
+          ],
         ),
         body: SingleChildScrollView(
           child: Center(
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Row(children: [textStyle(" 基本資料", 0.058)]),
-                  textLayout("姓名", _name),
-                  textLayout("性別", _gender),
-                  textLayout("行動電話", _phNum),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        textStyle(" 基本資料", 0.06),
+                      ]),
+                  Column(children: [
+                    textLayout("姓名", name),
+                    textLayout("性別", gender),
+                    textLayout("行動電話", _phNum),
+                  ]),
                   Divider(
                     color: Colors.grey,
                   ),
-                  Row(children: [textStyle(" 聯絡方式", 0.058)]),
-                  textLayout("通訊地址", _address),
-                  textLayout("電子郵件", _mail),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [textStyle(" 聯絡方式", 0.06)]),
+                  textLayout("通訊地址", address),
+                  textLayout("電子郵件", mail),
                   Divider(
                     color: Colors.grey,
                   ),
-                  Row(children: [textStyle(" 緊急聯絡人資料", 0.058)]),
-                  textLayout("姓名", _emerName),
-                  textLayout("關係", _emerRel),
-                  textLayout("行動電話", _emerPh),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [textStyle(" 緊急聯絡人資料", 0.06)]),
+                  textLayout("姓名", emerName),
+                  textLayout("關係", emerRel),
+                  textLayout("行動電話", emerPh),
                 ]),
           ),
         ));

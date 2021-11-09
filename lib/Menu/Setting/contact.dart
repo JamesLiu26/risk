@@ -11,7 +11,12 @@ void main() {
 class Contact extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    double fontSize = MediaQuery.of(context).size.width * 0.045;
+    Text contactText(String text) {
+      double fontSize = MediaQuery.of(context).size.width * 0.05;
+      return Text(text,
+          style: TextStyle(fontSize: fontSize, letterSpacing: 1, height: 1.5));
+    }
+
     return Scaffold(
         appBar: appBar(
           "醫院聯絡方式",
@@ -26,18 +31,12 @@ class Contact extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            contactText("  亞東醫院地址：\n  220新北市板橋區南雅南路二段21號", fontSize),
-            contactText("  服務時間：8:00~17:00", fontSize),
-            contactText("  總機(24hrs)：(02)8966-7000", fontSize),
-            contactText(
-                "  顧客服務中心：\n  服務時間：8:30~16:30\n  幫您專線：(02)7738-2525", fontSize),
-            contactText("  服務台：(02)8966-7000轉2144", fontSize),
+            contactText("  亞東醫院地址：\n  新北市板橋區南雅南路二段21號"),
+            contactText("  服務時間：8:00~17:00"),
+            contactText("  總機(24hrs)：(02)8966-7000"),
+            contactText("  顧客服務中心：\n  服務時間：8:30~16:30\n  幫您專線：(02)7738-2525"),
+            contactText("  服務台：(02)8966-7000轉2144"),
           ],
         ));
   }
-}
-
-Text contactText(String text, double size) {
-  return Text(text,
-      style: TextStyle(fontSize: size, letterSpacing: 1, height: 2));
 }

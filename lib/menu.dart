@@ -31,7 +31,7 @@ Container menu(BuildContext context) {
             child: Text(
           "您好",
           // "12",
-          style: TextStyle(fontSize: sizeWidth * 0.05, height: 1.5),
+          style: TextStyle(fontSize: sizeWidth * 0.06, height: 1.5),
           textAlign: TextAlign.center,
         )),
 
@@ -103,7 +103,7 @@ GestureDetector menuPages(
               Text(
                 pageText,
                 style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.05),
+                    fontSize: MediaQuery.of(context).size.width * 0.055),
               )
             ],
           )));

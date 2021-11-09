@@ -67,10 +67,10 @@ GestureDetector settingPages(BuildContext context, String text) {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              text,
+              "  $text",
               style: TextStyle(
-                  fontSize: MediaQuery.of(context).size.width * 0.05,
-                  height: 2),
+                  fontSize: MediaQuery.of(context).size.width * 0.06,
+                  height: 1.5),
             ),
           ],
         )),

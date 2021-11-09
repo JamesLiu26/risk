@@ -194,8 +194,7 @@ class _SignUpState extends State<SignUp> {
           SizedBox(height: 10),
           ElevatedButton(
               style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.green)),
+                  backgroundColor: MaterialStateProperty.all(Colors.green)),
               onPressed: () {
                 FocusScopeNode focus = FocusScope.of(context);
                 // 把TextField的focus移掉
@@ -253,7 +252,7 @@ class _OTPState extends State<OTP> {
           style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.06),
           maxLength: 6,
           decoration: InputDecoration(
-              labelText: "請輸入驗證碼",
+              labelText: "驗證碼",
               floatingLabelBehavior: FloatingLabelBehavior.never,
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)))),
@@ -294,9 +293,11 @@ class _OTPState extends State<OTP> {
 
   @override
   Widget build(BuildContext context) {
+    double iconSize = MediaQuery.of(context).size.width * 0.3;
+    double fontSize = MediaQuery.of(context).size.width * 0.06;
     return Scaffold(
         appBar: appBar(
-            "電話號碼驗證",
+            "",
             IconButton(
               icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
               onPressed: () {
@@ -306,7 +307,14 @@ class _OTPState extends State<OTP> {
         body: SingleChildScrollView(
             child: Center(
                 child: Column(children: [
-          SizedBox(height: MediaQuery.of(context).size.height * 0.12),
+          SizedBox(height: 20),
+          Text("電話號碼驗證", style: TextStyle(fontSize: fontSize, height: 1.5)),
+          SizedBox(height: 20),
+          Icon(Icons.sms, size: iconSize, color: Colors.blue[800]),
+          Text("稍後您將收到一組驗證碼\n請輸入至下方",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: fontSize, height: 1.5)),
+          SizedBox(height: 20),
           enterOTP(),
           SizedBox(height: 20),
           otpButton()
