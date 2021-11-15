@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 // import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import '/appBar.dart';
 
 // Future<void> main() async {
@@ -18,19 +19,29 @@ class Chatscreen extends StatefulWidget {
   _ChatscreenState createState() => _ChatscreenState();
 }
 
+FirebaseFirestore storeMessage = FirebaseFirestore.instance;
 FirebaseAuth _auth = FirebaseAuth.instance;
 
 class _ChatscreenState extends State<Chatscreen> {
   TextEditingController msg = TextEditingController();
-  final storeMessage = FirebaseFirestore.instance;
   IconButton sendButton() {
     return IconButton(
         onPressed: () {
+          FocusScopeNode focus = FocusScope.of(context);
+          // 把TextField的focus移掉
+          if (!focus.hasPrimaryFocus) {
+            focus.unfocus();
+          }
           if (msg.text.isNotEmpty) {
-            storeMessage.collection("Messages").doc().set({
-              "messages": msg.text.trim(),
+            setState(() {});
+            storeMessage
+                .collection("Messages")
+                .doc("+886906765979")
+                .collection(_auth.currentUser!.phoneNumber!)
+                .doc(DateFormat("yyyy-MM-dd HH:mm").format(DateTime.now()))
+                .set({
+              "message": msg.text.trim(),
               "user": _auth.currentUser!.phoneNumber,
-              "time": DateTime.now(),
             });
             msg.clear();
           }
@@ -45,11 +56,16 @@ class _ChatscreenState extends State<Chatscreen> {
     return Row(
       children: [
         Expanded(
+            child: Padding(
+          padding: EdgeInsets.only(left: 10),
           child: TextField(
             controller: msg,
-            decoration: InputDecoration(hintText: "Enter Messages..."),
+            decoration: InputDecoration(
+                hintText: "輸入訊息...",
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10))),
           ),
-        ),
+        )),
         sendButton()
       ],
     );
@@ -62,13 +78,18 @@ class _ChatscreenState extends State<Chatscreen> {
             _auth.currentUser!.phoneNumber!,
             IconButton(
                 onPressed: () {
+                  FocusScopeNode focus = FocusScope.of(context);
+                  // 把TextField的focus移掉
+                  if (!focus.hasPrimaryFocus) {
+                    focus.unfocus();
+                  }
                   Navigator.pop(context);
                 },
                 icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]))),
         body: SingleChildScrollView(
             child: Column(children: [
           Container(
-              height: MediaQuery.of(context).size.height * 0.8,
+              height: MediaQuery.of(context).size.height * 0.75,
               child: ShowMessages()),
           messageField(),
         ])));
@@ -83,46 +104,57 @@ class ShowMessages extends StatefulWidget {
 class _ShowMessagesState extends State<ShowMessages> {
   @override
   Widget build(BuildContext context) {
+    Text chatStyle(String text) {
+      double fontSize = MediaQuery.of(context).size.width * 0.052;
+      return Text(text, style: TextStyle(fontSize: fontSize));
+    }
+
+    Text timeStyle(String text) {
+      double fontSize = MediaQuery.of(context).size.width * 0.04;
+      return Text(text, style: TextStyle(fontSize: fontSize));
+    }
+
     return FutureBuilder(
         future: FirebaseFirestore.instance
             .collection("Messages")
-            .doc("eai5QZxG4fUkAvE5TR8Q")
+            .doc("+886906765979")
+            .collection(_auth.currentUser!.phoneNumber!)
             .get(),
-        builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
             print(snapshot.error);
           }
           if (snapshot.connectionState == ConnectionState.done) {
-            Map<String, dynamic> chat =
-                snapshot.data!.data() as Map<String, dynamic>;
+            var chat = snapshot.data!.docs;
+
             return ListView.builder(
-                reverse: true,
                 itemCount: chat.length,
-                shrinkWrap: true,
-                primary: true,
                 physics: ScrollPhysics(),
                 itemBuilder: (BuildContext context, int index) {
-                  String key = chat.keys.elementAt(index);
-
+                  var doc = chat[index];
                   return ListTile(
                       title: Column(
                           crossAxisAlignment:
-                              _auth.currentUser!.phoneNumber == chat['user']
+                              _auth.currentUser!.phoneNumber == doc["user"]
                                   ? CrossAxisAlignment.end
                                   : CrossAxisAlignment.start,
                           children: [
                         Container(
                           padding: EdgeInsets.symmetric(
                               horizontal: 10, vertical: 10),
-                          color: _auth.currentUser!.phoneNumber == chat['user']
-                              ? Colors.blue.withOpacity(0.2)
-                              : Colors.blue.withOpacity(0.1),
-                          child: Text(chat[key].toString()),
-                        )
+                          decoration: BoxDecoration(
+                              color:
+                                  _auth.currentUser!.phoneNumber == doc["user"]
+                                      ? Colors.blue.withOpacity(0.2)
+                                      : Colors.green.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(10)),
+                          child: chatStyle(doc['message'].toString()),
+                        ),
+                        timeStyle(doc.id.split(" ")[1])
                       ]));
                 });
           } else {
-            return Text("Error");
+            return Row();
           }
         });
   }

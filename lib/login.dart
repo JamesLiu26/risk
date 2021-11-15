@@ -154,8 +154,7 @@ class _LoginState extends State<Login> {
           IconButton(
             icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]),
             onPressed: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => Risk()));
+              Navigator.pop(context);
             },
           )),
       body: SingleChildScrollView(
