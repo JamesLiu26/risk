@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import './change.dart';
 import './appBar.dart';
-import './main.dart';
 
 void main() {
   return runApp(MaterialApp(

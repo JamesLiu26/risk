@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 // import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'dart:ui' as ui;
 import '/appBar.dart';
 
 // Future<void> main() async {
@@ -52,23 +53,31 @@ class _ChatscreenState extends State<Chatscreen> {
         ));
   }
 
-  Row messageField() {
-    return Row(
-      children: [
-        Expanded(
-            child: Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: TextField(
-            controller: msg,
-            decoration: InputDecoration(
-                hintText: "輸入訊息...",
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10))),
-          ),
-        )),
-        sendButton()
-      ],
-    );
+  Column messageField() {
+    return Column(children: [
+      Container(
+          color: Colors.blue,
+          height: MediaQuery.of(context).size.height * 0.1,
+          child: Row(
+            children: [
+              IconButton(
+                  onPressed: () {}, icon: Icon(Icons.add_a_photo, size: 30)),
+              IconButton(
+                  onPressed: () {}, icon: Icon(Icons.photo_library, size: 30)),
+              Expanded(
+                child: TextField(
+                  controller: msg,
+                  decoration: InputDecoration(
+                      contentPadding: EdgeInsets.only(left: 10),
+                      hintText: "輸入訊息...",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10))),
+                ),
+              ),
+              sendButton()
+            ],
+          ))
+    ]);
   }
 
   @override
@@ -88,10 +97,10 @@ class _ChatscreenState extends State<Chatscreen> {
                 icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]))),
         body: SingleChildScrollView(
             child: Column(children: [
-          Container(
-              height: MediaQuery.of(context).size.height * 0.75,
+          SizedBox(
+              height: MediaQuery.of(context).size.height * 0.83,
               child: ShowMessages()),
-          messageField(),
+          Positioned(child: messageField()),
         ])));
   }
 }
@@ -102,18 +111,18 @@ class ShowMessages extends StatefulWidget {
 }
 
 class _ShowMessagesState extends State<ShowMessages> {
+  Text chatStyle(String text) {
+    double fontSize = MediaQuery.of(context).size.width * 0.052;
+    return Text(text, style: TextStyle(fontSize: fontSize));
+  }
+
+  Text timeStyle(String text) {
+    double fontSize = MediaQuery.of(context).size.width * 0.04;
+    return Text(text, style: TextStyle(fontSize: fontSize));
+  }
+
   @override
   Widget build(BuildContext context) {
-    Text chatStyle(String text) {
-      double fontSize = MediaQuery.of(context).size.width * 0.052;
-      return Text(text, style: TextStyle(fontSize: fontSize));
-    }
-
-    Text timeStyle(String text) {
-      double fontSize = MediaQuery.of(context).size.width * 0.04;
-      return Text(text, style: TextStyle(fontSize: fontSize));
-    }
-
     return FutureBuilder(
         future: FirebaseFirestore.instance
             .collection("Messages")
@@ -133,25 +142,25 @@ class _ShowMessagesState extends State<ShowMessages> {
                 itemBuilder: (BuildContext context, int index) {
                   var doc = chat[index];
                   return ListTile(
-                      title: Column(
-                          crossAxisAlignment:
-                              _auth.currentUser!.phoneNumber == doc["user"]
-                                  ? CrossAxisAlignment.end
-                                  : CrossAxisAlignment.start,
-                          children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 10),
-                          decoration: BoxDecoration(
-                              color:
-                                  _auth.currentUser!.phoneNumber == doc["user"]
-                                      ? Colors.blue.withOpacity(0.2)
-                                      : Colors.green.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(10)),
-                          child: chatStyle(doc['message'].toString()),
-                        ),
-                        timeStyle(doc.id.split(" ")[1])
-                      ]));
+                      title: Row(
+                    textDirection: _auth.currentUser!.phoneNumber == doc["user"]
+                        ? ui.TextDirection.ltr
+                        : ui.TextDirection.rtl,
+                    children: [
+                      Spacer(flex: 1),
+                      timeStyle("\n" + "  " + doc.id.split(" ")[1] + "  "),
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        decoration: BoxDecoration(
+                            color: _auth.currentUser!.phoneNumber == doc["user"]
+                                ? Colors.blue.withOpacity(0.2)
+                                : Colors.green.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(10)),
+                        child: chatStyle(doc['message'].toString()),
+                      ),
+                    ],
+                  ));
                 });
           } else {
             return Row();
