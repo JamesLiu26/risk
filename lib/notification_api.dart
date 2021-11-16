@@ -22,6 +22,11 @@ class NotificationApi {
     final ios = IOSInitializationSettings();
     final settings = InitializationSettings(android: android, iOS: ios);
 
+    final details = await notification.getNotificationAppLaunchDetails();
+    if (details != null && details.didNotificationLaunchApp) {
+      onNotifications.add(details.payload);
+    }
+
     await notification.initialize(
       settings,
       onSelectNotification: (payload) async {
@@ -46,7 +51,7 @@ class NotificationApi {
         title,
         body,
         //tz.TZDateTime.from(scheduleDate, tz.local),
-        _scheduleDaily(Time(15, 02)), //Time(hour,minute)
+        _scheduleDaily(Time(16, 30)), //Time(hour,minute)
         await notificationDetails(),
         payload: payload,
         androidAllowWhileIdle: true,

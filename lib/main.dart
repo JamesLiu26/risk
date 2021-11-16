@@ -152,8 +152,12 @@ class _RiskState extends State<Risk> {
   void listenNotifications() =>
       NotificationApi.onNotifications.stream.listen(onClickNotification);
   void onClickNotification(String? payload) {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => Notify()));
+    if (mounted) {
+      setState(() {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => Notify()));
+      });
+    }
   }
 
   Widget build(BuildContext context) {
