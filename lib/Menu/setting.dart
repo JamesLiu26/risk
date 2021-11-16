@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '/appBar.dart';
 import 'Setting/contact.dart';
+import 'Setting/remind.dart';
 // import 'Setting/feedback.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -52,7 +53,7 @@ GestureDetector settingPages(BuildContext context, String text) {
     onTap: () {
       if (text == "提醒時間") {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => Text("1")));
+            context, MaterialPageRoute(builder: (context) => Remind()));
       } else if (text == "醫院聯絡方式") {
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => Contact()));

@@ -5,25 +5,33 @@ import 'package:flutter/material.dart';
 import './signup.dart';
 import './login.dart';
 import './change.dart';
+import './notification_api.dart';
+import 'BottomNavigationBar/notification.dart';
 //
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-// import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
+
 // import 'package:timezone/timezone.dart' as tz;
 const AndroidNotificationChannel channel = const AndroidNotificationChannel(
-      'high_importance_channel', // id
-      'High Importance Notifications', // title
-      'This channel is used for important notifications.', // description
-      importance: Importance.high,
-    );
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  'high_importance_channel', // id
+  'High Importance Notifications', // title
+  'This channel is used for important notifications.', // description
+  importance: Importance.high,
+);
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBgHandler);  //程式背景執行
-  await FlutterLocalNotificationsPlugin().resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel);
+  //FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBgHandler); //程式背景執行
+  tz.initializeTimeZones();
+  await FlutterLocalNotificationsPlugin()
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
   // 螢幕直向
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   return runApp(MaterialApp(
@@ -113,31 +121,41 @@ class _RiskState extends State<Risk> {
   }
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    var initialzationSettingsAndroid=AndroidInitializationSettings("@mipmap/ic_launcher");
-    var initializationSettings=InitializationSettings(android: initialzationSettingsAndroid);
-    flutterLocalNotificationsPlugin.initialize(initializationSettings);
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      RemoteNotification? notification = message.notification;
-      //AndroidNotification? android = message.notification?.android;
-      if (notification != null) {
-        flutterLocalNotificationsPlugin.show( 
-            notification.hashCode,
-            notification.title,
-            notification.body,
-            NotificationDetails(
-              android: AndroidNotificationDetails(
-                channel.id,
-                channel.name,
-                channel.description,
-                icon: 'launch_background',
-              ),
-            ));
-      }
-    });
-    getToken();
+    // var initialzationSettingsAndroid=AndroidInitializationSettings("@mipmap/ic_launcher");
+    // var initializationSettings=InitializationSettings(android: initialzationSettingsAndroid);
+    // flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    //   RemoteNotification? notification = message.notification;
+    //   //AndroidNotification? android = message.notification?.android;
+    //   if (notification != null) {
+    //     flutterLocalNotificationsPlugin.show(
+    //         notification.hashCode,
+    //         notification.title,
+    //         notification.body,
+    //         NotificationDetails(
+    //           android: AndroidNotificationDetails(
+    //             channel.id,
+    //             channel.name,
+    //             channel.description,
+    //             icon: 'launch_background',
+    //           ),
+    //         ));
+    //   }
+    // });
+    // getToken();
+    NotificationApi.init(initScheduled: true);
+    listenNotifications();
   }
+
+  void listenNotifications() =>
+      NotificationApi.onNotifications.stream.listen(onClickNotification);
+  void onClickNotification(String? payload) {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => Notify()));
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
         body: Container(
@@ -163,9 +181,10 @@ class _RiskState extends State<Risk> {
               ],
             ))));
   }
-  getToken() async{
+
+  getToken() async {
     final gettoken = await FirebaseMessaging.instance.getToken();
-    String token= "The token is "+gettoken.toString();
+    String token = "The token is " + gettoken.toString();
     print(token);
   }
 }
@@ -183,23 +202,23 @@ LinearGradient linearGradient() {
 }
 
 //  Messaging，程式背景執行時所做的事
-Future<void> _firebaseMessagingBgHandler(RemoteMessage message) async{
-  await Firebase.initializeApp();
-  RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
-      if (notification != null && android != null) {
-        flutterLocalNotificationsPlugin.show(
-            notification.hashCode,
-            notification.title,
-            notification.body,
-            NotificationDetails(
-              android: AndroidNotificationDetails(
-                channel.id,
-                channel.name,
-                channel.description,
-                icon: 'launch_background',
-              ),
-            ));
-      }
-  //print("message: ${message.messageId}"); 
-}
+// Future<void> _firebaseMessagingBgHandler(RemoteMessage message) async {
+//   await Firebase.initializeApp();
+//   RemoteNotification? notification = message.notification;
+//   AndroidNotification? android = message.notification?.android;
+//   if (notification != null && android != null) {
+//     flutterLocalNotificationsPlugin.show(
+//         notification.hashCode,
+//         notification.title,
+//         notification.body,
+//         NotificationDetails(
+//           android: AndroidNotificationDetails(
+//             channel.id,
+//             channel.name,
+//             channel.description,
+//             icon: 'launch_background',
+//           ),
+//         ));
+//   }
+  //print("message: ${message.messageId}");
+// }
