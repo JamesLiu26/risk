@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 // import 'package:firebase_core/firebase_core.dart';
@@ -5,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui' as ui;
 import '/appBar.dart';
+import 'package:image_picker/image_picker.dart';
 
 // Future<void> main() async {
 //   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +28,28 @@ FirebaseAuth _auth = FirebaseAuth.instance;
 
 class _ChatscreenState extends State<Chatscreen> {
   TextEditingController msg = TextEditingController();
+  final ImagePicker picker = ImagePicker();
+  XFile? chooseCamera;
+  XFile? chooseImage;
+  late Image image;
+  late Image camera;
+
+  Future pickImageFromGallery() async {
+    chooseImage = await picker.pickImage(source: ImageSource.gallery);
+    if (chooseImage != null) {
+      print(chooseImage!.path);
+      image = Image.file(File(chooseImage!.path), height: 100, width: 100);
+    }
+  }
+
+  Future takeAPhoto() async {
+    chooseCamera = await picker.pickImage(source: ImageSource.camera);
+    if (chooseCamera != null) {
+      print(chooseCamera!.path);
+      camera = Image.file(File(chooseCamera!.path), height: 100, width: 100);
+    }
+  }
+
   IconButton sendButton() {
     return IconButton(
         onPressed: () {
@@ -34,17 +59,17 @@ class _ChatscreenState extends State<Chatscreen> {
             focus.unfocus();
           }
           if (msg.text.isNotEmpty) {
-            setState(() {});
             storeMessage
                 .collection("Messages")
                 .doc("+886906765979")
                 .collection(_auth.currentUser!.phoneNumber!)
-                .doc(DateFormat("yyyy-MM-dd HH:mm").format(DateTime.now()))
+                .doc(DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now()))
                 .set({
               "message": msg.text.trim(),
               "user": _auth.currentUser!.phoneNumber,
             });
             msg.clear();
+            setState(() {});
           }
         },
         icon: Icon(
@@ -56,14 +81,21 @@ class _ChatscreenState extends State<Chatscreen> {
   Column messageField() {
     return Column(children: [
       Container(
-          color: Colors.blue,
           height: MediaQuery.of(context).size.height * 0.1,
           child: Row(
             children: [
               IconButton(
-                  onPressed: () {}, icon: Icon(Icons.add_a_photo, size: 30)),
+                  onPressed: () {
+                    takeAPhoto();
+                  },
+                  icon: Icon(Icons.add_a_photo,
+                      size: 30, color: Colors.blue[800])),
               IconButton(
-                  onPressed: () {}, icon: Icon(Icons.photo_library, size: 30)),
+                  onPressed: () {
+                    pickImageFromGallery();
+                  },
+                  icon: Icon(Icons.photo_library,
+                      size: 30, color: Colors.blue[800])),
               Expanded(
                 child: TextField(
                   controller: msg,
@@ -95,13 +127,19 @@ class _ChatscreenState extends State<Chatscreen> {
                   Navigator.pop(context);
                 },
                 icon: Icon(Icons.arrow_back_ios, color: Colors.blue[800]))),
-        body: SingleChildScrollView(
-            child: Column(children: [
-          SizedBox(
-              height: MediaQuery.of(context).size.height * 0.83,
-              child: ShowMessages()),
-          Positioned(child: messageField()),
-        ])));
+        body: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                  child: ListBody(children: [
+                SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.75,
+                    child: ShowMessages()),
+                Container(child: messageField()),
+              ])),
+            ),
+          ],
+        ));
   }
 }
 
@@ -113,12 +151,18 @@ class ShowMessages extends StatefulWidget {
 class _ShowMessagesState extends State<ShowMessages> {
   Text chatStyle(String text) {
     double fontSize = MediaQuery.of(context).size.width * 0.052;
-    return Text(text, style: TextStyle(fontSize: fontSize));
+    return Text(
+      text,
+      style: TextStyle(fontSize: fontSize),
+    );
   }
 
   Text timeStyle(String text) {
     double fontSize = MediaQuery.of(context).size.width * 0.04;
-    return Text(text, style: TextStyle(fontSize: fontSize));
+    return Text(
+      text,
+      style: TextStyle(fontSize: fontSize),
+    );
   }
 
   @override
@@ -131,34 +175,42 @@ class _ShowMessagesState extends State<ShowMessages> {
             .get(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
-            print(snapshot.error);
+            // print(snapshot.error);
           }
           if (snapshot.connectionState == ConnectionState.done) {
             var chat = snapshot.data!.docs;
 
             return ListView.builder(
                 itemCount: chat.length,
-                physics: ScrollPhysics(),
+                primary: true,
+                //physics: NeverScrollableScrollPhysics(),
                 itemBuilder: (BuildContext context, int index) {
                   var doc = chat[index];
                   return ListTile(
                       title: Row(
                     textDirection: _auth.currentUser!.phoneNumber == doc["user"]
-                        ? ui.TextDirection.ltr
-                        : ui.TextDirection.rtl,
+                        ? ui.TextDirection.rtl
+                        : ui.TextDirection.ltr,
                     children: [
-                      Spacer(flex: 1),
-                      timeStyle("\n" + "  " + doc.id.split(" ")[1] + "  "),
-                      Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                        decoration: BoxDecoration(
-                            color: _auth.currentUser!.phoneNumber == doc["user"]
-                                ? Colors.blue.withOpacity(0.2)
-                                : Colors.green.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(10)),
-                        child: chatStyle(doc['message'].toString()),
+                      //Spacer(flex: 1),
+
+                      Flexible(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          decoration: BoxDecoration(
+                              color:
+                                  _auth.currentUser!.phoneNumber == doc["user"]
+                                      ? Colors.blue.withOpacity(0.2)
+                                      : Colors.green.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(10)),
+                          child: chatStyle(doc['message'].toString()),
+                        ),
                       ),
+                      timeStyle("\n" +
+                          "  " +
+                          DateFormat("HH:mm").format(DateTime.parse(doc.id)) +
+                          "  "),
                     ],
                   ));
                 });
