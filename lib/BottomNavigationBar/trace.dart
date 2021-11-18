@@ -251,7 +251,7 @@ class ChartState extends State<Chart> {
     ];
     getPieLineData("before");
     startDate =
-        DateTime.now().subtract(Duration(days: 7)).toString().split(" ")[0];
+        DateTime.now().subtract(Duration(days: 6)).toString().split(" ")[0];
     endDate = DateTime.now().toString().split(" ")[0];
   }
 
