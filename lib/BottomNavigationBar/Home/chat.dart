@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'dart:ui' as ui;
 import '/appBar.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 // Future<void> main() async {
 //   WidgetsFlutterBinding.ensureInitialized();
@@ -25,20 +26,34 @@ class Chatscreen extends StatefulWidget {
 
 FirebaseFirestore storeMessage = FirebaseFirestore.instance;
 FirebaseAuth _auth = FirebaseAuth.instance;
+FirebaseStorage _storage = FirebaseStorage.instance;
+String _phNum = _auth.currentUser!.phoneNumber!;
 
 class _ChatscreenState extends State<Chatscreen> {
   TextEditingController msg = TextEditingController();
   final ImagePicker picker = ImagePicker();
   XFile? chooseCamera;
   XFile? chooseImage;
-  late Image image;
-  late Image camera;
+  late String image;
+  late String camera;
+  String filename = "";
 
   Future pickImageFromGallery() async {
     chooseImage = await picker.pickImage(source: ImageSource.gallery);
     if (chooseImage != null) {
+      image = chooseImage!.path;
       print(chooseImage!.path);
-      image = Image.file(File(chooseImage!.path), height: 100, width: 100);
+      filename = chooseImage!.path.split('/').last;
+      _storage.ref("$_phNum/$filename").putFile(File(image));
+      storeMessage
+          .collection("Messages")
+          .doc("+886906765979")
+          .collection(_phNum)
+          .doc(DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now()))
+          .set({
+        "message": filename,
+        "user": _phNum,
+      });
     }
   }
 
@@ -46,7 +61,19 @@ class _ChatscreenState extends State<Chatscreen> {
     chooseCamera = await picker.pickImage(source: ImageSource.camera);
     if (chooseCamera != null) {
       print(chooseCamera!.path);
-      camera = Image.file(File(chooseCamera!.path), height: 100, width: 100);
+      camera = chooseCamera!.path;
+      filename = chooseImage!.path.split('/').last;
+      _storage.ref("$_phNum/$filename").putFile(File(camera));
+      storeMessage
+          .collection("Messages")
+          .doc("+886906765979")
+          .collection(_phNum)
+          .doc(DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now()))
+          .set({
+        "message": filename,
+        "user": _phNum,
+      });
+      //  Image.file(camera, height: 100, width: 100);
     }
   }
 
@@ -62,11 +89,11 @@ class _ChatscreenState extends State<Chatscreen> {
             storeMessage
                 .collection("Messages")
                 .doc("+886906765979")
-                .collection(_auth.currentUser!.phoneNumber!)
+                .collection(_phNum)
                 .doc(DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now()))
                 .set({
               "message": msg.text.trim(),
-              "user": _auth.currentUser!.phoneNumber,
+              "user": _phNum,
             });
             msg.clear();
             setState(() {});
@@ -116,7 +143,7 @@ class _ChatscreenState extends State<Chatscreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: appBar(
-            _auth.currentUser!.phoneNumber!,
+            _phNum,
             IconButton(
                 onPressed: () {
                   FocusScopeNode focus = FocusScope.of(context);
@@ -149,6 +176,7 @@ class ShowMessages extends StatefulWidget {
 }
 
 class _ShowMessagesState extends State<ShowMessages> {
+  String path = "";
   Text chatStyle(String text) {
     double fontSize = MediaQuery.of(context).size.width * 0.052;
     return Text(
@@ -165,13 +193,28 @@ class _ShowMessagesState extends State<ShowMessages> {
     );
   }
 
+  Future<String> showImage(String imageName) async {
+    String imgFile = await _storage.ref("$_phNum/$imageName").getDownloadURL();
+    // print("======" + imgFile);
+    return imgFile;
+  }
+
+  String imageMessage(String imageName) {
+    showImage(imageName).then((value) {
+      path = value;
+      print(path);
+    });
+
+    return path;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
         future: FirebaseFirestore.instance
             .collection("Messages")
             .doc("+886906765979")
-            .collection(_auth.currentUser!.phoneNumber!)
+            .collection(_phNum)
             .get(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
@@ -196,16 +239,23 @@ class _ShowMessagesState extends State<ShowMessages> {
 
                       Flexible(
                         child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 10),
-                          decoration: BoxDecoration(
-                              color:
-                                  _auth.currentUser!.phoneNumber == doc["user"]
-                                      ? Colors.blue.withOpacity(0.2)
-                                      : Colors.green.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(10)),
-                          child: chatStyle(doc['message'].toString()),
-                        ),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
+                            decoration: BoxDecoration(
+                                color: _phNum == doc["user"]
+                                    ? Colors.blue.withOpacity(0.2)
+                                    : Colors.green.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(10)),
+                            child: !doc['message']
+                                        .toString()
+                                        .contains(".png") ||
+                                    !doc['message'].toString().contains(".jpg")
+                                ? chatStyle(doc['message'].toString())
+                                : Image.network(
+                                    imageMessage(
+                                        "image_picker7759286295610546533.png"),
+                                    height: 100,
+                                    width: 100)),
                       ),
                       timeStyle("\n" +
                           "  " +
