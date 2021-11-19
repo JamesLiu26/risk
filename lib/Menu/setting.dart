@@ -1,7 +1,8 @@
+import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:flutter/material.dart';
+import '/notification_api.dart';
 import '/appBar.dart';
 import 'Setting/contact.dart';
-import 'Setting/remind.dart';
 // import 'Setting/feedback.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -10,7 +11,13 @@ void main() => runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
     ));
 
-class Setting extends StatelessWidget {
+class Setting extends StatefulWidget {
+  _SettingState createState() => _SettingState();
+}
+
+TimeOfDay _time = TimeOfDay(hour: 11, minute: 0);
+
+class _SettingState extends State<Setting> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,11 +56,28 @@ GestureDetector settingPages(BuildContext context, String text) {
     }
   }
 
+  void onTimeChanged(TimeOfDay time) {
+    _time = time;
+    print("time:" + _time.hour.toString() + ":" + _time.minute.toString());
+    NotificationApi.cancelAll();
+    NotificationApi.scheduledNotification(
+        title: 'Test Message',
+        body: 'It is a message',
+        payload: 'test_msg',
+        scheduleDate: _time //DateTime.now().add(Duration(seconds: 5)),
+        );
+  }
+
   return GestureDetector(
     onTap: () {
       if (text == "提醒時間") {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => Remind()));
+        Navigator.of(context).push(
+          showPicker(
+            value: _time,
+            onChange: onTimeChanged,
+            context: context,
+          ),
+        );
       } else if (text == "醫院聯絡方式") {
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => Contact()));

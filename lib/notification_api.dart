@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -45,13 +46,13 @@ class NotificationApi {
           String? title,
           String? body,
           String? payload,
-          required DateTime scheduleDate}) async =>
+          required TimeOfDay scheduleDate}) async =>
       notification.zonedSchedule(
         id,
         title,
         body,
         //tz.TZDateTime.from(scheduleDate, tz.local),
-        _scheduleDaily(Time(16, 30)), //Time(hour,minute)
+        _scheduleDaily(scheduleDate), //Time(hour,minute)
         await notificationDetails(),
         payload: payload,
         androidAllowWhileIdle: true,
@@ -59,20 +60,15 @@ class NotificationApi {
             UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.time,
       );
-  static tz.TZDateTime _scheduleDaily(Time time) {
+  static tz.TZDateTime _scheduleDaily(TimeOfDay time) {
     final now = tz.TZDateTime.now(tz.local);
     final scheduleDate = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      time.hour,
-      time.minute,
-      time.second,
-    );
+        tz.local, now.year, now.month, now.day, time.hour, time.minute);
 
     return scheduleDate.isBefore(now)
         ? scheduleDate.add(Duration(days: 1))
         : scheduleDate;
   }
+
+  static void cancelAll() => notification.cancelAll();
 }
