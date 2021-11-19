@@ -61,8 +61,8 @@ GestureDetector settingPages(BuildContext context, String text) {
     print("time:" + _time.hour.toString() + ":" + _time.minute.toString());
     NotificationApi.cancelAll();
     NotificationApi.scheduledNotification(
-        title: 'Test Message',
-        body: 'It is a message',
+        title: '量測提醒',
+        body: '該量血糖囉~~~',
         payload: 'test_msg',
         scheduleDate: _time //DateTime.now().add(Duration(seconds: 5)),
         );
@@ -73,10 +73,11 @@ GestureDetector settingPages(BuildContext context, String text) {
       if (text == "提醒時間") {
         Navigator.of(context).push(
           showPicker(
-            value: _time,
-            onChange: onTimeChanged,
-            context: context,
-          ),
+              value: _time,
+              onChange: onTimeChanged,
+              context: context,
+              cancelText: "取消",
+              okText: "確定"),
         );
       } else if (text == "醫院聯絡方式") {
         Navigator.push(

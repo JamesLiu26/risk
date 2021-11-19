@@ -51,62 +51,6 @@ class Risk extends StatefulWidget {
 }
 
 class _RiskState extends State<Risk> {
-  // final _notify = FlutterLocalNotificationsPlugin();
-  // 點選通知terminal端會顯示訊息
-  // Future selectNotify(String? _) async {
-  //   Navigator.push(context, MaterialPageRoute(builder: (context) => Trace()));
-  // }
-
-  // int year = DateTime.now().year;
-  // int month = DateTime.now().month;
-  // int day = DateTime.now().day;
-
-  // @override
-  // // void initState() {
-  // //   super.initState();
-  // //   // 時區初始化
-  // //   tz.initializeTimeZones();
-
-  // //   // android設定初始化
-  // //   // final _androidInit = AndroidInitializationSettings("@mipmap/ic_launcher");
-  // //   // final _initializeSetting = InitializationSettings(android: _androidInit);
-  // //   // _notify.initialize(_initializeSetting, onSelectNotification: selectNotify);
-  // //   // Timer.periodic(Duration(seconds: 1), (_) {
-  // //   //   setState(() {
-  // //   //     // 即時更新時間
-  // //   //     year = DateTime.now().year;
-  // //   //     month = DateTime.now().month;
-  // //   //     day = DateTime.now().day;
-  // //   //   });
-  // //   // });
-  // //   // show();
-  // // }
-
-  // Future show() async {
-  //   final _android = AndroidNotificationDetails(
-  //       "channel Id", "channel Name", "channel Description",
-  //       priority: Priority.max, importance: Importance.max);
-  //   final _platform = NotificationDetails(android: _android);
-
-  //   // 設定提醒時間(有lag)
-  //   var dt = DateTime(year, month, day, 11, 25, 0);
-  //   schedule(dt, _platform);
-  // }
-
-  // Future schedule(DateTime dateTime, NotificationDetails nD) async {
-  //   // 要顯示的訊息
-  //   await _notify.zonedSchedule(
-  //       0, "爛專題", "量血糖囉", tz.TZDateTime.from(dateTime, tz.local), nD,
-  //       uiLocalNotificationDateInterpretation:
-  //           UILocalNotificationDateInterpretation.wallClockTime,
-  //       androidAllowWhileIdle: false);
-  // }
-
-  /*
-    註冊登入button
-    text為button的文字
-    route為按下button所要跳轉的page
-  */
   ElevatedButton signButton(text, Widget route) {
     return ElevatedButton(
         style: ButtonStyle(
@@ -123,28 +67,7 @@ class _RiskState extends State<Risk> {
   @override
   void initState() {
     super.initState();
-    // var initialzationSettingsAndroid=AndroidInitializationSettings("@mipmap/ic_launcher");
-    // var initializationSettings=InitializationSettings(android: initialzationSettingsAndroid);
-    // flutterLocalNotificationsPlugin.initialize(initializationSettings);
-    // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    //   RemoteNotification? notification = message.notification;
-    //   //AndroidNotification? android = message.notification?.android;
-    //   if (notification != null) {
-    //     flutterLocalNotificationsPlugin.show(
-    //         notification.hashCode,
-    //         notification.title,
-    //         notification.body,
-    //         NotificationDetails(
-    //           android: AndroidNotificationDetails(
-    //             channel.id,
-    //             channel.name,
-    //             channel.description,
-    //             icon: 'launch_background',
-    //           ),
-    //         ));
-    //   }
-    // });
-    // getToken();
+
     NotificationApi.init(initScheduled: true);
     listenNotifications();
   }
@@ -204,25 +127,3 @@ LinearGradient linearGradient() {
       end: Alignment.bottomCenter,
       stops: [0.3, 1]);
 }
-
-//  Messaging，程式背景執行時所做的事
-// Future<void> _firebaseMessagingBgHandler(RemoteMessage message) async {
-//   await Firebase.initializeApp();
-//   RemoteNotification? notification = message.notification;
-//   AndroidNotification? android = message.notification?.android;
-//   if (notification != null && android != null) {
-//     flutterLocalNotificationsPlugin.show(
-//         notification.hashCode,
-//         notification.title,
-//         notification.body,
-//         NotificationDetails(
-//           android: AndroidNotificationDetails(
-//             channel.id,
-//             channel.name,
-//             channel.description,
-//             icon: 'launch_background',
-//           ),
-//         ));
-//   }
-  //print("message: ${message.messageId}");
-// }
