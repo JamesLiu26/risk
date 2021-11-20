@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import './personal_questionnaire.dart';
 import './appBar.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
   return runApp(MaterialApp(
@@ -33,6 +34,9 @@ class _SignUpState extends State<SignUp> {
   String? errorPhone;
   String? errorPassword;
 
+  CollectionReference _collection =
+      FirebaseFirestore.instance.collection("user");
+
   /*
     判斷TextField裡的文字，顯示錯誤訊息
    */
@@ -44,13 +48,25 @@ class _SignUpState extends State<SignUp> {
     }
   }
 
-  void showErrorPhone() {
-    if (phone.isEmpty || phone.trim() == "") {
+  Future<void> showErrorPhone() async {
+    if (phone.isEmpty || phone.trim() == "" || phone == "+886") {
       errorPhone = "不可空白！";
     } else if (!phone.contains(RegExp("\^\\+8869[0-9]{8}\$"), 0)) {
       errorPhone = "行動電話格式不正確！";
     } else {
-      errorPhone = null;
+      _collection.get().then((snapshot) {
+        var listDocs = snapshot.docs;
+        setState(() {
+          for (var doc in listDocs) {
+            if (phone == doc.id) {
+              errorPhone = "此電話號碼已註冊過！";
+              break;
+            } else {
+              errorPhone = null;
+            }
+          }
+        });
+      });
     }
   }
 
@@ -186,8 +202,8 @@ class _SignUpState extends State<SignUp> {
           Column(
             children: [
               SizedBox(height: MediaQuery.of(context).size.height * 0.12),
-              signUpName(),
               signUpPhone(),
+              signUpName(),
               signUpPassword()
             ],
           ),
@@ -195,29 +211,32 @@ class _SignUpState extends State<SignUp> {
           ElevatedButton(
               style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all(Colors.green)),
-              onPressed: () {
+              onPressed: () async {
                 FocusScopeNode focus = FocusScope.of(context);
                 // 把TextField的focus移掉
                 if (!focus.hasPrimaryFocus) {
                   focus.unfocus();
                 }
+                // 執行錯誤訊息function
+                await showErrorPhone();
                 setState(() {
-                  // 執行錯誤訊息function
                   showErrorName();
-                  showErrorPhone();
                   showErrorPassword();
                 });
                 // 若無任何錯誤訊息，導向輸入OTP頁面
-                if (errorName == null &&
-                    errorPhone == null &&
-                    errorPassword == null) {
-                  verifyPhone(phone);
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              OTP(name.text, phone, password.text)));
-                }
+                Future.delayed(Duration(seconds: 1), () {
+                  print(errorPhone);
+                  if (errorName == null &&
+                      errorPhone == null &&
+                      errorPassword == null) {
+                    verifyPhone(phone);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                OTP(name.text, phone, password.text)));
+                  }
+                });
               },
               child: Text("註冊", style: TextStyle(fontSize: size.width * 0.06))),
         ]))));
