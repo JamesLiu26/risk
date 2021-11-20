@@ -224,7 +224,7 @@ class _SignUpState extends State<SignUp> {
                   showErrorPassword();
                 });
                 // 若無任何錯誤訊息，導向輸入OTP頁面
-                Future.delayed(Duration(seconds: 5), () {
+                Future.delayed(Duration(seconds: 3), () {
                   print(errorPhone);
                   if (errorName == null &&
                       errorPhone == null &&

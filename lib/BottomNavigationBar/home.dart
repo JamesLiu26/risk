@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'Home/advice.dart';
+import 'Home/chart.dart';
 import 'Home/assessment.dart';
 import 'Home/notice.dart';
 import 'Home/appointment.dart';
@@ -67,7 +67,7 @@ class Home extends StatelessWidget {
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      homeRoute("飲食建議", "images/食物.png", Advice()),
+                      homeRoute("統計圖表", "images/圖表.png", Chart()),
                       homeRoute("注意事項", "images/注意.png", Notice())
                     ]),
               ]),
