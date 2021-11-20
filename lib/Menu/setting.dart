@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '/notification_api.dart';
 import '/appBar.dart';
 import 'Setting/contact.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'Setting/feedback.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -15,7 +17,12 @@ class Setting extends StatefulWidget {
   _SettingState createState() => _SettingState();
 }
 
+FirebaseFirestore storeNotify = FirebaseFirestore.instance;
+FirebaseAuth _auth = FirebaseAuth.instance;
 TimeOfDay _time = TimeOfDay(hour: 11, minute: 0);
+String _phNum = _auth.currentUser!.phoneNumber!;
+String _title ="量測血糖";
+String _body = "該量血糖了~~~";
 
 class _SettingState extends State<Setting> {
   @override
@@ -58,14 +65,26 @@ GestureDetector settingPages(BuildContext context, String text) {
 
   void onTimeChanged(TimeOfDay time) {
     _time = time;
+    //final now =DateTime.now();
     print("time:" + _time.hour.toString() + ":" + _time.minute.toString());
     NotificationApi.cancelAll();
-    NotificationApi.scheduledNotification(
-        title: '量測提醒',
-        body: '該量血糖囉~~~',
+    //if(DateFormat("HH:mm").format(DateTime.now())==DateFormat("HH:mm").format(DateTime(now.year,now.month,now.day,_time.hour,_time.minute))){
+      NotificationApi.scheduledNotification(
+        title:_title,
+        body: _body,
         payload: 'test_msg',
         scheduleDate: _time //DateTime.now().add(Duration(seconds: 5)),
         );
+      storeNotify.collection("Notification").doc(_phNum).set(
+        {
+          'title':_title,
+          'body':_body,
+        }
+      );
+    //}
+    // print(time);
+    // print(DateFormat("HH:mm").format(DateTime.now()));
+    // print(DateFormat("HH:mm").format(DateTime(now.year,now.month,now.day,_time.hour,_time.minute)));
   }
 
   return GestureDetector(

@@ -79,7 +79,9 @@ class _RiskState extends State<Risk> {
       setState(() {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => Notify()));
+        print("123hello");
       });
+      print("456hello");
     }
   }
 
