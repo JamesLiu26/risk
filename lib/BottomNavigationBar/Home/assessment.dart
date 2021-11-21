@@ -156,7 +156,9 @@ class _AssessmentState extends State<Assessment> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             backgroundColor: Colors.red[800],
             content: Text("請確認填寫無誤再按送出！",
-                style: TextStyle(fontSize: 16, color: Colors.white)),
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.05,
+                    color: Colors.white)),
             duration: Duration(seconds: 1)));
         //
         hasFullData = false;
@@ -310,10 +312,10 @@ class _FinalState extends State<Final> {
   String level = "";
   Color finalProgressColor() {
     Color progress;
-    if (widget.predictionResult < 0.3) {
+    if (widget.predictionResult < 0.25) {
       progress = Colors.green;
       level = "低風險";
-    } else if (widget.predictionResult < 0.6) {
+    } else if (widget.predictionResult < 0.5) {
       progress = Colors.yellow;
       level = "中風險";
     } else {

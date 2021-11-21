@@ -18,7 +18,7 @@ class Setting extends StatefulWidget {
   _SettingState createState() => _SettingState();
 }
 
-FirebaseFirestore storeNotify = FirebaseFirestore.instance;
+FirebaseFirestore _storeNotify = FirebaseFirestore.instance;
 FirebaseAuth _auth = FirebaseAuth.instance;
 TimeOfDay _time = TimeOfDay(hour: 11, minute: 0);
 String _phNum = _auth.currentUser!.phoneNumber!;
@@ -66,11 +66,18 @@ GestureDetector settingPages(BuildContext context, String text) {
 
   void onTimeChanged(TimeOfDay time) {
     _time = time;
+    time.format(context);
+    String timeString = time.hour.toString() + ":" + time.minute.toString();
+    _storeNotify
+        .collection("Notification")
+        .doc(_phNum)
+        .set({"time": timeString});
+
     DateTime now = DateTime.now();
     String setTime = "";
-    print("time:" + _time.hour.toString() + ":" + _time.minute.toString());
+
     NotificationApi.cancelAll();
-    //if(DateFormat("HH:mm").format(DateTime.now())==DateFormat("HH:mm").format(DateTime(now.year,now.month,now.day,_time.hour,_time.minute))){
+
     setTime = DateFormat("yyyy-MM-dd HH:mm:ss").format(
         DateTime(now.year, now.month, now.day, _time.hour, _time.minute));
     NotificationApi.scheduledNotification(
@@ -79,31 +86,42 @@ GestureDetector settingPages(BuildContext context, String text) {
         payload: 'test_msg',
         scheduleDate: _time //DateTime.now().add(Duration(seconds: 5)),
         );
-    storeNotify
+    _storeNotify
         .collection("Notification")
         .doc(_phNum)
         .collection("news")
         .doc(setTime)
-        .set({
-      'title': _title,
-      'body': _body,
-    });
-    //}
-    // print(time);
+        .set({'title': _title, 'body': _body, 'read': false});
+
     // print(DateFormat("HH:mm").format(DateTime.now()));
   }
 
   return GestureDetector(
     onTap: () {
       if (text == "提醒時間") {
-        Navigator.of(context).push(
-          showPicker(
-              value: _time,
-              onChange: onTimeChanged,
-              context: context,
-              cancelText: "取消",
-              okText: "確定"),
-        );
+        _storeNotify
+            .collection("Notification")
+            .doc(_phNum)
+            .get()
+            .then((snapshot) {
+          TimeOfDay timeOfDay;
+          if (!snapshot.data()!.containsKey("time")) {
+            timeOfDay = _time;
+          } else {
+            List<String> timeStr = snapshot.get("time").toString().split(":");
+            timeOfDay = TimeOfDay(
+                hour: int.parse(timeStr[0]), minute: int.parse(timeStr[1]));
+          }
+
+          Navigator.of(context).push(
+            showPicker(
+                value: timeOfDay,
+                onChange: onTimeChanged,
+                context: context,
+                cancelText: "取消",
+                okText: "確定"),
+          );
+        });
       } else if (text == "醫院聯絡方式") {
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => Contact()));
