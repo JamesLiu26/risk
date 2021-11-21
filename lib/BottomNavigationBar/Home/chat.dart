@@ -37,6 +37,7 @@ class _ChatscreenState extends State<Chatscreen> {
   late String image;
   late String camera;
   String filename = "";
+  String _url = "";
 
   Future pickImageFromGallery() async {
     chooseImage = await picker.pickImage(source: ImageSource.gallery);
@@ -45,14 +46,19 @@ class _ChatscreenState extends State<Chatscreen> {
       print(chooseImage!.path);
       filename = chooseImage!.path.split('/').last;
       _storage.ref("$_phNum/$filename").putFile(File(image));
-      storeMessage
-          .collection("Messages")
-          .doc("+886906765979")
-          .collection(_phNum)
-          .doc(DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now()))
-          .set({
-        "message": filename,
-        "user": _phNum,
+      Future.delayed(Duration(seconds: 1), () async {
+        _url = await _storage.ref("$_phNum/$filename").getDownloadURL();
+        print("********" + _url);
+        storeMessage
+            .collection("Messages")
+            .doc("+886906765979")
+            .collection(_phNum)
+            .doc(DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now()))
+            .set({
+          "message": _url,
+          "user": _phNum,
+        });
+        setState(() {});
       });
     }
   }
@@ -202,6 +208,12 @@ class _ShowMessagesState extends State<ShowMessages> {
   String imageMessage(String imageName) {
     showImage(imageName).then((value) {
       path = value;
+      // storeMessage
+      //     .collection("Messages")
+      //     .doc("+886906765979")
+      //     .collection(_phNum)
+      //     .doc(DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now()))
+      //     .set({"url":});
       print(path);
     });
 
@@ -238,25 +250,18 @@ class _ShowMessagesState extends State<ShowMessages> {
                       //Spacer(flex: 1),
 
                       Flexible(
-                        child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 10),
-                            decoration: BoxDecoration(
-                                color: _phNum == doc["user"]
-                                    ? Colors.blue.withOpacity(0.2)
-                                    : Colors.green.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(10)),
-                            child: !doc['message']
-                                        .toString()
-                                        .contains(".png") ||
-                                    !doc['message'].toString().contains(".jpg")
-                                ? chatStyle(doc['message'].toString())
-                                : Image.network(
-                                    imageMessage(
-                                        "image_picker7759286295610546533.png"),
-                                    height: 100,
-                                    width: 100)),
-                      ),
+                          child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 10),
+                              decoration: BoxDecoration(
+                                  color: _phNum == doc["user"]
+                                      ? Colors.blue.withOpacity(0.2)
+                                      : Colors.green.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: doc['message'].toString().contains("http")
+                                  ? Image.network(doc['message'].toString(),
+                                      height: 100, width: 100)
+                                  : chatStyle(doc['message'].toString()))),
                       timeStyle("\n" +
                           "  " +
                           DateFormat("HH:mm").format(DateTime.parse(doc.id)) +

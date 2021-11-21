@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../menu.dart';
 import '../appBar.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -122,10 +121,11 @@ class _TraceState extends State<Trace> {
   }
 
   snackBar(Color color, String text) {
+    double fontSize = MediaQuery.of(context).size.width * 0.05;
     return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: color,
-        content:
-            Text(text, style: TextStyle(fontSize: 16, color: Colors.white)),
+        content: Text(text,
+            style: TextStyle(fontSize: fontSize, color: Colors.white)),
         duration: Duration(seconds: 1)));
   }
 
@@ -135,7 +135,7 @@ class _TraceState extends State<Trace> {
         .collection(type)
         .doc(dateTimeString)
         .set({"bloodSugar": bsCon.text});
-    snackBar(Color(0xff4caf50), "已成功送出！");
+    snackBar(Color(0xff4caa50), "已成功送出！ 詳細資訊請看統計圖表");
     bsCon.clear();
   }
 

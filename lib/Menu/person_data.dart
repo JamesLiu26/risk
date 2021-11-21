@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 // void main() {
@@ -14,6 +15,7 @@ FirebaseAuth _auth = FirebaseAuth.instance;
 CollectionReference _collection = FirebaseFirestore.instance.collection("user");
 String _phNum = _auth.currentUser!.phoneNumber!;
 DocumentReference _doc = _collection.doc(_phNum);
+// String _verifyId = "";
 
 class PersonData extends StatefulWidget {
   @override
@@ -23,15 +25,24 @@ class PersonData extends StatefulWidget {
 class _PersonDataState extends State<PersonData> {
   //
   bool canEdit = false;
+  bool isPassword = true;
   //
   String name = "";
   String originalGender = "";
   String selectGender = "男";
+  String password = "";
+  var pwdController = TextEditingController();
+  String? errorPassword;
+  //
+  String userPhone = _phNum;
+  String? errorUserPhone;
+  var otpController = TextEditingController();
   String address = "";
   String email = "";
+  //
   String emerName = "";
   String emerRelationship = "";
-  String originalEmerPhone = "";
+  String emerPhone = "";
   String afterEmerPhone = "";
   String? errorEmerPhone;
   //
@@ -58,7 +69,40 @@ class _PersonDataState extends State<PersonData> {
     );
   }
 
+  Padding editPassword() {
+    double fontSize = MediaQuery.of(context).size.width * 0.052;
+    return Padding(
+      padding: EdgeInsets.only(top: 10),
+      child: TextField(
+          controller: pwdController,
+          style: TextStyle(fontSize: fontSize),
+          obscuringCharacter: "*",
+          obscureText: isPassword,
+          decoration: InputDecoration(
+              hintText: "至少6個字元",
+              errorText: errorPassword,
+              suffixIcon: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      if (isPassword) {
+                        // 顯示密碼
+                        isPassword = false;
+                      } else {
+                        isPassword = true;
+                      }
+                    });
+                  },
+                  icon: Icon(Icons.visibility)),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(10)))),
+    );
+  }
+
   //
+  void updateUserPhone(PhoneNumber phone) {
+    userPhone = phone.toString();
+  }
+
   void updateEmerPhone(PhoneNumber phone) {
     afterEmerPhone = phone.toString();
   }
@@ -68,7 +112,7 @@ class _PersonDataState extends State<PersonData> {
     double fontSize = MediaQuery.of(context).size.width * 0.052;
     TextStyle style = TextStyle(fontSize: fontSize);
     return Padding(
-        padding: EdgeInsets.only(top: 10),
+        padding: EdgeInsets.only(top: 10, bottom: 10),
         child: InternationalPhoneNumberInput(
             selectorConfig: SelectorConfig(
                 showFlags: false, setSelectorButtonAsPrefixIcon: true),
@@ -83,6 +127,55 @@ class _PersonDataState extends State<PersonData> {
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)))),
             onInputChanged: changePhone));
+  }
+
+  //
+  // verifyPhone(String phNumber) async {
+  //   await _auth.verifyPhoneNumber(
+  //       phoneNumber: phNumber,
+  //       verificationCompleted: (_) async {
+  //         print("Successful");
+  //       },
+  //       verificationFailed: (FirebaseAuthException e) {
+  //         print("====" + e.message.toString() + "====");
+  //       },
+  //       codeSent: (String id, int? token) async {
+  //         print("OTP is sent!");
+  //         _verifyId = id;
+  //       },
+  //       codeAutoRetrievalTimeout: (String id) {
+  //         print("Resend");
+  //         _verifyId = id;
+  //       },
+  //       timeout: Duration(seconds: 120));
+  // }
+
+  Padding otpField() {
+    double fontSize = MediaQuery.of(context).size.width * 0.052;
+    return Padding(
+        padding: EdgeInsets.only(top: 10),
+        child: TextField(
+            controller: otpController,
+            style: TextStyle(fontSize: fontSize),
+            keyboardType: TextInputType.number,
+            maxLength: 6,
+            decoration: InputDecoration(
+                hintText: "輸入驗證碼",
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10)))));
+  }
+
+  Column phoneVerify() {
+    // double fontSize = MediaQuery.of(context).size.width * 0.052;
+    // var color = MaterialStateProperty.all(Colors.blue[800]);
+    return Column(children: [
+      editPhone(_phNum, errorUserPhone, updateUserPhone),
+      // ElevatedButton(
+      //     style: ButtonStyle(backgroundColor: color),
+      //     onPressed: () {},
+      //     child: Text("傳送驗證碼", style: TextStyle(fontSize: fontSize))),
+      // otpField()
+    ]);
   }
 
   Text textStyle(String text, [double rate = 0.052]) {
@@ -122,12 +215,13 @@ class _PersonDataState extends State<PersonData> {
     }).then((snapshot) {
       setState(() {
         name = snapshot.get("name");
+        password = snapshot.get("password");
         originalGender = snapshot.get("gender");
         address = snapshot.get("address");
         email = snapshot.get("email");
         emerName = snapshot.get("emerName");
         emerRelationship = snapshot.get("emerRelationship");
-        originalEmerPhone = snapshot.get("emerPhone");
+        emerPhone = snapshot.get("emerPhone");
       });
     });
   }
@@ -145,7 +239,33 @@ class _PersonDataState extends State<PersonData> {
       _doc.update({"gender": selectGender});
       updateVal++;
     }
-    if (afterEmerPhone != "") {
+    if (userPhone != "" && userPhone != "+886") {
+      if (!userPhone.contains(RegExp("\^\\+8869[0-9]{8}\$"), 0)) {
+        errorUserPhone = "行動電話格式不正確";
+      } else {
+        _collection.get().then((snapshot) {
+          var listDocs = snapshot.docs;
+          setState(() {
+            for (var doc in listDocs) {
+              if (userPhone == doc.id && _phNum != doc.id) {
+                errorUserPhone = "此電話號碼已註冊過！";
+                break;
+              } else {
+                errorUserPhone = null;
+                updateVal++;
+              }
+            }
+          });
+        });
+        // print(userPhone);
+        // _doc.update({"emerPhone": userPhone});
+
+      }
+    } else {
+      errorUserPhone = null;
+    }
+
+    if (afterEmerPhone != "" && afterEmerPhone != "+886") {
       if (!afterEmerPhone.contains(RegExp("\^\\+8869[0-9]{8}\$"), 0)) {
         errorEmerPhone = "行動電話格式不正確";
       } else {
@@ -153,6 +273,20 @@ class _PersonDataState extends State<PersonData> {
         _doc.update({"emerPhone": afterEmerPhone});
         updateVal++;
       }
+    } else {
+      errorEmerPhone = null;
+    }
+    if (pwdController.text != "") {
+      if (pwdController.text.length < 6) {
+        errorPassword = "密碼不可小於6個字！";
+      } else {
+        errorPassword = null;
+        _doc.update({"password": pwdController.text});
+        updateVal++;
+        pwdController.clear();
+      }
+    } else {
+      errorPassword = null;
     }
     if (updateVal >= 1) {
       // 有更新才抓資料
@@ -186,13 +320,20 @@ class _PersonDataState extends State<PersonData> {
                 onPressed: () {
                   if (canEdit) {
                     updateData();
-                    if (errorEmerPhone == null) {
-                      canEdit = false;
-                    }
+                    Future.delayed(Duration(seconds: 2), () {
+                      if (errorEmerPhone == null &&
+                          errorPassword == null &&
+                          errorUserPhone == null) {
+                        setState(() {
+                          canEdit = false;
+                        });
+                      }
+                    });
                   } else {
-                    canEdit = true;
+                    setState(() {
+                      canEdit = true;
+                    });
                   }
-                  setState(() {});
                 },
                 icon: Icon(canEdit ? Icons.check : Icons.edit_outlined,
                     size: 30, color: Colors.blue[800]))
@@ -208,10 +349,11 @@ class _PersonDataState extends State<PersonData> {
                 Row(children: [textStyle("男"), genderRadio("男")]),
                 Row(children: [textStyle("女"), genderRadio("女")])
               ])),
+          layout("密碼", textStyle("******"), editPassword()),
           Divider(color: Colors.blue[200], thickness: 2),
           //
           Row(children: [textStyle(" 聯絡方式", 0.06)]),
-          // layout("行動電話", textStyle(_phNum)),
+          layout("行動電話", textStyle(_phNum), phoneVerify()),
           layout("通訊地址", textStyle(address),
               editField(inputGroup["address"]!, address)),
           layout(
@@ -223,8 +365,8 @@ class _PersonDataState extends State<PersonData> {
               editField(inputGroup["emerName"]!, emerName)),
           layout("關係", textStyle(emerRelationship),
               editField(inputGroup["emerRelationship"]!, emerRelationship)),
-          layout("行動電話", textStyle(originalEmerPhone),
-              editPhone(originalEmerPhone, errorEmerPhone, updateEmerPhone)),
+          layout("行動電話", textStyle(emerPhone),
+              editPhone(emerPhone, errorEmerPhone, updateEmerPhone)),
         ]),
       ),
     );

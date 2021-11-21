@@ -1,5 +1,6 @@
 import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '/notification_api.dart';
 import '/appBar.dart';
 import 'Setting/contact.dart';
@@ -21,7 +22,7 @@ FirebaseFirestore storeNotify = FirebaseFirestore.instance;
 FirebaseAuth _auth = FirebaseAuth.instance;
 TimeOfDay _time = TimeOfDay(hour: 11, minute: 0);
 String _phNum = _auth.currentUser!.phoneNumber!;
-String _title ="量測血糖";
+String _title = "量測血糖";
 String _body = "該量血糖了~~~";
 
 class _SettingState extends State<Setting> {
@@ -65,26 +66,31 @@ GestureDetector settingPages(BuildContext context, String text) {
 
   void onTimeChanged(TimeOfDay time) {
     _time = time;
-    //final now =DateTime.now();
+    DateTime now = DateTime.now();
+    String setTime = "";
     print("time:" + _time.hour.toString() + ":" + _time.minute.toString());
     NotificationApi.cancelAll();
     //if(DateFormat("HH:mm").format(DateTime.now())==DateFormat("HH:mm").format(DateTime(now.year,now.month,now.day,_time.hour,_time.minute))){
-      NotificationApi.scheduledNotification(
-        title:_title,
+    setTime = DateFormat("yyyy-MM-dd HH:mm:ss").format(
+        DateTime(now.year, now.month, now.day, _time.hour, _time.minute));
+    NotificationApi.scheduledNotification(
+        title: _title,
         body: _body,
         payload: 'test_msg',
         scheduleDate: _time //DateTime.now().add(Duration(seconds: 5)),
         );
-      storeNotify.collection("Notification").doc(_phNum).set(
-        {
-          'title':_title,
-          'body':_body,
-        }
-      );
+    storeNotify
+        .collection("Notification")
+        .doc(_phNum)
+        .collection("news")
+        .doc(setTime)
+        .set({
+      'title': _title,
+      'body': _body,
+    });
     //}
     // print(time);
     // print(DateFormat("HH:mm").format(DateTime.now()));
-    // print(DateFormat("HH:mm").format(DateTime(now.year,now.month,now.day,_time.hour,_time.minute)));
   }
 
   return GestureDetector(

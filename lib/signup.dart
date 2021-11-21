@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import './personal_questionnaire.dart';
 import './appBar.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
   return runApp(MaterialApp(
