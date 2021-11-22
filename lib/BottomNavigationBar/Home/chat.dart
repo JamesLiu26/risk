@@ -28,8 +28,20 @@ FirebaseFirestore storeMessage = FirebaseFirestore.instance;
 FirebaseAuth _auth = FirebaseAuth.instance;
 FirebaseStorage _storage = FirebaseStorage.instance;
 String _phNum = _auth.currentUser!.phoneNumber!;
+ScrollController _controller = ScrollController();
 
 class _ChatscreenState extends State<Chatscreen> {
+  @override
+  initState() {
+    super.initState();
+    jumpTobuttom();
+  }
+
+  @override
+  dispose() {
+    super.dispose();
+  }
+
   TextEditingController msg = TextEditingController();
   final ImagePicker picker = ImagePicker();
   XFile? chooseCamera;
@@ -39,6 +51,14 @@ class _ChatscreenState extends State<Chatscreen> {
   String filename = "";
   String _url = "";
 
+  void jumpTobuttom() async {
+    await Future.delayed(Duration(milliseconds: 800), () {
+      _controller.jumpTo(
+        _controller.position.maxScrollExtent,
+      );
+    });
+  }
+
   Future pickImageFromGallery() async {
     chooseImage = await picker.pickImage(source: ImageSource.gallery);
     if (chooseImage != null) {
@@ -46,7 +66,7 @@ class _ChatscreenState extends State<Chatscreen> {
       print(chooseImage!.path);
       filename = chooseImage!.path.split('/').last;
       _storage.ref("$_phNum/$filename").putFile(File(image));
-      Future.delayed(Duration(seconds: 1), () async {
+      Future.delayed(Duration(seconds: 2), () async {
         _url = await _storage.ref("$_phNum/$filename").getDownloadURL();
         print("********" + _url);
         storeMessage
@@ -101,8 +121,8 @@ class _ChatscreenState extends State<Chatscreen> {
               "message": msg.text.trim(),
               "user": _phNum,
             });
+            jumpTobuttom();
             msg.clear();
-            setState(() {});
           }
         },
         icon: Icon(
@@ -131,6 +151,10 @@ class _ChatscreenState extends State<Chatscreen> {
                       size: 30, color: Colors.blue[800])),
               Expanded(
                 child: TextField(
+                  onTap: () {
+                    print("123");
+                    jumpTobuttom();
+                  },
                   controller: msg,
                   decoration: InputDecoration(
                       contentPadding: EdgeInsets.only(left: 10),
@@ -164,6 +188,7 @@ class _ChatscreenState extends State<Chatscreen> {
           children: [
             Expanded(
               child: SingleChildScrollView(
+                  //controller: _controller,
                   child: ListBody(children: [
                 SizedBox(
                     height: MediaQuery.of(context).size.height * 0.75,
@@ -237,7 +262,8 @@ class _ShowMessagesState extends State<ShowMessages> {
 
             return ListView.builder(
                 itemCount: chat.length,
-                primary: true,
+                //shrinkWrap: true,
+                controller: _controller,
                 //physics: NeverScrollableScrollPhysics(),
                 itemBuilder: (BuildContext context, int index) {
                   var doc = chat[index];
