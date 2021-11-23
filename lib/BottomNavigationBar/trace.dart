@@ -121,7 +121,7 @@ class _TraceState extends State<Trace> {
   }
 
   snackBar(Color color, String text) {
-    double fontSize = MediaQuery.of(context).size.width * 0.05;
+    double fontSize = MediaQuery.of(context).size.width * 0.045;
     return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: color,
         content: Text(text,
