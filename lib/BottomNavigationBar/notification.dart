@@ -45,90 +45,90 @@ class _NotifyState extends State<Notify> {
         body: FutureBuilder(
             future: _collection.doc(_phNum).collection("news").get(),
             builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (!snapshot.hasData) {
-                return Center(child: textStyle("目前尚無通知", titleSize));
+              if (snapshot.hasData &&
+                  snapshot.connectionState == ConnectionState.done) {
+                var data = snapshot.data!.docs;
+
+                return data.length != 0
+                    ? ListView.builder(
+                        itemCount: data.length,
+                        itemBuilder: (context, index) {
+                          QueryDocumentSnapshot doc = data[index];
+                          String dateTime = DateFormat("yyyy年MM月dd日 HH點mm分")
+                              .format(DateTime.parse(doc.id));
+                          return Dismissible(
+                              background: Container(color: Colors.red),
+                              onDismissed: (_) {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                            title: Text("請問是否要刪除？"),
+                                            actions: [
+                                              TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                    setState(() {});
+                                                  },
+                                                  child: Text("取消",
+                                                      style: TextStyle(
+                                                          color: Colors.red))),
+                                              TextButton(
+                                                  onPressed: () {
+                                                    print(doc.id);
+                                                    setState(() {
+                                                      _collection
+                                                          .doc(_phNum)
+                                                          .collection("news")
+                                                          .doc(doc.id)
+                                                          .delete();
+                                                    });
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Text("確定"))
+                                            ]));
+                              },
+                              key: UniqueKey(),
+                              child: Column(children: [
+                                Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                    ),
+                                    child: Column(children: [
+                                      textStyle(dateTime, subtitleSize),
+                                      ListTile(
+                                          onTap: () {
+                                            setState(() {
+                                              print(index);
+                                              _collection
+                                                  .doc(_phNum)
+                                                  .collection("news")
+                                                  .doc(doc.id)
+                                                  .update({"read": true});
+                                            });
+                                          },
+                                          title: Row(
+                                            children: [
+                                              Icon(icon,
+                                                  size: 50,
+                                                  color: doc["read"]
+                                                      ? Colors.grey
+                                                      : Colors.blue),
+                                              textStyle(doc["title"], titleSize,
+                                                  FontWeight.bold),
+                                            ],
+                                          ),
+                                          subtitle: textStyle(
+                                              "  ${doc["body"]}",
+                                              subtitleSize)),
+                                    ])),
+                                Divider(thickness: 2, color: Colors.grey)
+                              ]));
+
+                          // return
+                        })
+                    : Center(child: textStyle("目前尚無通知", titleSize));
               } else {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  var data = snapshot.data!.docs;
-
-                  return ListView.builder(
-                      itemCount: data.length,
-                      itemBuilder: (context, index) {
-                        QueryDocumentSnapshot doc = data[index];
-                        String dateTime = DateFormat("yyyy年MM月dd日 HH點mm分")
-                            .format(DateTime.parse(doc.id));
-                        return Dismissible(
-                            background: Container(color: Colors.red),
-                            onDismissed: (_) {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                          title: Text("請問是否要刪除？"),
-                                          actions: [
-                                            TextButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                  setState(() {});
-                                                },
-                                                child: Text("取消",
-                                                    style: TextStyle(
-                                                        color: Colors.red))),
-                                            TextButton(
-                                                onPressed: () {
-                                                  print(doc.id);
-                                                  setState(() {
-                                                    _collection
-                                                        .doc(_phNum)
-                                                        .collection("news")
-                                                        .doc(doc.id)
-                                                        .delete();
-                                                  });
-                                                  Navigator.pop(context);
-                                                },
-                                                child: Text("確定"))
-                                          ]));
-                            },
-                            key: UniqueKey(),
-                            child: Column(children: [
-                              Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                  ),
-                                  child: Column(children: [
-                                    textStyle(dateTime, subtitleSize),
-                                    ListTile(
-                                        onTap: () {
-                                          setState(() {
-                                            print(index);
-                                            _collection
-                                                .doc(_phNum)
-                                                .collection("news")
-                                                .doc(doc.id)
-                                                .update({"read": true});
-                                          });
-                                        },
-                                        title: Row(
-                                          children: [
-                                            Icon(icon,
-                                                size: 50,
-                                                color: doc["read"]
-                                                    ? Colors.grey
-                                                    : Colors.blue),
-                                            textStyle(doc["title"], titleSize,
-                                                FontWeight.bold),
-                                          ],
-                                        ),
-                                        subtitle: textStyle(
-                                            "  ${doc["body"]}", subtitleSize)),
-                                  ])),
-                              Divider(thickness: 2, color: Colors.grey)
-                            ]));
-
-                        // return
-                      });
-                } else {
-                  return Row();
-                }
+                return Row();
               }
             }));
   }
