@@ -314,13 +314,10 @@ class _FinalState extends State<Final> {
     Color progress;
     if (widget.predictionResult < 0.25) {
       progress = Colors.green;
-      level = "低風險";
     } else if (widget.predictionResult < 0.5) {
       progress = Colors.yellow;
-      level = "中風險";
     } else {
       progress = Colors.red;
-      level = "高風險";
     }
     return progress;
   }
@@ -356,9 +353,10 @@ class _FinalState extends State<Final> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Text("預測結果為", style: textStyle2(screenWidth)),
+                  Text("您可能罹患\n糖尿病之機率為",
+                      style: textStyle2(screenWidth),
+                      textAlign: TextAlign.center),
                   percentIndicator(),
-                  Text(level, style: textStyle2(screenWidth)),
                   ElevatedButton(
                       style: ButtonStyle(
                           backgroundColor:
