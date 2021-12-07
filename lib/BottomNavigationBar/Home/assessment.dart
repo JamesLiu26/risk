@@ -322,8 +322,9 @@ class _FinalState extends State<Final> {
     return progress;
   }
 
-  TextStyle textStyle2(double screenWidth) {
-    return TextStyle(fontSize: screenWidth * 0.075, color: Colors.white);
+  TextStyle textStyle2(double screenWidth, [double height = 1]) {
+    return TextStyle(
+        fontSize: screenWidth * 0.075, color: Colors.white, height: height);
   }
 
   @override
@@ -354,7 +355,7 @@ class _FinalState extends State<Final> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Text("您可能罹患\n糖尿病之機率為",
-                      style: textStyle2(screenWidth),
+                      style: textStyle2(screenWidth, 1.5),
                       textAlign: TextAlign.center),
                   percentIndicator(),
                   ElevatedButton(
