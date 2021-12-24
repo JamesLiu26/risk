@@ -11,8 +11,8 @@ class NotificationApi {
 
   static Future notificationDetails() async {
     return NotificationDetails(
-      android: AndroidNotificationDetails(
-          'channel id', 'channel name', 'channel description',
+      android: AndroidNotificationDetails('channel id', 'channel name',
+          channelDescription: 'channel description',
           importance: Importance.max),
       iOS: IOSNotificationDetails(),
     );
